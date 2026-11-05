@@ -21,6 +21,7 @@ const I18N = {
     newTask: '새로운 할 일', addTask: '할 일 추가', pickCat: '카테고리 선택', changeCat: '카테고리 변경',
     stats: '성과', yearIn: y => `${y}년 성과`, byMonth: '월별 완료', byCat: '카테고리별', topCat: '가장 많이 한 일', busiest: '가장 바빴던 달', noData: '아직 기록이 없어요', prevYear: '이전 해', nextYear: '다음 해', rate: '완료율', legendDone: '완료', legendAll: '전체 할 일',
     endHint: '기간 (끝나는 날)', endPick: '끝나는 날 선택', dayOf: (n, N) => `${n}/${N}일째`, removeEnd: '기간 지우기',
+    nDays: n => `${n}일간`, oneDay: '하루',
     today: '오늘', thisMonth: '이번 달', thisYear: '올해', progress: '진행도',
     ring: (l, p, t, d) => `${l} 진행률 ${p}%, ${t}개 중 ${d}개 완료`, doneWord: '완료',
     openLeft: n => `, 남은 할 일 ${n}개`, calendar: '캘린더', collapse: '접기', monthView: '한 달 보기',
@@ -49,6 +50,7 @@ const I18N = {
     newTask: 'New task', addTask: 'Add task', pickCat: 'Choose category', changeCat: 'Change category',
     stats: 'Insights', yearIn: y => `${y} in review`, byMonth: 'Completed by month', byCat: 'By category', topCat: 'Top category', busiest: 'Busiest month', noData: 'No tasks yet', prevYear: 'Previous year', nextYear: 'Next year', rate: 'Completion', legendDone: 'Done', legendAll: 'All tasks',
     endHint: 'Multi-day (end date)', endPick: 'Choose end date', dayOf: (n, N) => `Day ${n}/${N}`, removeEnd: 'Remove end date',
+    nDays: n => `${n} days`, oneDay: 'One day',
     today: 'Today', thisMonth: 'This month', thisYear: 'This year', progress: 'Progress',
     ring: (l, p, t, d) => `${l} ${p}% complete, ${d} of ${t} done`, doneWord: 'done',
     openLeft: n => `, ${n} left`, calendar: 'Calendar', collapse: 'Less', monthView: 'Month',
@@ -77,6 +79,7 @@ const I18N = {
     newTask: '新しいやること', addTask: 'やることを追加', pickCat: 'カテゴリを選択', changeCat: 'カテゴリを変更',
     stats: '実績', yearIn: y => `${y}年の実績`, byMonth: '月別の完了', byCat: 'カテゴリ別', topCat: '一番多いカテゴリ', busiest: '一番忙しかった月', noData: 'まだ記録がありません', prevYear: '前の年', nextYear: '次の年', rate: '完了率', legendDone: '完了', legendAll: 'すべて',
     endHint: '期間（終了日）', endPick: '終了日を選択', dayOf: (n, N) => `${n}/${N}日目`, removeEnd: '期間を削除',
+    nDays: n => `${n}日間`, oneDay: '1日',
     today: '今日', thisMonth: '今月', thisYear: '今年', progress: '進捗',
     ring: (l, p, t, d) => `${l} 進捗 ${p}%、${t}件中${d}件完了`, doneWord: '完了',
     openLeft: n => `、残り${n}件`, calendar: 'カレンダー', collapse: '閉じる', monthView: '月表示',
@@ -105,6 +108,7 @@ const I18N = {
     newTask: '新的待办', addTask: '添加待办', pickCat: '选择类别', changeCat: '更改类别',
     stats: '成果', yearIn: y => `${y}年成果`, byMonth: '每月完成', byCat: '按类别', topCat: '最多类别', busiest: '最忙的月份', noData: '还没有记录', prevYear: '上一年', nextYear: '下一年', rate: '完成率', legendDone: '已完成', legendAll: '全部',
     endHint: '多天（结束日期）', endPick: '选择结束日期', dayOf: (n, N) => `第${n}/${N}天`, removeEnd: '删除结束日期',
+    nDays: n => `${n}天`, oneDay: '一天',
     today: '今天', thisMonth: '本月', thisYear: '今年', progress: '进度',
     ring: (l, p, t, d) => `${l} 进度 ${p}%，共${t}项，已完成${d}项`, doneWord: '完成',
     openLeft: n => `，剩余${n}项`, calendar: '日历', collapse: '收起', monthView: '月视图',
@@ -555,6 +559,7 @@ function refreshTime(target) {
     if (col.dataset.part === 'ap') col.setAttribute('aria-valuetext', PERIODS[v]);
     else col.setAttribute('aria-valuenow', v);
   });
+  root.querySelectorAll(`.when-big[data-target="${target}"]`).forEach(el => { el.textContent = showTime(t); el.classList.remove('dim'); });
   root.querySelectorAll(`.time-pill[data-target="${target}"]`).forEach(pill => {
     pill.classList.add('set');
     pill.innerHTML = `<span class="num">${showTime(t)}</span>`;
@@ -697,14 +702,43 @@ function statsView() {
   return `<div class="stats">${hero}${tiles}${monthly}${byCat}</div>`;
 }
 
-function dayButton(key, label, extra) {
+// Hex color → translucent fill for multi-day bars.
+const tint = (hex, a) => { const n = parseInt(hex.slice(1), 16); return `rgba(${n >> 16 & 255},${n >> 8 & 255},${n & 255},${a})`; };
+const ITEM_LINES = 3;
+
+// One calendar cell: date number + up to 3 lines of tasks (title with a color stripe).
+// Multi-day tasks are a tinted band that runs across the days, keeping the same line (lane); the title shows where it starts or a new week begins.
+function dayItems(key) {
+  const lines = new Array(ITEM_LINES).fill(null);
+  const ranged = S.tasks.filter(t => isRange(t) && covers(t, key));
+  let hidden = 0;
+  ranged.forEach(t => { const l = LANES[t.id]; if (l < ITEM_LINES) lines[l] = t; else hidden++; });
+  const singles = S.tasks.filter(t => !isRange(t) && t.date === key)
+    .sort((a, b) => (a.time || '99:99').localeCompare(b.time || '99:99') || (a.created || 0) - (b.created || 0));
+  singles.forEach(t => { const l = lines.indexOf(null); if (l >= 0) lines[l] = t; else hidden++; });
+  if (hidden) { const last = ITEM_LINES - 1; if (lines[last]) hidden++; lines[last] = { more: hidden }; }
+  const wd = parse(key).getDay();
+  return lines.map(t => {
+    if (!t) return '<span class="it empty"></span>';
+    if (t.more) return `<span class="it more">+${t.more}</span>`;
+    const c = (CAT[t.cat] || CAT.life).color, done = t.status === 'done' ? ' fin' : '';
+    if (!isRange(t)) return `<span class="it${done}"><i style="background:${c}"></i><b>${esc(t.title)}</b></span>`;
+    const st = key === t.date, en = key === tEnd(t);
+    const label = st || wd === 0 || key.slice(8) === '01';
+    // The title may run over the following days of the band (up to the end of the week).
+    const span = Math.min(daysBetween(key, tEnd(t)) + 1, 7 - wd);
+    return `<span class="it band${st ? ' s' : ''}${en ? ' e' : ''}${done}" style="background:${tint(c, .28)}">${st ? `<i style="background:${c}"></i>` : ''}${label ? `<b style="max-width:calc(${span * 100}% - 8px)">${esc(t.title)}</b>` : ''}</span>`;
+  }).join('');
+}
+
+function dayButton(key, label, extra, out) {
   const t = today();
   const hol = holidayOf(key), wd = parse(key).getDay();
-  const cls = [key === S.sel ? 'sel' : '', key === t ? 'today' : '', hol && hol.off ? 'hol' : wd === 0 ? 'sun' : wd === 6 ? 'sat' : ''].join(' ');
+  const cls = [key === S.sel ? 'sel' : '', key === t ? 'today' : '', out ? 'out' : '', hol && hol.off ? 'hol' : wd === 0 ? 'sun' : wd === 6 ? 'sat' : ''].join(' ');
   const open = S.tasks.filter(x => covers(x, key) && x.status !== 'done').length;
   const d = parse(key);
   const aria = `${F_MD.format(d)}${hol ? ` ${hol.name}` : ''}${open ? L.openLeft(open) : ''}`;
-  return `<button class="day ${cls}" data-act="pick" data-date="${key}" aria-label="${aria}" aria-pressed="${key === S.sel}">${extra || ''}<span class="n">${label}</span><span class="dots" aria-hidden="true">${dotsFor(key)}</span><span class="spans" aria-hidden="true">${spansFor(key)}</span></button>`;
+  return `<button class="day ${cls}" data-act="pick" data-date="${key}" aria-label="${aria}" aria-pressed="${key === S.sel}">${extra || ''}<span class="n">${label}</span><span class="items" aria-hidden="true">${dayItems(key)}</span></button>`;
 }
 
 // Lanes keep each multi-day task on the same line across the calendar.
@@ -731,8 +765,11 @@ function calendarView() {
   const first = new Date(y, m, 1).getDay();
   const dim = new Date(y, m + 1, 0).getDate();
   let cells = '';
-  for (let i = 0; i < first; i++) cells += '<span class="day"></span>';
+  // Leading/trailing days of the neighbouring months fill the grid (faded), like a wall calendar.
+  for (let i = first; i > 0; i--) { const dd = new Date(y, m, 1 - i); cells += dayButton(ymd(dd), dd.getDate(), '', true); }
   for (let d = 1; d <= dim; d++) cells += dayButton(ymd(new Date(y, m, d)), d);
+  const tail = (7 - (first + dim) % 7) % 7;
+  for (let i = 1; i <= tail; i++) { const dd = new Date(y, m + 1, i); cells += dayButton(ymd(dd), dd.getDate(), '', true); }
   const mk = `${y}-${pad(m + 1)}`;
   const monthOpen = S.tasks.filter(t => (t.date || '').startsWith(mk) && t.status !== 'done').length;
 
@@ -773,6 +810,28 @@ function editDateText(k) {
   return (k.slice(0, 4) === today().slice(0, 4) ? F_LONG : F_LONG_Y).format(parse(k));
 }
 
+// Edit form "when" row, calendar-app style:  🕐  [11월 26일 (목) / 오후 8:00]  ›  [11월 28일 (토) / 3일간]
+// Start: tap the date for a date picker, the time for the wheel. End: tap to pick the last day (same day = one-day task).
+const F_MDW = dtf({ month: 'long', day: 'numeric', weekday: 'short' });
+function whenRow() {
+  const e = S.edit, end = e.end && e.end > e.date ? e.end : e.date;
+  const n = daysBetween(e.date, end) + 1;
+  const tm = e.time ? showTime(e.time) : L.timeAdd;
+  return `<div class="when">
+    <span class="when-ico" aria-hidden="true">${CLOCK}</span>
+    <div class="when-block">
+      <label class="when-date">${esc(F_MDW.format(parse(e.date)))}<input id="edit-date" type="date" value="${esc(e.date)}" aria-label="${L.date}"></label>
+      <button type="button" class="when-big ${e.time ? '' : 'dim'}" data-act="time-open" data-target="te" aria-label="${e.time ? L.timeChange(tm) : L.timeAdd}">${esc(tm)}</button>
+    </div>
+    <span class="when-arrow" aria-hidden="true">${ICON.right}</span>
+    <label class="when-block when-end">
+      <span class="when-date">${esc(F_MDW.format(parse(end)))}</span>
+      <span class="when-big ${n > 1 ? '' : 'dim'}">${n > 1 ? L.nDays(n) : L.oneDay}</span>
+      <input id="edit-end" type="date" min="${esc(e.date)}" value="${esc(end)}" aria-label="${L.endPick}">
+    </label>
+  </div>`;
+}
+
 function card(t, ci) {
   if (S.editId === t.id && S.edit) {
     return `<form class="card edit" data-form="edit" data-id="${esc(t.id)}">
@@ -781,16 +840,7 @@ function card(t, ci) {
         <input id="edit-title" class="field" maxlength="200" autocomplete="off" enterkeyhint="done" value="${esc(S.edit.title)}">
         <button type="button" class="edit-del" data-act="del" data-id="${esc(t.id)}" aria-label="${L.del}">${ICON.trash}</button>
       </div>
-      <div class="edit-row">
-        <label class="date-field"><span class="date-text">${editDateText(S.edit.date)}</span>
-          <input id="edit-date" type="date" value="${esc(S.edit.date)}" aria-label="${L.date}"></label>
-        ${timePill('te')}
-      </div>
-      <div class="edit-row">
-        <label class="date-field end-field ${S.edit.end ? 'set' : ''}"><span class="date-text">${S.edit.end ? '~ ' + editDateText(S.edit.end) : L.endHint}</span>
-          <input id="edit-end" type="date" min="${esc(addDays(S.edit.date, 1))}" value="${esc(S.edit.end || '')}" aria-label="${L.endPick}"></label>
-        ${S.edit.end ? `<button type="button" class="end-clear" data-act="end-clear" aria-label="${L.removeEnd}">×</button>` : ''}
-      </div>
+      ${whenRow()}
       ${timeWheel('te')}
       <div class="chips" role="group" aria-label="${L.changeCat}">${chips(S.edit.cat, 'editcat')}</div>
       <div class="row-end"><button type="button" class="btn-ghost" data-act="cancel">${L.cancel}</button><button type="submit" class="btn-primary">${L.save}</button></div>
@@ -1170,7 +1220,8 @@ root.addEventListener('pointercancel', endPointer);
 // Date pickers re-render only when the choice is final ('change'), so the native picker isn't closed mid-scroll.
 root.addEventListener('change', e => {
   const el = e.target;
-  if (el.id === 'edit-end' && S.edit) { S.edit.end = el.value; render(); }
+  if (el.id === 'edit-end' && S.edit) { S.edit.end = el.value > S.edit.date ? el.value : ''; render(); }
+  else if (el.id === 'edit-date' && S.edit && el.value) { S.edit.date = el.value; if (S.edit.end && S.edit.end <= el.value) S.edit.end = ''; render(); }
   else if (el.classList && el.classList.contains('range-in')) { S.draftEnd = el.value; render(); }
 });
 
@@ -1178,7 +1229,6 @@ root.addEventListener('input', e => {
   const el = e.target;
   if (el.classList.contains('composer-input')) S.draft = el.value;
   else if (el.id === 'edit-title' && S.edit) S.edit.title = el.value;
-  else if (el.id === 'edit-date' && S.edit) { S.edit.date = el.value; const tx = el.parentElement.querySelector('.date-text'); if (tx) tx.textContent = editDateText(el.value); }
 });
 
 root.addEventListener('submit', e => {
