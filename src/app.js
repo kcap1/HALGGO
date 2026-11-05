@@ -776,7 +776,22 @@ function render() {
     }
   }
   S.focusId = null;
+  alignBack();
 }
+
+// The ‹ button sits right under the count above it: the 「완료」 tab number on phones, each column's count badge on PC.
+function alignBack() {
+  const phone = window.matchMedia('(max-width: 760px)').matches;
+  root.querySelectorAll('.board > .col').forEach(col => {
+    const ref = phone ? root.querySelector('.board > .tabs button:last-child .num') : col.querySelector('.col-head .count');
+    const wrap = col.querySelector('.card.has-back');
+    if (!ref || !wrap) return;
+    const r = ref.getBoundingClientRect(), c = wrap.parentElement.getBoundingClientRect();
+    if (!r.width || !c.width) return;
+    col.style.setProperty('--back-r', Math.max(4, Math.round(c.right - (r.left + r.width / 2) - 24)) + 'px');
+  });
+}
+window.addEventListener('resize', () => alignBack());
 
 /* Phone keyboard: keep the edit form above the keyboard (scroll it into the visible part of the screen). */
 function fitEdit() {

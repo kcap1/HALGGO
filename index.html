@@ -94,8 +94,8 @@ input::placeholder { color: var(--fg-3); }
 .avatar { width: 34px; height: 34px; border-radius: 50%; background: var(--surface-3); object-fit: cover; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 600; }
 .avatar-btn[aria-expanded="true"] .avatar { box-shadow: 0 0 0 2px var(--blue-text); }
 .acct-menu { position: absolute; top: calc(100% + 6px); right: 0; z-index: 20; min-width: 200px; padding: 6px; border-radius: 12px; background: var(--surface-2); box-shadow: 0 12px 32px rgba(0, 0, 0, .55); display: flex; flex-direction: column; }
-.acct-mail { padding: 8px 10px 6px; font-size: 12px; color: var(--fg-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 260px; }
-.acct-menu button { height: 40px; padding: 0 10px; border-radius: 8px; text-align: left; font-size: 14px; font-weight: 500; }
+.acct-mail { text-align: center; padding: 8px 10px 6px; font-size: 12px; color: var(--fg-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 260px; }
+.acct-menu button { height: 40px; padding: 0 10px; border-radius: 8px; text-align: center; font-size: 14px; font-weight: 500; }
 .acct-menu button:hover { background: var(--surface-3); }
 .acct-menu .acct-out { color: #FF8A84; }
 .badge { height: 28px; padding: 0 10px; border-radius: 999px; background: var(--surface-2); color: var(--fg-2); font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; }
@@ -171,9 +171,9 @@ input::placeholder { color: var(--fg-3); }
 .time-pill:hover { color: var(--fg); }
 .time-pill.set { background: var(--surface-3); color: var(--fg); font-size: 14px; font-weight: 600; padding: 0 11px; }
 .time-pill[aria-expanded="true"] { background: var(--surface-4); color: var(--fg); }
-.tw { background: var(--surface); border-radius: 12px; padding: 8px; margin: 2px 0 6px; display: grid; grid-template-columns: minmax(52px, 1fr) minmax(0, 250px) minmax(52px, 1fr); align-items: center; gap: 6px; user-select: none; -webkit-user-select: none; }
+.tw { background: var(--surface); border-radius: 12px; padding: 8px; margin: 2px 0 6px; display: grid; grid-template-columns: minmax(0, 230px) 72px; justify-content: center; align-items: center; column-gap: 14px; user-select: none; -webkit-user-select: none; }
 .composer .tw { margin-left: -4px; }
-.tw-main { grid-column: 2; grid-row: 1; min-width: 0; display: flex; flex-direction: column; }
+.tw-main { grid-column: 1; grid-row: 1; min-width: 0; display: flex; flex-direction: column; }
 .tw-body { position: relative; display: flex; align-items: center; justify-content: center; gap: 6px; height: 170px; }
 .tw-band { position: absolute; left: 8px; right: 8px; top: 50%; height: 34px; transform: translateY(-50%); border-radius: 9px; background: var(--surface-3); }
 .tw-col { position: relative; flex: 1; min-width: 0; max-width: 96px; height: 170px; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: ns-resize; touch-action: none; border-radius: 9px;
@@ -187,8 +187,8 @@ input::placeholder { color: var(--fg-3); }
 .tw-item.d1 { color: var(--fg-2); font-size: 20px; }
 .tw-item.d2 { color: var(--fg-3); font-size: 17px; }
 .tw-colon { position: relative; font-size: 22px; font-weight: 600; padding-bottom: 2px; }
-.tw-ok { grid-column: 3; grid-row: 1; justify-self: end; white-space: nowrap; width: 100%; max-width: 72px; height: 44px; padding: 0 8px; font-size: 15px; border-radius: 10px; }
-.tw-clear { grid-column: 3; grid-row: 1; white-space: nowrap; align-self: end; justify-self: end; width: 100%; max-width: 72px; text-align: center; height: 30px; padding: 0 6px; border-radius: 8px; color: var(--fg-3); font-size: 12px; font-weight: 500; }
+.tw-ok { grid-column: 2; grid-row: 1; justify-self: end; white-space: nowrap; width: 100%; max-width: 72px; height: 44px; padding: 0 8px; font-size: 15px; border-radius: 10px; }
+.tw-clear { grid-column: 2; grid-row: 1; white-space: nowrap; align-self: end; justify-self: end; width: 100%; max-width: 72px; text-align: center; height: 30px; padding: 0 6px; border-radius: 8px; color: var(--fg-3); font-size: 12px; font-weight: 500; }
 .tw-clear:hover { color: var(--fg); }
 .edit-row { display: flex; align-items: center; gap: 8px; }
 .edit-row .field { flex: 1; min-width: 0; }
@@ -222,12 +222,12 @@ input::placeholder { color: var(--fg-3); }
 .card .title svg { display: inline; vertical-align: -1px; margin-left: 6px; }
 .cat { min-width: 0; display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--fg-2); }
 .arrow { width: 44px; height: 44px; border-radius: 12px; color: var(--fg-2); display: flex; align-items: center; justify-content: center; }
-.card.has-back { padding-top: 0; padding-bottom: 0; padding-right: 0; align-items: stretch; }
+.card.has-back { padding-top: 0; padding-bottom: 0; padding-right: 0; align-items: center; }
 .card.has-back .card-main { padding: 10px 0; justify-content: center; }
-.arrow.back { flex: 0 0 33%; width: auto; height: auto; min-height: 44px; padding: 6px 6px 6px 0; border-radius: 0 12px 12px 0; color: var(--fg-3); }
+.arrow.back { flex: none; width: 48px; height: 44px; padding: 2px; margin: 0 var(--back-r, 8px) 0 6px; border-radius: 10px; color: var(--fg-3); }
 .arrow:hover { background: var(--surface-3); }
 .arrow.back:hover { background: none; }
-.back-box { width: 100%; height: 100%; min-height: 40px; border-radius: 10px; background: var(--surface-3); color: var(--fg-2); display: flex; align-items: center; justify-content: center; transition: background .15s ease; }
+.back-box { width: 100%; height: 100%; border-radius: 10px; background: var(--surface-3); color: var(--fg-2); display: flex; align-items: center; justify-content: center; transition: background .15s ease; }
 .back-box svg { width: 20px; height: 20px; }
 .arrow.back:hover .back-box, .arrow.back:active .back-box { background: var(--surface-4); color: var(--fg); }
 .card.edit { display: flex; flex-direction: column; align-items: stretch; }
@@ -1105,7 +1105,22 @@ function render() {
     }
   }
   S.focusId = null;
+  alignBack();
 }
+
+// The ‹ button sits right under the count above it: the 「완료」 tab number on phones, each column's count badge on PC.
+function alignBack() {
+  const phone = window.matchMedia('(max-width: 760px)').matches;
+  root.querySelectorAll('.board > .col').forEach(col => {
+    const ref = phone ? root.querySelector('.board > .tabs button:last-child .num') : col.querySelector('.col-head .count');
+    const wrap = col.querySelector('.card.has-back');
+    if (!ref || !wrap) return;
+    const r = ref.getBoundingClientRect(), c = wrap.parentElement.getBoundingClientRect();
+    if (!r.width || !c.width) return;
+    col.style.setProperty('--back-r', Math.max(4, Math.round(c.right - (r.left + r.width / 2) - 24)) + 'px');
+  });
+}
+window.addEventListener('resize', () => alignBack());
 
 /* Phone keyboard: keep the edit form above the keyboard (scroll it into the visible part of the screen). */
 function fitEdit() {
