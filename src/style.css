@@ -136,7 +136,7 @@ input::placeholder { color: var(--fg-3); }
 .time-pill[aria-expanded="true"] { background: var(--surface-4); color: var(--fg); }
 .tw { background: var(--surface); border-radius: 12px; padding: 8px; margin: 2px 0 6px; display: grid; grid-template-columns: minmax(52px, 1fr) minmax(0, 200px) minmax(52px, 1fr); align-items: center; gap: 6px; user-select: none; -webkit-user-select: none; }
 .composer .tw { margin-left: -4px; }
-.tw-main { min-width: 0; display: flex; flex-direction: column; }
+.tw-main { grid-column: 2; grid-row: 1; min-width: 0; display: flex; flex-direction: column; }
 .tw-body { position: relative; display: flex; align-items: center; justify-content: center; gap: 6px; height: 170px; }
 .tw-band { position: absolute; left: 8px; right: 8px; top: 50%; height: 34px; transform: translateY(-50%); border-radius: 9px; background: var(--surface-3); }
 .tw-col { position: relative; flex: 1; min-width: 0; max-width: 96px; height: 170px; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: ns-resize; touch-action: none; border-radius: 9px;
@@ -147,8 +147,8 @@ input::placeholder { color: var(--fg-3); }
 .tw-item.d1 { color: var(--fg-2); font-size: 20px; }
 .tw-item.d2 { color: var(--fg-3); font-size: 17px; }
 .tw-colon { position: relative; font-size: 22px; font-weight: 600; padding-bottom: 2px; }
-.tw-ok { justify-self: end; white-space: nowrap; width: 100%; max-width: 72px; height: 44px; padding: 0 8px; font-size: 15px; border-radius: 10px; }
-.tw-clear { white-space: nowrap; align-self: end; justify-self: start; height: 30px; padding: 0 6px; border-radius: 8px; color: var(--fg-3); font-size: 12px; font-weight: 500; }
+.tw-ok { grid-column: 3; grid-row: 1; justify-self: end; white-space: nowrap; width: 100%; max-width: 72px; height: 44px; padding: 0 8px; font-size: 15px; border-radius: 10px; }
+.tw-clear { grid-column: 3; grid-row: 1; white-space: nowrap; align-self: end; justify-self: end; height: 30px; padding: 0 6px; border-radius: 8px; color: var(--fg-3); font-size: 12px; font-weight: 500; }
 .tw-clear:hover { color: var(--fg); }
 .edit-row { display: flex; align-items: center; gap: 8px; }
 .edit-row .field { flex: 1; min-width: 0; }
