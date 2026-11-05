@@ -249,7 +249,7 @@ input::placeholder { color: var(--fg-3); }
   .week .cal-head { margin-bottom: 2px; }
   .cal { position: relative; padding-bottom: 22px; }
   .cal-more { display: flex; position: absolute; right: 4px; bottom: 0; width: 44px; height: 26px; align-items: center; justify-content: center; color: var(--fg-2); }
-  .cal-more svg { width: 16px; height: 16px; }
+  .cal-more svg { width: 18px; height: 18px; }
   .cal.expanded .cal-month { display: block; margin-bottom: 0; padding: 4px 2px 0; }
   .cal.expanded .week { display: none; }
   .week .day { height: auto; gap: 3px; padding: 2px 0; }

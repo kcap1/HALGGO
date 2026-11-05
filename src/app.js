@@ -279,6 +279,8 @@ const longDate = k => F_LONG.format(parse(k));
 const ICON = {
   leftBig: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>',
   rightBig: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>',
+  se: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7L19 15M16.3 9.7L19 15L13 15.7"/></svg>',
+  ne: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 17L19 9M13 8.3L19 9L16.3 14.3"/></svg>',
   down: '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>',
   up: '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 15l6-6 6 6"/></svg>',
   trashBig: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3"/></svg>',
@@ -633,7 +635,7 @@ function calendarView() {
       </div>
       <div class="grid7">${week}</div>
     </div>
-    <button class="cal-more" data-act="cal-toggle" aria-expanded="${S.calOpen}" aria-label="${S.calOpen ? L.collapse : L.monthView}">${S.calOpen ? ICON.up : ICON.down}</button>
+    <button class="cal-more" data-act="cal-toggle" aria-expanded="${S.calOpen}" aria-label="${S.calOpen ? L.collapse : L.monthView}">${S.calOpen ? ICON.ne : ICON.se}</button>
     <div class="cal-foot"><span>${L.monthLeft}</span><span class="num">${L.count(monthOpen)}</span></div>
   </section>`;
 }
