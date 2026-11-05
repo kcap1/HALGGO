@@ -624,6 +624,7 @@ const ICON = {
   trashBig: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3"/></svg>',
   left: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>',
   right: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>',
+  ok: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',
   plus: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>',
   trash: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3"/></svg>',
   pencil: '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--fg-3)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16v4z"/></svg>',
@@ -896,7 +897,7 @@ function composer(id, cls) {
       <label class="sr" for="${id}">${L.newTask}</label>
       <input id="${id}" class="composer-input" placeholder="${L.newTask}" maxlength="200" autocomplete="off" enterkeyhint="done" value="${esc(S.draft)}">
       ${timePill(target)}
-      <button type="submit" class="add-btn" aria-label="${L.addTask}">${ICON.plus}</button>
+      <button type="submit" class="add-btn" aria-label="${L.addTask}">${ICON.ok}</button>
     </div>
     ${timeWheel(target)}
     <div class="chips" role="group" aria-label="${L.pickCat}">${chips(S.newCat, 'newcat')}</div>
@@ -1137,15 +1138,20 @@ function alignBack() {
 }
 window.addEventListener('resize', () => alignBack());
 
-/* Phone keyboard: keep the edit form above the keyboard (scroll it into the visible part of the screen). */
+/* Phone keyboard: keep the form being typed in (new-task input or edit form) fully above the keyboard. */
 function fitEdit() {
-  const f = root.querySelector('form.card.edit');
-  if (!f) return;
+  const a = document.activeElement;
+  const f = (a && a.closest && a.closest('form.composer, form.card.edit')) || root.querySelector('form.card.edit');
+  if (!f || !f.offsetParent) return;
   const vv = window.visualViewport, top = vv ? vv.offsetTop : 0, h = vv ? vv.height : window.innerHeight;
   const r = f.getBoundingClientRect();
   const over = r.bottom + 12 - (top + h);
   if (over > 0) window.scrollBy({ top: Math.min(over, r.top - top - 12), behavior: 'smooth' });
+  else if (r.top < top + 8) window.scrollBy({ top: r.top - top - 12, behavior: 'smooth' });
 }
+root.addEventListener('focusin', e => {
+  if (e.target.closest && e.target.closest('form.composer, form.card.edit')) { setTimeout(fitEdit, 350); setTimeout(fitEdit, 700); }
+});
 if (window.visualViewport) {
   let kbT = null;
   window.visualViewport.addEventListener('resize', () => {
@@ -1214,7 +1220,8 @@ root.addEventListener('click', e => {
     case 'add-toggle':
       S.addOpen = !S.addOpen;
       if (S.addOpen) { S.tab = 'todo'; S.focusId = 'new-title-m'; } else if (S.timeOpen === 'tnm') S.timeOpen = null;
-      break;
+      render(); if (S.addOpen) { setTimeout(fitEdit, 60); setTimeout(fitEdit, 400); }
+      return;
     case 'newcat': S.newCat = b.dataset.cat; break;
     case 'editcat': if (S.edit) S.edit.cat = b.dataset.cat; break;
     case 'time-open': {
