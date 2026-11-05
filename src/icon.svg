@@ -1,38 +1,43 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
   <defs>
-    <radialGradient id="fur" cx="0.42" cy="0.32" r="0.8">
-      <stop offset="0" stop-color="#2A2A30"/>
-      <stop offset="0.55" stop-color="#151518"/>
-      <stop offset="1" stop-color="#0B0B0D"/>
-    </radialGradient>
-    <linearGradient id="iris" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#B9D46A"/>
-      <stop offset="1" stop-color="#E9C24A"/>
-    </linearGradient>
-    <clipPath id="hc"><path id="headp" d="M256 150c-22 0-44 3-64 9L138 66c-4-7-15-6-17 2l-17 122c-20 30-30 62-30 94 0 86 80 150 182 150s182-64 182-150c0-32-10-64-30-94L391 68c-2-8-13-9-17-2l-54 93c-20-6-42-9-64-9z"/></clipPath>
+    <clipPath id="head"><path d="M256 168c-30 0-58 4-82 12L132 96c-6-12-24-10-26 4l-12 112c-22 30-34 64-34 100 0 92 88 156 196 156s196-64 196-156c0-36-12-70-34-100l-12-112c-2-14-20-16-26-4l-42 84c-24-8-52-12-82-12z"/></clipPath>
   </defs>
-  <rect width="512" height="512" fill="#F1ECE4"/>
-  <path d="M96 512c10-70 70-104 160-104s150 34 160 104z" fill="#0F0F12"/>
-  <use href="#headp" fill="url(#fur)"/>
-  <path d="M132 98l-10 82 52-30z" fill="#2E2A2D"/>
-  <path d="M380 98l10 82-52-30z" fill="#2E2A2D"/>
-  <g clip-path="url(#hc)">
-    <path d="M40 226c72-22 146-30 216-30s144 8 216 30v32c-72-20-146-28-216-28S112 238 40 258z" fill="#FAFAF7"/>
+  <rect width="512" height="512" fill="#F3EEE6"/>
+  <!-- shoulders -->
+  <ellipse cx="256" cy="560" rx="210" ry="120" fill="#141416"/>
+  <!-- head -->
+  <path d="M256 168c-30 0-58 4-82 12L132 96c-6-12-24-10-26 4l-12 112c-22 30-34 64-34 100 0 92 88 156 196 156s196-64 196-156c0-36-12-70-34-100l-12-112c-2-14-20-16-26-4l-42 84c-24-8-52-12-82-12z" fill="#141416"/>
+  <!-- inner ears -->
+  <path d="M122 122l-8 74 46-24z" fill="#2B2628"/>
+  <path d="M390 122l8 74-46-24z" fill="#2B2628"/>
+  <!-- headband -->
+  <g clip-path="url(#head)">
+    <path d="M40 236c70-26 150-36 216-36s146 10 216 36v44c-70-24-150-34-216-34S110 256 40 280z" fill="#FFFFFF"/>
   </g>
-  <circle cx="430" cy="236" r="11" fill="#FAFAF7"/>
-  <path d="M436 230c18-12 34-30 42-50 0 22-8 44-26 60z" fill="#FAFAF7"/>
-  <path d="M438 244c22 0 40 10 52 24-18-2-36-6-52-14z" fill="#FAFAF7"/>
-  <path d="M245 213l8 8 16-16" fill="none" stroke="#0A84FF" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
-  <!-- almond eyes, slightly narrowed = focused -->
-  <path d="M140 314c22-26 60-32 92-8-8 26-32 38-58 35-16-2-28-12-34-27z" fill="url(#iris)"/>
-  <path d="M372 314c-22-26-60-32-92-8 8 26 32 38 58 35 16-2 28-12 34-27z" fill="url(#iris)"/>
-  <ellipse cx="190" cy="318" rx="6" ry="20" fill="#0B0B0D"/>
-  <ellipse cx="322" cy="318" rx="6" ry="20" fill="#0B0B0D"/>
-  <path d="M140 314c22-26 60-32 92-8" fill="none" stroke="#0B0B0D" stroke-width="7" stroke-linecap="round"/>
-  <path d="M372 314c-22-26-60-32-92-8" fill="none" stroke="#0B0B0D" stroke-width="7" stroke-linecap="round"/>
-  <circle cx="198" cy="310" r="3.5" fill="#FFFFFF" opacity=".9"/>
-  <circle cx="330" cy="310" r="3.5" fill="#FFFFFF" opacity=".9"/>
-  <path d="M248 366h16l-8 9z" fill="#C98A93" stroke="#C98A93" stroke-width="3" stroke-linejoin="round"/>
-  <path d="M256 376v6m0 0c-4 6-10 7-15 5m15-5c4 6 10 7 15 5" fill="none" stroke="#4A4A50" stroke-width="3" stroke-linecap="round"/>
-  <path d="M196 372c-40-6-80-4-120 6M198 384c-38 2-74 10-106 24M316 372c40-6 80-4 120 6M314 384c38 2 74 10 106 24" fill="none" stroke="#A9A9AE" stroke-width="2.2" stroke-linecap="round" opacity=".85"/>
+  <!-- knot + tails -->
+  <circle cx="440" cy="250" r="16" fill="#FFFFFF"/>
+  <path d="M446 244c22-10 44-30 54-52-2 22-12 44-30 60z" fill="#FFFFFF"/>
+  <path d="M448 252c24 2 46 14 58 30-20-4-40-6-58-14z" fill="#FFFFFF"/>
+  <!-- check on band -->
+  <path d="M238 228l12 12 24-24" fill="none" stroke="#0A84FF" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- eyes -->
+  <ellipse cx="186" cy="322" rx="34" ry="32" fill="#F2C94C"/>
+  <ellipse cx="326" cy="322" rx="34" ry="32" fill="#F2C94C"/>
+  <ellipse cx="190" cy="326" rx="11" ry="22" fill="#141416"/>
+  <ellipse cx="322" cy="326" rx="11" ry="22" fill="#141416"/>
+  <circle cx="197" cy="314" r="6" fill="#FFFFFF"/>
+  <circle cx="329" cy="314" r="6" fill="#FFFFFF"/>
+  <!-- determined lids -->
+  <path d="M146 282h88v30l-88-20z" fill="#141416"/>
+  <path d="M366 282h-88v30l88-20z" fill="#141416"/>
+  <!-- blush -->
+  <ellipse cx="150" cy="372" rx="20" ry="10" fill="#FF7A93" opacity=".5"/>
+  <ellipse cx="362" cy="372" rx="20" ry="10" fill="#FF7A93" opacity=".5"/>
+  <!-- nose + mouth -->
+  <path d="M246 362h20l-10 11z" fill="#F29BAA" stroke="#F29BAA" stroke-width="4" stroke-linejoin="round"/>
+  <path d="M256 374c0 10-8 14-16 12M256 374c0 10 8 14 16 12" fill="none" stroke="#6E6E74" stroke-width="5" stroke-linecap="round"/>
+  <!-- whiskers -->
+  <path d="M120 352l-56-8M122 372l-54 6M392 352l56-8M390 372l54 6" stroke="#8E8E93" stroke-width="4" stroke-linecap="round"/>
+  <!-- sweat drop -->
+  <path d="M58 196c-10 15-15 25-15 32a15 15 0 0 0 30 0c0-7-5-17-15-32z" fill="#7CC4FF"/>
 </svg>

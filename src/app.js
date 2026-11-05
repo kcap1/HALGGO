@@ -489,20 +489,22 @@ function timeWheel(target) {
   if (S.timeOpen !== target) return '';
   const t = getTime(target) || nowRounded();
   return `<div class="tw" data-target="${target}" role="dialog" aria-label="${L.timePick}">
+    <div class="tw-main">
     <div class="tw-body">
       <div class="tw-band" aria-hidden="true"></div>
       <div class="tw-col" id="${target}-h" data-part="h" tabindex="0" role="spinbutton" aria-label="${L.hour}" aria-valuemin="0" aria-valuemax="23" aria-valuenow="${t.h}">${wheelItems('h', t.h)}</div>
       <span class="tw-colon" aria-hidden="true">:</span>
       <div class="tw-col" id="${target}-m" data-part="m" tabindex="0" role="spinbutton" aria-label="${L.minute}" aria-valuemin="0" aria-valuemax="59" aria-valuenow="${t.m}">${wheelItems('m', t.m)}</div>
     </div>
-    <div class="tw-actions">
-      <button type="button" class="btn-ghost" data-act="time-off" data-target="${target}">${L.clear}</button>
       <div class="tw-type">
         <input class="tw-in num" id="${target}-ih" data-part="h" value="${pad(t.h)}" inputmode="numeric" maxlength="2" autocomplete="off" enterkeyhint="next" aria-label="${L.hour}">
         <span aria-hidden="true">:</span>
         <input class="tw-in num" id="${target}-im" data-part="m" value="${pad(t.m)}" inputmode="numeric" maxlength="2" autocomplete="off" enterkeyhint="done" aria-label="${L.minute}">
       </div>
-      <button type="button" class="btn-primary" data-act="time-close">${L.ok}</button>
+    </div>
+    <div class="tw-side">
+      <button type="button" class="btn-primary tw-ok" data-act="time-close">${L.ok}</button>
+      <button type="button" class="btn-ghost tw-clear" data-act="time-off" data-target="${target}">${L.clear}</button>
     </div>
   </div>`;
 }
