@@ -32,7 +32,7 @@ const I18N = {
     google: 'Google로 시작하기', undo: '되돌리기', loading: '불러오는 중…', retry: '다시 시도',
     demoNotice: '<strong>체험 모드예요.</strong> 지금은 이 브라우저에만 저장돼요. 설정 가이드대로 Firebase를 연결하면 구글 로그인과 휴대폰·PC 동기화가 켜져요.',
     saveFail: '저장하지 못했어요. 인터넷 연결을 확인해 주세요.', deleted: '삭제했어요', loadFail: '목록을 불러오지 못했어요. 새로고침해 주세요.',
-    timeAdd: '시간 추가', timeChange: t => `시간 ${t}, 바꾸기`, timePick: '시간 선택', hour: '시', minute: '분', clear: '지우기', ok: '완료',
+    timeAdd: '시간 추가', timeChange: t => `시간 ${t}, 바꾸기`, timePick: '시간 선택', hour: '시', minute: '분', clear: '지우기', ok: '설정',
     eDomain: '이 주소가 Firebase에 등록되지 않았어요. Authentication → 설정 → 승인된 도메인에 이 사이트 주소를 추가해 주세요.',
     eNet: '인터넷 연결을 확인하고 다시 시도해 주세요.',
     eOff: 'Firebase에서 Google 로그인이 아직 꺼져 있어요. Authentication → 로그인 방법에서 Google을 사용 설정하고 저장해 주세요.',
@@ -58,7 +58,7 @@ const I18N = {
     google: 'Continue with Google', undo: 'Undo', loading: 'Loading…', retry: 'Try again',
     demoNotice: '<strong>Demo mode.</strong> Tasks are saved only in this browser. Connect Firebase to turn on Google sign-in and sync.',
     saveFail: "Couldn't save. Check your internet connection.", deleted: 'Deleted', loadFail: "Couldn't load your list. Please refresh.",
-    timeAdd: 'Add time', timeChange: t => `Time ${t}, change`, timePick: 'Choose time', hour: 'Hour', minute: 'Minute', clear: 'Clear', ok: 'Done',
+    timeAdd: 'Add time', timeChange: t => `Time ${t}, change`, timePick: 'Choose time', hour: 'Hour', minute: 'Minute', clear: 'Clear', ok: 'Set',
     eDomain: 'This address is not registered in Firebase. Add it under Authentication → Settings → Authorized domains.',
     eNet: 'Check your internet connection and try again.',
     eOff: 'Google sign-in is turned off in Firebase. Enable Google under Authentication → Sign-in method.',
@@ -84,7 +84,7 @@ const I18N = {
     google: 'Googleで始める', undo: '元に戻す', loading: '読み込み中…', retry: '再試行',
     demoNotice: '<strong>体験モードです。</strong> このブラウザにだけ保存されます。Firebaseを接続するとGoogleログインと同期が使えます。',
     saveFail: '保存できませんでした。インターネット接続を確認してください。', deleted: '削除しました', loadFail: 'リストを読み込めませんでした。再読み込みしてください。',
-    timeAdd: '時間を追加', timeChange: t => `時間 ${t}、変更`, timePick: '時間を選択', hour: '時', minute: '分', clear: '消去', ok: '完了',
+    timeAdd: '時間を追加', timeChange: t => `時間 ${t}、変更`, timePick: '時間を選択', hour: '時', minute: '分', clear: '消去', ok: '設定',
     eDomain: 'このアドレスはFirebaseに登録されていません。Authentication → 設定 → 承認済みドメインに追加してください。',
     eNet: 'インターネット接続を確認して、もう一度お試しください。',
     eOff: 'FirebaseでGoogleログインがオフになっています。Authentication → ログイン方法でGoogleを有効にしてください。',
@@ -110,7 +110,7 @@ const I18N = {
     google: '使用 Google 开始', undo: '撤销', loading: '加载中…', retry: '重试',
     demoNotice: '<strong>体验模式。</strong> 目前只保存在此浏览器中。连接 Firebase 后即可使用 Google 登录和同步。',
     saveFail: '保存失败。请检查网络连接。', deleted: '已删除', loadFail: '无法加载清单，请刷新。',
-    timeAdd: '添加时间', timeChange: t => `时间 ${t}，更改`, timePick: '选择时间', hour: '时', minute: '分', clear: '清除', ok: '完成',
+    timeAdd: '添加时间', timeChange: t => `时间 ${t}，更改`, timePick: '选择时间', hour: '时', minute: '分', clear: '清除', ok: '设定',
     eDomain: '此地址未在 Firebase 中注册。请在 Authentication → 设置 → 已授权网域中添加。',
     eNet: '请检查网络连接后重试。',
     eOff: 'Firebase 中的 Google 登录尚未开启。请在 Authentication → 登录方法中启用 Google。',
@@ -489,6 +489,7 @@ function timeWheel(target) {
   if (S.timeOpen !== target) return '';
   const t = getTime(target) || nowRounded();
   return `<div class="tw" data-target="${target}" role="dialog" aria-label="${L.timePick}">
+    <button type="button" class="tw-clear" data-act="time-off" data-target="${target}">${L.clear}</button>
     <div class="tw-main">
     <div class="tw-body">
       <div class="tw-band" aria-hidden="true"></div>
@@ -497,10 +498,7 @@ function timeWheel(target) {
       <div class="tw-col" id="${target}-m" data-part="m" tabindex="0" role="spinbutton" aria-label="${L.minute}" aria-valuemin="0" aria-valuemax="59" aria-valuenow="${t.m}">${wheelItems('m', t.m)}</div>
     </div>
     </div>
-    <div class="tw-side">
-      <button type="button" class="btn-primary tw-ok" data-act="time-close">${L.ok}</button>
-      <button type="button" class="btn-ghost tw-clear" data-act="time-off" data-target="${target}">${L.clear}</button>
-    </div>
+    <button type="button" class="btn-primary tw-ok" data-act="time-close">${L.ok}</button>
   </div>`;
 }
 
