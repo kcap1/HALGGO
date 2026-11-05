@@ -547,3 +547,12 @@ html.sheet-open, html.sheet-open body { overflow: hidden; }
 .ct-sub { margin-top: 1px; }
 .progress.cols-1 { grid-template-columns: minmax(0, 1fr); }
 @media (max-width: 760px) { .progress.cols-1 .pcard { flex-direction: row; justify-content: center; gap: 16px; text-align: left; } .progress.cols-1 .ptext { align-items: flex-start; } }
+
+/* Time column: two lines at most — [오전 9:00] / [~오후 10:00 or ~11월 7일] */
+.c-time { width: 84px !important; }
+.ct-line { display: flex; align-items: baseline; gap: 3px; white-space: nowrap; }
+.ct-line .ct-per { font-size: 11px; }
+.ct-sub { white-space: nowrap; font-size: 11px; }
+@media (min-width: 761px) { .c-time { width: 78px !important; } .ct-big { font-size: 15px !important; } }
+@media (max-width: 760px) { .ct-big { font-size: 18px !important; } }
+.arrow.back { margin-left: auto !important; }

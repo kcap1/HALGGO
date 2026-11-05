@@ -903,8 +903,8 @@ function timeCol(t) {
     const per = (parts.find(p => p.type === 'dayPeriod') || {}).value || '';
     const hm = parts.filter(p => p.type !== 'dayPeriod').map(p => p.value).join('').trim();
     const before = parts.findIndex(p => p.type === 'dayPeriod') < parts.findIndex(p => p.type === 'hour');
-    main = `<b class="ct-big num">${esc(hm)}</b>${per ? `<span class="ct-per">${esc(per)}</span>` : ''}`;
-    void before;
+    const perHtml = per ? `<span class="ct-per">${esc(per)}</span>` : '';
+    main = `<span class="ct-line">${before ? perHtml : ''}<b class="ct-big num">${esc(hm)}</b>${before ? '' : perHtml}</span>`;
   }
   const et = parseTime(t.endTime);
   const sub = et ? `<span class="ct-sub num">~${esc(showTime(et))}</span>` : isRange(t) ? `<span class="ct-sub">~${esc(F_MD.format(parse(tEnd(t))))}</span>` : '';
@@ -1055,7 +1055,7 @@ function alignBack() {
     if (!ref || !wrap) return;
     const r = ref.getBoundingClientRect(), c = wrap.parentElement.getBoundingClientRect();
     if (!r.width || !c.width) return;
-    col.style.setProperty('--back-r', Math.max(4, Math.round(c.right - (r.left + r.width / 2) - 24)) + 'px');
+    col.style.setProperty('--back-r', '6px'); void r; void c;
   });
 }
 window.addEventListener('resize', () => alignBack());

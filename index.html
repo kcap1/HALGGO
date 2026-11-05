@@ -580,6 +580,15 @@ html.sheet-open, html.sheet-open body { overflow: hidden; }
 .progress.cols-1 { grid-template-columns: minmax(0, 1fr); }
 @media (max-width: 760px) { .progress.cols-1 .pcard { flex-direction: row; justify-content: center; gap: 16px; text-align: left; } .progress.cols-1 .ptext { align-items: flex-start; } }
 
+/* Time column: two lines at most — [오전 9:00] / [~오후 10:00 or ~11월 7일] */
+.c-time { width: 84px !important; }
+.ct-line { display: flex; align-items: baseline; gap: 3px; white-space: nowrap; }
+.ct-line .ct-per { font-size: 11px; }
+.ct-sub { white-space: nowrap; font-size: 11px; }
+@media (min-width: 761px) { .c-time { width: 78px !important; } .ct-big { font-size: 15px !important; } }
+@media (max-width: 760px) { .ct-big { font-size: 18px !important; } }
+.arrow.back { margin-left: auto !important; }
+
 </style>
 </head>
 <body>
@@ -1500,8 +1509,8 @@ function timeCol(t) {
     const per = (parts.find(p => p.type === 'dayPeriod') || {}).value || '';
     const hm = parts.filter(p => p.type !== 'dayPeriod').map(p => p.value).join('').trim();
     const before = parts.findIndex(p => p.type === 'dayPeriod') < parts.findIndex(p => p.type === 'hour');
-    main = `<b class="ct-big num">${esc(hm)}</b>${per ? `<span class="ct-per">${esc(per)}</span>` : ''}`;
-    void before;
+    const perHtml = per ? `<span class="ct-per">${esc(per)}</span>` : '';
+    main = `<span class="ct-line">${before ? perHtml : ''}<b class="ct-big num">${esc(hm)}</b>${before ? '' : perHtml}</span>`;
   }
   const et = parseTime(t.endTime);
   const sub = et ? `<span class="ct-sub num">~${esc(showTime(et))}</span>` : isRange(t) ? `<span class="ct-sub">~${esc(F_MD.format(parse(tEnd(t))))}</span>` : '';
@@ -1652,7 +1661,7 @@ function alignBack() {
     if (!ref || !wrap) return;
     const r = ref.getBoundingClientRect(), c = wrap.parentElement.getBoundingClientRect();
     if (!r.width || !c.width) return;
-    col.style.setProperty('--back-r', Math.max(4, Math.round(c.right - (r.left + r.width / 2) - 24)) + 'px');
+    col.style.setProperty('--back-r', '6px'); void r; void c;
   });
 }
 window.addEventListener('resize', () => alignBack());
