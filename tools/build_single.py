@@ -16,12 +16,30 @@ cfg = (SRC / "firebase-config.js").read_text(encoding="utf-8").replace(
 js = js.replace("import { firebaseConfig } from './firebase-config.js';", cfg)
 assert "import {" not in js, "app.js 에 처리하지 못한 import 가 남아 있어요"
 
-ico = base64.b64encode((SRC / "icon-180.png").read_bytes()).decode()
+_ico = base64.b64encode((SRC / "icon-180.png").read_bytes()).decode()
 svg = base64.b64encode((SRC / "icon.svg").read_bytes()).decode()
 head = (SRC / "index.html").read_text(encoding="utf-8").split('<link rel="manifest"')[0]
 
-html = head + f'''<link rel="icon" href="data:image/svg+xml;base64,{svg}" type="image/svg+xml">
-<link rel="apple-touch-icon" href="data:image/png;base64,{ico}">
+# 아이콘·링크 미리보기 이미지는 루트에 파일로도 둔다 (Vercel이 그대로 서비스, 메신저 미리보기·홈 화면 아이콘용).
+SITE = "https://halggo-6e9d.vercel.app"
+for name in ["icon.svg", "icon-180.png", "icon-512.png", "og.png", "manifest.webmanifest"]:
+    (ROOT / name).write_bytes((SRC / name).read_bytes())
+(ROOT / "apple-touch-icon.png").write_bytes((SRC / "icon-180.png").read_bytes())
+
+html = head + f'''<meta property="og:type" content="website">
+<meta property="og:site_name" content="HALGGO">
+<meta property="og:title" content="HALGGO">
+<meta property="og:description" content="캘린더와 칸반보드로 오늘, 이번 달, 올해 할 일을 관리하세요.">
+<meta property="og:url" content="{SITE}/">
+<meta property="og:image" content="{SITE}/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="{SITE}/og.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="icon" href="data:image/svg+xml;base64,{svg}" type="image/svg+xml">
+<link rel="icon" href="/icon-512.png" type="image/png" sizes="512x512">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&display=swap">

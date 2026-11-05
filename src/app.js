@@ -132,6 +132,119 @@ const DAYS = [0, 1, 2, 3, 4, 5, 6].map(i => dtf({ weekday: LANG === 'en' ? 'shor
 const REL = new Intl.RelativeTimeFormat(LOC, { numeric: 'auto' });
 const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
 
+/* ---------- Holidays & special days for the device's country (KR / JP / CN / US). off = public holiday (shown red). ---------- */
+const HOL_REGION = (() => {
+  const q = new URLSearchParams(location.search).get('lang');
+  const tag = [q, ...(navigator.languages || []), navigator.language].filter(Boolean).map(String)
+    .find(t => t.toLowerCase().split('-')[0] === LANG) || LANG;
+  const region = (tag.split('-').slice(1).find(p => /^[A-Za-z]{2}$/.test(p)) || '').toUpperCase();
+  if (LANG === 'ko') return 'KR';
+  if (LANG === 'ja') return 'JP';
+  if (LANG === 'zh') return ['TW', 'HK', 'MO'].includes(region) || /hant/i.test(tag) ? null : 'CN';
+  if (LANG === 'en') return !region || region === 'US' ? 'US' : null;
+  return null;
+})();
+
+const hk = (y, m, d) => ymd(new Date(y, m - 1, d));
+// n-th weekday (dow 0=Sun) of a month; n = -1 → last one.
+function nthDow(y, m, dow, n) {
+  if (n < 0) { const last = new Date(y, m, 0); return ymd(new Date(y, m - 1, last.getDate() - ((last.getDay() - dow + 7) % 7))); }
+  const first = new Date(y, m - 1, 1).getDay();
+  return hk(y, m, 1 + ((dow - first + 7) % 7) + (n - 1) * 7);
+}
+// Lunar month/day → date in Gregorian year y (leap months skipped). Uses the browser's built-in Chinese/Korean calendar.
+function lunarMap(y, ca) {
+  let f;
+  try { f = new Intl.DateTimeFormat('en-u-ca-' + ca, { month: 'numeric', day: 'numeric', timeZone: 'UTC' }); } catch (e) { return {}; }
+  const out = {};
+  for (let d = new Date(Date.UTC(y, 0, 1, 12)); d.getUTCFullYear() === y; d.setUTCDate(d.getUTCDate() + 1)) {
+    const parts = f.formatToParts(d), mo = parts.find(p => p.type === 'month').value, da = parts.find(p => p.type === 'day').value;
+    if (/^\d+$/.test(mo)) out[`${+mo}-${+da}`] = `${d.getUTCFullYear()}-${pad(d.getUTCMonth() + 1)}-${pad(d.getUTCDate())}`;
+  }
+  return out;
+}
+function easter(y) {
+  const a = y % 19, b = Math.floor(y / 100), c = y % 100, d = Math.floor(b / 4), e = b % 4, f = Math.floor((b + 8) / 25), g = Math.floor((b - f + 1) / 3);
+  const h = (19 * a + b - d - g + 15) % 30, i = Math.floor(c / 4), k = c % 4, l = (32 + 2 * e + 2 * i - h - k) % 7, m = Math.floor((a + 11 * h + 22 * l) / 451);
+  return hk(y, Math.floor((h + l - 7 * m + 114) / 31), ((h + l - 7 * m + 114) % 31) + 1);
+}
+const dow = k => parse(k).getDay();
+
+function buildHolidays(y) {
+  const H = {};
+  const add = (k, name, off) => { if (!k || k.slice(0, 4) !== String(y)) return; const h = H[k] || (H[k] = { names: [], off: false }); if (!h.names.includes(name)) h.names.push(name); h.off = h.off || off; };
+  const isOff = k => !!(H[k] && H[k].off);
+  const nextFree = (k, skipSat) => { let n = addDays(k, 1); while (isOff(n) || dow(n) === 0 || (skipSat && dow(n) === 6)) n = addDays(n, 1); return n; };
+
+  if (HOL_REGION === 'KR') {
+    const lu = lunarMap(y, 'dangi');
+    const seol = lu['1-1'], chu = lu['8-15'];
+    [['01-01', '신정'], ['03-01', '삼일절'], ['05-05', '어린이날'], ['06-06', '현충일'], ['08-15', '광복절'], ['10-03', '개천절'], ['10-09', '한글날'], ['12-25', '성탄절']]
+      .forEach(([md, n]) => add(`${y}-${md}`, n, true));
+    const groups = [];
+    if (seol) { const g = [addDays(seol, -1), seol, addDays(seol, 1)]; g.forEach((k, i) => add(k, i === 1 ? '설날' : '설날 연휴', true)); groups.push(g); }
+    if (chu) { const g = [addDays(chu, -1), chu, addDays(chu, 1)]; g.forEach((k, i) => add(k, i === 1 ? '추석' : '추석 연휴', true)); groups.push(g); }
+    if (lu['4-8']) add(lu['4-8'], '부처님오신날', true);
+    // 대체공휴일: 설·추석은 일요일이나 다른 공휴일과 겹칠 때, 그 밖에는 토·일요일과 겹칠 때 다음 평일.
+    const subs = [];
+    groups.forEach(g => { if (g.some(k => dow(k) === 0 || (H[k] && H[k].names.length > 1))) subs.push([g[2], false]); });
+    ['03-01', '05-05', '08-15', '10-03', '10-09', '12-25'].forEach(md => { const k = `${y}-${md}`; if (dow(k) === 0 || dow(k) === 6 || H[k].names.length > 1) subs.push([k, true]); });
+    if (lu['4-8'] && (dow(lu['4-8']) % 6 === 0 || H[lu['4-8']].names.length > 1)) subs.push([lu['4-8'], true]);
+    subs.sort((a, b) => a[0].localeCompare(b[0])).forEach(([k]) => add(nextFree(k, true), '대체공휴일', true));
+    [['04-05', '식목일'], ['05-08', '어버이날'], ['05-15', '스승의 날'], ['07-17', '제헌절'], ['10-01', '국군의 날']].forEach(([md, n]) => add(`${y}-${md}`, n, false));
+    if (lu['1-15']) add(lu['1-15'], '정월대보름', false);
+    if (lu['5-5']) add(lu['5-5'], '단오', false);
+  } else if (HOL_REGION === 'JP') {
+    const off = (y - 1980), shun = Math.floor(20.8431 + 0.242194 * off - Math.floor(off / 4)), shu = Math.floor(23.2488 + 0.242194 * off - Math.floor(off / 4));
+    [['01-01', '元日'], ['02-11', '建国記念の日'], ['02-23', '天皇誕生日'], ['04-29', '昭和の日'], ['05-03', '憲法記念日'], ['05-04', 'みどりの日'],
+     ['05-05', 'こどもの日'], ['08-11', '山の日'], ['11-03', '文化の日'], ['11-23', '勤労感謝の日']].forEach(([md, n]) => add(`${y}-${md}`, n, true));
+    add(nthDow(y, 1, 1, 2), '成人の日', true); add(nthDow(y, 7, 1, 3), '海の日', true);
+    add(nthDow(y, 9, 1, 3), '敬老の日', true); add(nthDow(y, 10, 1, 2), 'スポーツの日', true);
+    add(hk(y, 3, shun), '春分の日', true); add(hk(y, 9, shu), '秋分の日', true);
+    const base = Object.keys(H).sort();
+    base.forEach(k => { if (dow(k) === 0) add(nextFree(k, false), '振替休日', true); });
+    base.forEach(k => { const n2 = addDays(k, 2), mid = addDays(k, 1); if (isOff(n2) && !H[mid] && dow(mid) !== 0) add(mid, '国民の休日', true); });
+    [['02-14', 'バレンタインデー'], ['03-03', 'ひな祭り'], ['03-14', 'ホワイトデー'], ['07-07', '七夕'], ['12-24', 'クリスマス・イブ'], ['12-25', 'クリスマス'], ['12-31', '大晦日']]
+      .forEach(([md, n]) => add(`${y}-${md}`, n, false));
+    add(nthDow(y, 5, 0, 2), '母の日', false); add(nthDow(y, 6, 0, 3), '父の日', false);
+  } else if (HOL_REGION === 'CN') {
+    const lu = lunarMap(y, 'chinese');
+    add(`${y}-01-01`, '元旦', true);
+    if (lu['1-1']) { add(addDays(lu['1-1'], -1), '除夕', true); [0, 1, 2].forEach(i => add(addDays(lu['1-1'], i), '春节', true)); }
+    const yy = y % 100; add(hk(y, 4, Math.floor(yy * 0.2422 + 4.81) - Math.floor(yy / 4)), '清明节', true);
+    add(`${y}-05-01`, '劳动节', true); add(`${y}-05-02`, '劳动节', true);
+    if (lu['5-5']) add(lu['5-5'], '端午节', true);
+    if (lu['8-15']) add(lu['8-15'], '中秋节', true);
+    [1, 2, 3].forEach(d => add(hk(y, 10, d), '国庆节', true));
+    [['03-08', '妇女节'], ['03-12', '植树节'], ['05-04', '青年节'], ['06-01', '儿童节'], ['07-01', '建党节'], ['08-01', '建军节'], ['09-10', '教师节']]
+      .forEach(([md, n]) => add(`${y}-${md}`, n, false));
+    [['1-15', '元宵节'], ['7-7', '七夕'], ['9-9', '重阳节'], ['12-8', '腊八节']].forEach(([md, n]) => lu[md] && add(lu[md], n, false));
+  } else if (HOL_REGION === 'US') {
+    const fixed = [['01-01', "New Year's Day"], ['06-19', 'Juneteenth'], ['07-04', 'Independence Day'], ['11-11', 'Veterans Day'], ['12-25', 'Christmas Day']];
+    fixed.forEach(([md, n]) => {
+      const k = `${y}-${md}`; add(k, n, true);
+      if (dow(k) === 6) add(addDays(k, -1), `${n} (observed)`, true);
+      if (dow(k) === 0) add(addDays(k, 1), `${n} (observed)`, true);
+    });
+    if (dow(`${y + 1}-01-01`) === 6) add(`${y}-12-31`, "New Year's Day (observed)", true);
+    add(nthDow(y, 1, 1, 3), 'Martin Luther King Jr. Day', true); add(nthDow(y, 2, 1, 3), "Presidents' Day", true);
+    add(nthDow(y, 5, 1, -1), 'Memorial Day', true); add(nthDow(y, 9, 1, 1), 'Labor Day', true);
+    add(nthDow(y, 10, 1, 2), 'Columbus Day', true); add(nthDow(y, 11, 4, 4), 'Thanksgiving', true);
+    [['02-14', "Valentine's Day"], ['03-17', "St. Patrick's Day"], ['10-31', 'Halloween'], ['12-24', 'Christmas Eve'], ['12-31', "New Year's Eve"]]
+      .forEach(([md, n]) => add(`${y}-${md}`, n, false));
+    add(easter(y), 'Easter', false); add(nthDow(y, 5, 0, 2), "Mother's Day", false); add(nthDow(y, 6, 0, 3), "Father's Day", false);
+  }
+  return H;
+}
+const holCache = {};
+function holidayOf(k) {
+  if (!HOL_REGION || !k) return null;
+  const y = +k.slice(0, 4);
+  if (!holCache[y]) holCache[y] = buildHolidays(y);
+  const h = holCache[y][k];
+  return h ? { name: h.names.join(', '), off: h.off } : null;
+}
+
 const COLS = [
   { id: 'todo', label: L.cols[0], dot: 'var(--fg-3)' },
   { id: 'doing', label: L.cols[1], dot: 'var(--orange)' },
@@ -171,7 +284,7 @@ const ICON = {
   trashBig: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3"/></svg>',
   left: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>',
   right: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>',
-  plus: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>',
+  plus: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>',
   trash: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3"/></svg>',
   pencil: '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--fg-3)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16v4z"/></svg>',
   check: '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',
@@ -470,10 +583,11 @@ function progressView() {
 
 function dayButton(key, label, extra) {
   const t = today();
-  const cls = key === S.sel ? 'sel' : key === t ? 'today' : '';
+  const hol = holidayOf(key), wd = parse(key).getDay();
+  const cls = [key === S.sel ? 'sel' : '', key === t ? 'today' : '', hol && hol.off ? 'hol' : wd === 0 ? 'sun' : wd === 6 ? 'sat' : ''].join(' ');
   const open = S.tasks.filter(x => x.date === key && x.status !== 'done').length;
   const d = parse(key);
-  const aria = `${F_MD.format(d)}${open ? L.openLeft(open) : ''}`;
+  const aria = `${F_MD.format(d)}${hol ? ` ${hol.name}` : ''}${open ? L.openLeft(open) : ''}`;
   return `<button class="day ${cls}" data-act="pick" data-date="${key}" aria-label="${aria}" aria-pressed="${key === S.sel}">${extra || ''}<span class="n">${label}</span><span class="dots" aria-hidden="true">${dotsFor(key)}</span></button>`;
 }
 
@@ -500,20 +614,19 @@ function calendarView() {
     <div class="cal-month">
       <div class="cal-head">
         <h2>${F_YM.format(new Date(y, m, 1))}</h2>
-        <button class="cal-toggle" data-act="cal-toggle" aria-expanded="true">${L.collapse} ${ICON.up}</button>
         <div class="nav"><button data-act="month" data-d="-1" aria-label="${L.prevMonth}">${ICON.left}</button><button data-act="month" data-d="1" aria-label="${L.nextMonth}">${ICON.right}</button></div>
       </div>
-      <div class="dow" aria-hidden="true">${DAYS.map(d => `<span>${d}</span>`).join('')}</div>
+      <div class="dow" aria-hidden="true">${DAYS.map((d, i) => `<span class="${i === 0 ? 'sun' : i === 6 ? 'sat' : ''}">${d}</span>`).join('')}</div>
       <div class="grid7">${cells}</div>
     </div>
     <div class="week">
       <div class="cal-head">
         <h2>${F_YM.format(mid)}</h2>
-        <button class="cal-toggle" data-act="cal-toggle" aria-expanded="false">${L.monthView} ${ICON.down}</button>
         <div class="nav"><button data-act="week" data-d="-7" aria-label="${L.prevWeek}">${ICON.left}</button><button data-act="week" data-d="7" aria-label="${L.nextWeek}">${ICON.right}</button></div>
       </div>
       <div class="grid7">${week}</div>
     </div>
+    <button class="cal-more" data-act="cal-toggle" aria-expanded="${S.calOpen}" aria-label="${S.calOpen ? L.collapse : L.monthView}">${S.calOpen ? ICON.up : ICON.down}</button>
     <div class="cal-foot"><span>${L.monthLeft}</span><span class="num">${L.count(monthOpen)}</span></div>
   </section>`;
 }
@@ -567,6 +680,11 @@ function boardView() {
   </section>`;
 }
 
+function holTag(k) {
+  const h = holidayOf(k);
+  return h ? ` <span class="hol-name ${h.off ? 'off' : ''}">· ${esc(h.name)}</span>` : '';
+}
+
 function headerView() {
   const isToday = S.sel === today(), day = S.view === 'day';
   const views = [
@@ -581,7 +699,7 @@ function headerView() {
     account = `<div class="account">${photo}<button class="pill" data-act="logout">${L.logout}</button></div>`;
   }
   return `<header class="top">
-    <div class="title-group"><h1>${L.title}</h1><span class="sub">${S.view === 'day' ? longDate(S.sel) : L.allDates}</span></div>
+    <div class="title-group"><h1>${L.title}</h1><span class="sub">${S.view === 'day' ? longDate(S.sel) + holTag(S.sel) : L.allDates}</span></div>
     <div class="top-actions">
       <div class="seg" role="group" aria-label="${L.view}">${views}</div>
       ${account}
