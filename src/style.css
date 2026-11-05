@@ -538,3 +538,12 @@ html.sheet-open, html.sheet-open body { overflow: hidden; }
   .cal .dow { font-size: 13px; padding-bottom: 8px; }
   .board > .col { min-height: 0; align-self: flex-start; }
 }
+
+/* when row: both ends show [date / time] */
+.when-body .when-block { flex: 0 1 auto; gap: 4px; }
+.when-date { font-size: 15px; font-weight: 600; color: var(--fg); }
+.when-big { font-size: 19px; }
+.when-big.dim { font-size: 15px; }
+.ct-sub { margin-top: 1px; }
+.progress.cols-1 { grid-template-columns: minmax(0, 1fr); }
+@media (max-width: 760px) { .progress.cols-1 .pcard { flex-direction: row; justify-content: center; gap: 16px; text-align: left; } .progress.cols-1 .ptext { align-items: flex-start; } }

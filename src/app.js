@@ -24,6 +24,7 @@ const I18N = {
     nDays: n => `${n}일간`, oneDay: '하루',
     allDay: '종일',
     editTask: '할 일 수정', titlePh: '제목', reorderHint: '길게 눌러 순서 바꾸기',
+    weekBtn: '주', monthBtn: '월', thisWeek: '이번 주',
     today: '오늘', thisMonth: '이번 달', thisYear: '올해', progress: '진행도',
     ring: (l, p, t, d) => `${l} 진행률 ${p}%, ${t}개 중 ${d}개 완료`, doneWord: '완료',
     openLeft: n => `, 남은 할 일 ${n}개`, calendar: '캘린더', collapse: '접기', monthView: '한 달 보기',
@@ -55,6 +56,7 @@ const I18N = {
     nDays: n => `${n} days`, oneDay: 'One day',
     allDay: 'All day',
     editTask: 'Edit task', titlePh: 'Title', reorderHint: 'Press and hold to reorder',
+    weekBtn: 'Week', monthBtn: 'Month', thisWeek: 'This week',
     today: 'Today', thisMonth: 'This month', thisYear: 'This year', progress: 'Progress',
     ring: (l, p, t, d) => `${l} ${p}% complete, ${d} of ${t} done`, doneWord: 'done',
     openLeft: n => `, ${n} left`, calendar: 'Calendar', collapse: 'Less', monthView: 'Month',
@@ -86,6 +88,7 @@ const I18N = {
     nDays: n => `${n}日間`, oneDay: '1日',
     allDay: '終日',
     editTask: 'やることを編集', titlePh: 'タイトル', reorderHint: '長押しで並べ替え',
+    weekBtn: '週', monthBtn: '月', thisWeek: '今週',
     today: '今日', thisMonth: '今月', thisYear: '今年', progress: '進捗',
     ring: (l, p, t, d) => `${l} 進捗 ${p}%、${t}件中${d}件完了`, doneWord: '完了',
     openLeft: n => `、残り${n}件`, calendar: 'カレンダー', collapse: '閉じる', monthView: '月表示',
@@ -117,6 +120,7 @@ const I18N = {
     nDays: n => `${n}天`, oneDay: '一天',
     allDay: '全天',
     editTask: '编辑待办', titlePh: '标题', reorderHint: '长按可调整顺序',
+    weekBtn: '周', monthBtn: '月', thisWeek: '本周',
     today: '今天', thisMonth: '本月', thisYear: '今年', progress: '进度',
     ring: (l, p, t, d) => `${l} 进度 ${p}%，共${t}项，已完成${d}项`, doneWord: '完成',
     openLeft: n => `，剩余${n}项`, calendar: '日历', collapse: '收起', monthView: '月视图',
@@ -469,6 +473,7 @@ const tEnd = t => (t.end && t.end > (t.date || '')) ? t.end : (t.date || '');
 const isRange = t => tEnd(t) !== (t.date || '');
 const covers = (t, k) => (t.date || '') <= k && k <= tEnd(t);
 const overlaps = (t, a, b) => (t.date || '') <= b && tEnd(t) >= a;
+const weekOf = k => { const d = parse(k), s0 = addDays(k, -d.getDay()); return [s0, addDays(s0, 6)]; };
 const daysBetween = (a, b) => Math.round((parse(b) - parse(a)) / 86400000);
 
 function stat(a, b) {
@@ -504,7 +509,10 @@ function relLabel(k) {
 
 function visibleTasks() {
   const mk = S.sel.slice(0, 7);
-  const list = S.view === 'day' ? S.tasks.filter(t => covers(t, S.sel)) : S.tasks.filter(t => overlaps(t, mk + '-01', mk + '-31'));
+  const [w0, w1] = weekOf(S.sel);
+  const list = S.view === 'day' ? S.tasks.filter(t => covers(t, S.sel))
+    : S.view === 'week' ? S.tasks.filter(t => overlaps(t, w0, w1))
+    : S.tasks.filter(t => overlaps(t, mk + '-01', mk + '-31'));
   // Priority: the order the user dragged cards into (field `order`) comes first, then time, then creation.
   const ord = t => (typeof t.order === 'number' ? t.order : 1e15);
   return list.sort((a, b) => (S.view === 'day' ? 0 : (a.date || '').localeCompare(b.date || ''))
@@ -514,8 +522,8 @@ function visibleTasks() {
 }
 
 /* Time picker (iOS-style wheel). target 'tn' / 'tnm' = new task (S.draftTime), 'te' = task being edited (S.edit.time). */
-function getTime(target) { return target === 'te' ? (S.edit && S.edit.time) : S.draftTime; }
-function setTime(target, t) { if (target === 'te') { if (S.edit) S.edit.time = t; } else S.draftTime = t; }
+function getTime(target) { return target === 'te' ? (S.edit && S.edit.time) : target === 'tee' ? (S.edit && S.edit.endTime) : S.draftTime; }
+function setTime(target, t) { if (target === 'te') { if (S.edit) S.edit.time = t; } else if (target === 'tee') { if (S.edit) S.edit.endTime = t; } else S.draftTime = t; }
 const CLOCK = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>';
 const ITEM_H = 34;
 
@@ -621,13 +629,18 @@ function composer(id, cls) {
   </form>`;
 }
 
+function rangeText(a, b) {
+  try { return F_MD.formatRange(parse(a), parse(b)); } catch (e) { return `${F_MD.format(parse(a))} – ${F_MD.format(parse(b))}`; }
+}
+
 function progressView() {
   const t = today(), mk = t.slice(0, 7), yk = t.slice(0, 4);
   const now = new Date();
-  const items = [
-    { label: L.today, sub: F_MD.format(now), color: 'var(--orange)', s: stat(t, t) },
-    { label: L.thisMonth, sub: F_M.format(now), color: 'var(--blue-text)', s: stat(mk + '-01', mk + '-31') }
-  ];
+  const [w0, w1] = weekOf(t);
+  const items = [{ label: L.today, sub: F_MD.format(now), color: 'var(--orange)', s: stat(t, t) }];
+  if (S.view === 'day' && S.sel !== t) items[0] = { label: L.selDay, sub: F_MD.format(parse(S.sel)), color: 'var(--orange)', s: stat(S.sel, S.sel) };
+  if (S.view === 'week' || S.view === 'month') items.push({ label: L.thisWeek, sub: rangeText(w0, w1), color: 'var(--green)', s: stat(w0, w1) });
+  if (S.view === 'month') items.push({ label: L.thisMonth, sub: F_M.format(now), color: 'var(--blue-text)', s: stat(mk + '-01', mk + '-31') });
   return `<section class="progress cols-${items.length}" aria-label="${L.progress}">${items.map(p => `
     <div class="pcard">
       <div class="ring-box">
@@ -831,21 +844,19 @@ function editDateText(k) {
 const F_MDW = dtf({ month: 'long', day: 'numeric', weekday: 'short' });
 function whenRow() {
   const e = S.edit, end = e.end && e.end > e.date ? e.end : e.date;
-  const n = daysBetween(e.date, end) + 1;
-  const tm = e.time ? showTime(e.time) : L.allDay;
+  const tBtn = (target, t) => `<button type="button" class="when-big ${t ? '' : 'dim'}" data-act="time-open" data-target="${target}" aria-label="${t ? L.timeChange(showTime(t)) : L.timeAdd}">${esc(t ? showTime(t) : L.timeAdd)}</button>`;
   return `<div class="sh-row when">
     <span class="sh-ico" aria-hidden="true">${CLOCK}</span>
     <div class="when-body">
       <div class="when-block">
         <label class="when-date">${esc(F_MDW.format(parse(e.date)))}<input id="edit-date" type="date" value="${esc(e.date)}" aria-label="${L.date}"></label>
-        <button type="button" class="when-big ${e.time ? '' : 'dim'}" data-act="time-open" data-target="te" aria-label="${e.time ? L.timeChange(tm) : L.timeAdd}">${esc(tm)}</button>
+        ${tBtn('te', e.time)}
       </div>
       <span class="when-arrow" aria-hidden="true">${ICON.right}</span>
-      <label class="when-block when-end">
-        <span class="when-date">${esc(F_MDW.format(parse(end)))}</span>
-        <span class="when-big ${n > 1 ? '' : 'dim'}">${n > 1 ? L.nDays(n) : L.oneDay}</span>
-        <input id="edit-end" type="date" min="${esc(e.date)}" value="${esc(end)}" aria-label="${L.endPick}">
-      </label>
+      <div class="when-block">
+        <label class="when-date">${esc(F_MDW.format(parse(end)))}<input id="edit-end" type="date" min="${esc(e.date)}" value="${esc(end)}" aria-label="${L.endPick}"></label>
+        ${tBtn('tee', e.endTime)}
+      </div>
       <button type="button" class="allday ${e.time ? '' : 'on'}" data-act="allday" aria-pressed="${!e.time}">${L.allDay}</button>
     </div>
   </div>`;
@@ -868,7 +879,7 @@ function sheetView() {
       <input id="edit-title" class="sh-input" placeholder="${L.titlePh}" maxlength="200" autocomplete="off" enterkeyhint="done" value="${esc(e.title)}" aria-label="${L.taskName}">
     </div>
     ${whenRow()}
-    ${S.timeOpen === 'te' ? `<div class="sh-wheel">${timeWheel('te')}</div>` : ''}
+    ${S.timeOpen === 'te' || S.timeOpen === 'tee' ? `<div class="sh-wheel">${timeWheel(S.timeOpen)}</div>` : ''}
     <div class="sh-row">
       <span class="sh-ico" aria-hidden="true">${ICON.tag}</span>
       <div class="chips" role="group" aria-label="${L.changeCat}">${chips(e.cat, 'editcat')}</div>
@@ -879,7 +890,7 @@ function sheetView() {
 
 function openAdd(date) {
   S.editId = null;
-  S.edit = { title: '', date, end: '', cat: S.newCat || 'work', time: null };
+  S.edit = { title: '', date, end: '', cat: S.newCat || 'work', time: null, endTime: null };
   S.timeOpen = null; S.focusId = 'edit-title';
 }
 
@@ -895,7 +906,8 @@ function timeCol(t) {
     main = `<b class="ct-big num">${esc(hm)}</b>${per ? `<span class="ct-per">${esc(per)}</span>` : ''}`;
     void before;
   }
-  const sub = isRange(t) ? `<span class="ct-sub">~${esc(F_MD.format(parse(tEnd(t))))}</span>` : '';
+  const et = parseTime(t.endTime);
+  const sub = et ? `<span class="ct-sub num">~${esc(showTime(et))}</span>` : isRange(t) ? `<span class="ct-sub">~${esc(F_MD.format(parse(tEnd(t))))}</span>` : '';
   return `<div class="c-time${t.status === 'done' ? ' fin' : ''}">${main}${sub}</div>`;
 }
 
@@ -934,7 +946,8 @@ function boardView() {
     </div>`;
   }).join('');
   // Phone: [할 일 | 수행 중 | 완료] [+] in one row; + opens the input under it (+ turns into ×).
-  const heading = S.view === 'day' ? (S.sel.slice(0, 4) === today().slice(0, 4) ? F_MDW : dtf({ year: 'numeric', month: 'long', day: 'numeric', weekday: 'short' })).format(parse(S.sel)) : F_YM.format(parse(S.sel));
+  const heading = S.view === 'day' ? (S.sel.slice(0, 4) === today().slice(0, 4) ? F_MDW : dtf({ year: 'numeric', month: 'long', day: 'numeric', weekday: 'short' })).format(parse(S.sel))
+    : S.view === 'week' ? rangeText(...weekOf(S.sel)) : F_YM.format(parse(S.sel));
   return `<section class="board" aria-label="${L.board}">
     <h2 class="day-title">${esc(heading)}</h2>
     <div class="tabs-row">
@@ -952,11 +965,11 @@ function holTag(k) {
 
 function headerView() {
   const isToday = S.sel === today(), day = S.view === 'day';
-  const monthLabel = S.sel.slice(0, 7) === today().slice(0, 7) ? L.thisMonth : F_M.format(parse(S.sel));
   const views = [
     `<button data-act="today" aria-pressed="${day && isToday}">${L.today}</button>`,
     isToday ? '' : `<button data-act="view" data-view="day" aria-pressed="${day}">${L.selDay}</button>`,
-    `<button data-act="view" data-view="month" aria-pressed="${!day}">${monthLabel}</button>`
+    `<button data-act="view" data-view="week" aria-pressed="${S.view === 'week'}">${L.weekBtn}</button>`,
+    `<button data-act="view" data-view="month" aria-pressed="${S.view === 'month'}">${L.monthBtn}</button>`
   ].join('');
   const stats = S.page === 'stats';
   const pageBtn = stats
@@ -975,7 +988,7 @@ function headerView() {
     account = `<div class="account"><button class="avatar-btn" data-act="acct-menu" aria-haspopup="menu" aria-expanded="${!!S.menuOpen}" aria-label="${L.account}">${face}</button>${menu}</div>`;
   }
   return `<header class="top">
-    <div class="title-group"><h1>${stats ? L.stats : L.title}</h1><span class="sub">${stats ? '' : S.view === 'day' ? longDate(S.sel) + holTag(S.sel) : F_YM.format(parse(S.sel))}</span></div>
+    <div class="title-group"><h1>${stats ? L.stats : L.title}</h1><span class="sub">${stats ? '' : S.view === 'day' ? longDate(S.sel) + holTag(S.sel) : S.view === 'week' ? esc(rangeText(...weekOf(S.sel))) : F_YM.format(parse(S.sel))}</span></div>
     <div class="top-actions">
       ${stats ? '<span class="seg-spacer"></span>' : `<div class="seg" role="group" aria-label="${L.view}">${views}</div>`}
       ${pageBtn}
@@ -1124,7 +1137,7 @@ root.addEventListener('click', e => {
     case 'add-open': S.tab = 'todo'; openAdd(S.sel); break;
     case 'allday':
       if (!S.edit) break;
-      if (S.edit.time) { S.edit.time = null; S.timeOpen = null; }
+      if (S.edit.time) { S.edit.time = null; S.edit.endTime = null; S.timeOpen = null; }
       else { S.timeBefore = null; S.edit.time = nowRounded(); S.timeOpen = 'te'; S.focusId = 'te-h'; }
       break;
     case 'month': {
@@ -1145,7 +1158,12 @@ root.addEventListener('click', e => {
       const tg = b.dataset.target;
       if (S.timeOpen === tg) { S.timeOpen = null; break; }
       S.timeBefore = getTime(tg) || null;
-      if (!getTime(tg)) setTime(tg, nowRounded());
+      if (!getTime(tg)) {
+        // End time starts one hour after the start time.
+        if (tg === 'tee' && S.edit && !S.edit.time) S.edit.time = nowRounded();
+        const st = S.edit && S.edit.time;
+        setTime(tg, tg === 'tee' && st ? { h: (st.h + 1) % 24, m: st.m } : nowRounded());
+      }
       S.timeOpen = tg; S.focusId = tg + '-h';
       break;
     }
@@ -1160,7 +1178,7 @@ root.addEventListener('click', e => {
     case 'edit': {
       const t = S.tasks.find(x => x.id === id);
       if (!t) return;
-      S.editId = id; S.edit = { title: t.title, date: t.date, end: isRange(t) ? t.end : '', cat: CAT[t.cat] ? t.cat : 'life', time: parseTime(t.time) };
+      S.editId = id; S.edit = { title: t.title, date: t.date, end: isRange(t) ? t.end : '', cat: CAT[t.cat] ? t.cat : 'life', time: parseTime(t.time), endTime: parseTime(t.endTime) };
       S.timeOpen = null;
       break;
     }
@@ -1382,6 +1400,7 @@ root.addEventListener('submit', e => {
     if (!S.editId) {
       const e2 = S.edit, task = { title, date: e2.date, status: 'todo', cat: e2.cat, created: Date.now() };
       if (e2.time) task.time = fmtTime(e2.time);
+      if (e2.time && e2.endTime) task.endTime = fmtTime(e2.endTime);
       if (e2.end && e2.end > e2.date) task.end = e2.end;
       S.newCat = e2.cat;
       store.add(task).catch(fail);
@@ -1390,7 +1409,7 @@ root.addEventListener('submit', e => {
       render();
       return;
     }
-    const patch = { title, cat: S.edit.cat, time: S.edit.time ? fmtTime(S.edit.time) : '' };
+    const patch = { title, cat: S.edit.cat, time: S.edit.time ? fmtTime(S.edit.time) : '', endTime: S.edit.time && S.edit.endTime ? fmtTime(S.edit.endTime) : '' };
     if (/^\d{4}-\d{2}-\d{2}$/.test(S.edit.date || '')) patch.date = S.edit.date;
     const d0 = patch.date || S.edit.date;
     patch.end = /^\d{4}-\d{2}-\d{2}$/.test(S.edit.end || '') && S.edit.end > d0 ? S.edit.end : '';
