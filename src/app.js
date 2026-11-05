@@ -559,8 +559,8 @@ function composer(id, cls) {
       <label class="sr" for="${id}">${L.newTask}</label>
       <input id="${id}" class="composer-input" placeholder="${L.newTask}" maxlength="200" autocomplete="off" enterkeyhint="done" value="${esc(S.draft)}">
       ${timePill(target)}
-      <button type="submit" class="add-btn" aria-label="${L.addTask}">${ICON.ok}</button>
     </div>
+    <button type="submit" class="add-btn" aria-label="${L.addTask}">${ICON.ok}</button>
     ${timeWheel(target)}
     <div class="chips" role="group" aria-label="${L.pickCat}">${chips(S.newCat, 'newcat')}</div>
   </form>`;
