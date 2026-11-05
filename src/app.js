@@ -17,7 +17,7 @@ document.documentElement.lang = LOC;
 const I18N = {
   ko: {
     title: '할 일', cols: ['할 일', '수행 중', '완료'],
-    cats: ['업무', '공부', '운동·건강', '재테크', '집안일', '약속', '쇼핑', '개인'],
+    cats: ['업무', '개인', '집안일', '쇼핑', '운동·건강', '약속', '공부', '금융'],
     newTask: '새로운 할 일', addTask: '할 일 추가', pickCat: '카테고리 선택', changeCat: '카테고리 변경',
     today: '오늘', thisMonth: '이번 달', thisYear: '올해', progress: '진행도',
     ring: (l, p, t, d) => `${l} 진행률 ${p}%, ${t}개 중 ${d}개 완료`, doneWord: '완료',
@@ -43,7 +43,7 @@ const I18N = {
   },
   en: {
     title: 'To-do', cols: ['To do', 'In progress', 'Done'],
-    cats: ['Work', 'Study', 'Fitness', 'Money', 'Chores', 'Plans', 'Shopping', 'Personal'],
+    cats: ['Work', 'Personal', 'Chores', 'Shopping', 'Health', 'Plans', 'Study', 'Finance'],
     newTask: 'New task', addTask: 'Add task', pickCat: 'Choose category', changeCat: 'Change category',
     today: 'Today', thisMonth: 'This month', thisYear: 'This year', progress: 'Progress',
     ring: (l, p, t, d) => `${l} ${p}% complete, ${d} of ${t} done`, doneWord: 'done',
@@ -69,7 +69,7 @@ const I18N = {
   },
   ja: {
     title: 'やること', cols: ['やること', '進行中', '完了'],
-    cats: ['仕事', '勉強', '運動・健康', '資産運用', '家事', '約束', '買い物', '個人'],
+    cats: ['仕事', '個人', '家事', '買い物', '健康', '予定', '勉強', 'お金'],
     newTask: '新しいやること', addTask: 'やることを追加', pickCat: 'カテゴリを選択', changeCat: 'カテゴリを変更',
     today: '今日', thisMonth: '今月', thisYear: '今年', progress: '進捗',
     ring: (l, p, t, d) => `${l} 進捗 ${p}%、${t}件中${d}件完了`, doneWord: '完了',
@@ -95,7 +95,7 @@ const I18N = {
   },
   zh: {
     title: '待办', cols: ['待办', '进行中', '已完成'],
-    cats: ['工作', '学习', '运动健康', '理财', '家务', '约会', '购物', '个人'],
+    cats: ['工作', '个人', '家务', '购物', '运动健康', '约会', '学习', '财务'],
     newTask: '新的待办', addTask: '添加待办', pickCat: '选择类别', changeCat: '更改类别',
     today: '今天', thisMonth: '本月', thisYear: '今年', progress: '进度',
     ring: (l, p, t, d) => `${l} 进度 ${p}%，共${t}项，已完成${d}项`, doneWord: '完成',
@@ -139,14 +139,15 @@ const COLS = [
 ];
 const ORDER = COLS.map(c => c.id);
 const CATS = [
+  // Ordered by how often people use them. ids are stored in Firestore — never rename them.
   { id: 'work', label: L.cats[0], color: '#64D2FF' },
-  { id: 'study', label: L.cats[1], color: '#7D7AFF' },
-  { id: 'health', label: L.cats[2], color: '#30D158' },
-  { id: 'money', label: L.cats[3], color: '#FFD60A' },
-  { id: 'home', label: L.cats[4], color: '#FF9F0A' },
+  { id: 'life', label: L.cats[1], color: '#BF5AF2' },
+  { id: 'home', label: L.cats[2], color: '#FF9F0A' },
+  { id: 'shopping', label: L.cats[3], color: '#C9A47A' },
+  { id: 'health', label: L.cats[4], color: '#30D158' },
   { id: 'social', label: L.cats[5], color: '#FF6482' },
-  { id: 'shopping', label: L.cats[6], color: '#C9A47A' },
-  { id: 'life', label: L.cats[7], color: '#BF5AF2' }
+  { id: 'study', label: L.cats[6], color: '#7D7AFF' },
+  { id: 'money', label: L.cats[7], color: '#FFD60A' }
 ];
 const CAT = Object.fromEntries(CATS.map(c => [c.id, c]));
 const parseTime = s => { const m = /^(\d{2}):(\d{2})$/.exec(s || ''); return m ? { h: +m[1], m: +m[2] } : null; };
@@ -746,7 +747,7 @@ root.addEventListener('keydown', e => {
 
 const DEL_W = 88;
 const moveAt = card => Math.min(120, card.offsetWidth * 0.35);
-let drag = null, sw = null;
+let drag = null, sw = null, tabSw = null;
 
 root.addEventListener('pointerdown', e => {
   const col = e.target.closest('.tw-col');
@@ -757,6 +758,10 @@ root.addEventListener('pointerdown', e => {
     return;
   }
   const cardEl = e.target.closest('.card[data-swipe]');
+  if (e.target.closest('.board > .tabs')) {
+    tabSw = { x: e.clientX, y: e.clientY };
+    return;
+  }
   if (!cardEl || (e.pointerType === 'mouse' && e.button !== 0)) return;
   sw = { card: cardEl, wrap: cardEl.parentElement, id: cardEl.dataset.id, next: cardEl.dataset.next, x: e.clientX, y: e.clientY, dx: 0, active: false,
          base: cardEl.parentElement.classList.contains('open') ? -DEL_W : 0, pid: e.pointerId };
@@ -788,6 +793,18 @@ root.addEventListener('pointermove', e => {
 });
 
 function endPointer(e) {
+  if (tabSw) {
+    const t = tabSw; tabSw = null;
+    const dx = e.clientX - t.x, dy = e.clientY - t.y;
+    if (e.type !== 'pointerup' || Math.abs(dx) < 40 || Math.abs(dx) < Math.abs(dy) * 1.5) return;
+    // The blue highlight follows the finger: swipe right → next tab, left → previous.
+    const i = ORDER.indexOf(S.tab) + Math.sign(dx);
+    if (i < 0 || i >= ORDER.length) return;
+    swallowNextClick();
+    S.tab = ORDER[i];
+    render();
+    return;
+  }
   if (drag) {
     const d = drag; drag = null;
     if (!d.moved && e.type === 'pointerup') {

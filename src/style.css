@@ -120,9 +120,8 @@ input::placeholder { color: var(--fg-3); }
 .composer-input { flex: 1; min-width: 0; height: 44px; border: 0; padding: 0; background: transparent; font-size: 15px; }
 .composer-input:focus-visible { outline: none; }
 .add-btn { flex: none; width: 36px; height: 36px; margin: 4px 0; border-radius: 50%; background: var(--blue); color: #FFFFFF; display: flex; align-items: center; justify-content: center; }
-.chips { display: flex; flex-wrap: nowrap; gap: 0; margin-left: -4px; overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
-.chips::-webkit-scrollbar { display: none; }
-.chip { flex: none; white-space: nowrap; height: 32px; padding: 0 7px; border-radius: 999px; color: var(--fg-2); font-size: 12px; font-weight: 500; display: inline-flex; align-items: center; gap: 5px; }
+.chips { display: flex; flex-wrap: wrap; gap: 2px; margin-left: -4px; }
+.chip { min-width: 0; white-space: nowrap; overflow: hidden; height: 32px; padding: 0 7px; border-radius: 999px; color: var(--fg-2); font-size: 12px; font-weight: 500; display: inline-flex; align-items: center; gap: 5px; }
 .chip i, .cat i { width: 7px; height: 7px; border-radius: 50%; display: block; flex: none; }
 .chip[aria-pressed="true"] { background: var(--surface-4); color: var(--fg); font-weight: 600; }
 
@@ -233,7 +232,9 @@ input::placeholder { color: var(--fg-3); }
   .composer-m .composer-input { font-size: 16px; }
   .tabs { padding: 3px; border-radius: 10px; background: var(--surface); }
   .tabs button { flex: 1; min-height: 36px; border-radius: 8px; color: var(--fg-2); font-size: 14px; font-weight: 500; }
-  .tabs button[aria-pressed="true"] { background: var(--surface-3); color: var(--fg); font-weight: 600; }
+  .tabs button[aria-pressed="true"] { background: var(--blue); color: #FFFFFF; font-weight: 600; }
+  .board > .tabs { touch-action: pan-y; }
+  .chips { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); }
   .col { background: var(--surface); border-radius: 16px; padding: 8px; flex: none; }
   .col:not(.active) { display: none; }
   .col-head, .col .composer { display: none; }
