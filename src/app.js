@@ -23,6 +23,7 @@ const I18N = {
     endHint: '기간 (끝나는 날)', endPick: '끝나는 날 선택', dayOf: (n, N) => `${n}/${N}일째`, removeEnd: '기간 지우기',
     nDays: n => `${n}일간`, oneDay: '하루',
     allDay: '종일',
+    editTask: '할 일 수정', titlePh: '제목', reorderHint: '길게 눌러 순서 바꾸기',
     today: '오늘', thisMonth: '이번 달', thisYear: '올해', progress: '진행도',
     ring: (l, p, t, d) => `${l} 진행률 ${p}%, ${t}개 중 ${d}개 완료`, doneWord: '완료',
     openLeft: n => `, 남은 할 일 ${n}개`, calendar: '캘린더', collapse: '접기', monthView: '한 달 보기',
@@ -53,6 +54,7 @@ const I18N = {
     endHint: 'Multi-day (end date)', endPick: 'Choose end date', dayOf: (n, N) => `Day ${n}/${N}`, removeEnd: 'Remove end date',
     nDays: n => `${n} days`, oneDay: 'One day',
     allDay: 'All day',
+    editTask: 'Edit task', titlePh: 'Title', reorderHint: 'Press and hold to reorder',
     today: 'Today', thisMonth: 'This month', thisYear: 'This year', progress: 'Progress',
     ring: (l, p, t, d) => `${l} ${p}% complete, ${d} of ${t} done`, doneWord: 'done',
     openLeft: n => `, ${n} left`, calendar: 'Calendar', collapse: 'Less', monthView: 'Month',
@@ -83,6 +85,7 @@ const I18N = {
     endHint: '期間（終了日）', endPick: '終了日を選択', dayOf: (n, N) => `${n}/${N}日目`, removeEnd: '期間を削除',
     nDays: n => `${n}日間`, oneDay: '1日',
     allDay: '終日',
+    editTask: 'やることを編集', titlePh: 'タイトル', reorderHint: '長押しで並べ替え',
     today: '今日', thisMonth: '今月', thisYear: '今年', progress: '進捗',
     ring: (l, p, t, d) => `${l} 進捗 ${p}%、${t}件中${d}件完了`, doneWord: '完了',
     openLeft: n => `、残り${n}件`, calendar: 'カレンダー', collapse: '閉じる', monthView: '月表示',
@@ -113,6 +116,7 @@ const I18N = {
     endHint: '多天（结束日期）', endPick: '选择结束日期', dayOf: (n, N) => `第${n}/${N}天`, removeEnd: '删除结束日期',
     nDays: n => `${n}天`, oneDay: '一天',
     allDay: '全天',
+    editTask: '编辑待办', titlePh: '标题', reorderHint: '长按可调整顺序',
     today: '今天', thisMonth: '本月', thisYear: '今年', progress: '进度',
     ring: (l, p, t, d) => `${l} 进度 ${p}%，共${t}项，已完成${d}项`, doneWord: '完成',
     openLeft: n => `，剩余${n}项`, calendar: '日历', collapse: '收起', monthView: '月视图',
@@ -306,6 +310,7 @@ const ICON = {
   chart: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M5 20V12M12 20V5M19 20v-9"/></svg>',
   list: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M9 6h11M9 12h11M9 18h11M4.5 6h.01M4.5 12h.01M4.5 18h.01"/></svg>',
   range: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4M7.5 14.5h9"/></svg>',
+  tag: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 12.5V5a1.5 1.5 0 0 1 1.5-1.5h7.5L21 12l-8.5 8.5z"/><circle cx="8" cy="8" r="1.4"/></svg>',
   plus: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>',
   trash: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3"/></svg>',
   pencil: '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--fg-3)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16v4z"/></svg>',
@@ -500,7 +505,10 @@ function relLabel(k) {
 function visibleTasks() {
   const mk = S.sel.slice(0, 7);
   const list = S.view === 'day' ? S.tasks.filter(t => covers(t, S.sel)) : S.tasks.filter(t => overlaps(t, mk + '-01', mk + '-31'));
-  return list.sort((a, b) => (a.date || '').localeCompare(b.date || '')
+  // Priority: the order the user dragged cards into (field `order`) comes first, then time, then creation.
+  const ord = t => (typeof t.order === 'number' ? t.order : 1e15);
+  return list.sort((a, b) => (S.view === 'day' ? 0 : (a.date || '').localeCompare(b.date || ''))
+    || ord(a) - ord(b)
     || (a.time || '99:99').localeCompare(b.time || '99:99')
     || (a.created || 0) - (b.created || 0));
 }
@@ -564,6 +572,7 @@ function refreshTime(target) {
     else col.setAttribute('aria-valuenow', v);
   });
   root.querySelectorAll(`.when-big[data-target="${target}"]`).forEach(el => { el.textContent = showTime(t); el.classList.remove('dim'); });
+  root.querySelectorAll('.allday').forEach(el => { el.classList.remove('on'); el.setAttribute('aria-pressed', 'false'); });
   root.querySelectorAll(`.time-pill[data-target="${target}"]`).forEach(pill => {
     pill.classList.add('set');
     pill.innerHTML = `<span class="num">${showTime(t)}</span>`;
@@ -792,7 +801,7 @@ function calendarView() {
   return `<section class="panel cal ${S.calOpen ? 'expanded' : ''}" aria-label="${L.calendar}">
     <div class="cal-month">
       <div class="cal-head">
-        <h2 class="cal-title">${monthTitle(new Date(y, m, 1))}</h2>
+        <label class="cal-title">${monthTitle(new Date(y, m, 1))}<input type="month" class="month-in" value="${y}-${pad(m + 1)}" aria-label="${L.calendar}"></label>
         <div class="nav"><button data-act="month" data-d="-1" aria-label="${L.prevMonth}">${ICON.left}</button><button data-act="month" data-d="1" aria-label="${L.nextMonth}">${ICON.right}</button></div>
       </div>
       <div class="dow" aria-hidden="true">${DAYS.map((d, i) => `<span class="${i === 0 ? 'sun' : i === 6 ? 'sat' : ''}">${d}</span>`).join('')}</div>
@@ -800,7 +809,7 @@ function calendarView() {
     </div>
     <div class="week">
       <div class="cal-head">
-        <h2 class="cal-title">${monthTitle(mid)}</h2>
+        <label class="cal-title">${monthTitle(mid)}<input type="month" class="month-in" value="${mid.getFullYear()}-${pad(mid.getMonth() + 1)}" aria-label="${L.calendar}"></label>
         <div class="nav"><button data-act="week" data-d="-7" aria-label="${L.prevWeek}">${ICON.left}</button><button data-act="week" data-d="7" aria-label="${L.nextWeek}">${ICON.right}</button></div>
       </div>
       <div class="grid7">${week}</div>
@@ -823,20 +832,55 @@ const F_MDW = dtf({ month: 'long', day: 'numeric', weekday: 'short' });
 function whenRow() {
   const e = S.edit, end = e.end && e.end > e.date ? e.end : e.date;
   const n = daysBetween(e.date, end) + 1;
-  const tm = e.time ? showTime(e.time) : L.timeAdd;
-  return `<div class="when">
-    <span class="when-ico" aria-hidden="true">${CLOCK}</span>
-    <div class="when-block">
-      <label class="when-date">${esc(F_MDW.format(parse(e.date)))}<input id="edit-date" type="date" value="${esc(e.date)}" aria-label="${L.date}"></label>
-      <button type="button" class="when-big ${e.time ? '' : 'dim'}" data-act="time-open" data-target="te" aria-label="${e.time ? L.timeChange(tm) : L.timeAdd}">${esc(tm)}</button>
+  const tm = e.time ? showTime(e.time) : L.allDay;
+  return `<div class="sh-row when">
+    <span class="sh-ico" aria-hidden="true">${CLOCK}</span>
+    <div class="when-body">
+      <div class="when-block">
+        <label class="when-date">${esc(F_MDW.format(parse(e.date)))}<input id="edit-date" type="date" value="${esc(e.date)}" aria-label="${L.date}"></label>
+        <button type="button" class="when-big ${e.time ? '' : 'dim'}" data-act="time-open" data-target="te" aria-label="${e.time ? L.timeChange(tm) : L.timeAdd}">${esc(tm)}</button>
+      </div>
+      <span class="when-arrow" aria-hidden="true">${ICON.right}</span>
+      <label class="when-block when-end">
+        <span class="when-date">${esc(F_MDW.format(parse(end)))}</span>
+        <span class="when-big ${n > 1 ? '' : 'dim'}">${n > 1 ? L.nDays(n) : L.oneDay}</span>
+        <input id="edit-end" type="date" min="${esc(e.date)}" value="${esc(end)}" aria-label="${L.endPick}">
+      </label>
+      <button type="button" class="allday ${e.time ? '' : 'on'}" data-act="allday" aria-pressed="${!e.time}">${L.allDay}</button>
     </div>
-    <span class="when-arrow" aria-hidden="true">${ICON.right}</span>
-    <label class="when-block when-end">
-      <span class="when-date">${esc(F_MDW.format(parse(end)))}</span>
-      <span class="when-big ${n > 1 ? '' : 'dim'}">${n > 1 ? L.nDays(n) : L.oneDay}</span>
-      <input id="edit-end" type="date" min="${esc(e.date)}" value="${esc(end)}" aria-label="${L.endPick}">
-    </label>
   </div>`;
+}
+
+// Add / edit sheet (minical-style): slides up over the page, title on top so the keyboard never covers it.
+function sheetView() {
+  if (!S.edit) return '';
+  const e = S.edit, c = CAT[e.cat] || CAT.life, isNew = !S.editId;
+  return `<div class="sheet-bg" data-act="cancel"></div>
+  <form class="sheet" data-form="sheet" role="dialog" aria-modal="true" aria-label="${isNew ? L.newTask : L.editTask}">
+    <div class="sheet-grip" aria-hidden="true"></div>
+    <div class="sheet-head">
+      <button type="button" class="sh-cancel" data-act="cancel">${L.cancel}</button>
+      <span class="sh-title">${isNew ? L.newTask : L.editTask}</span>
+      <button type="submit" class="sh-save">${L.save}</button>
+    </div>
+    <div class="sh-row sh-titlebox">
+      <span class="sh-ico"><i style="background:${c.color}"></i></span>
+      <input id="edit-title" class="sh-input" placeholder="${L.titlePh}" maxlength="200" autocomplete="off" enterkeyhint="done" value="${esc(e.title)}" aria-label="${L.taskName}">
+    </div>
+    ${whenRow()}
+    ${S.timeOpen === 'te' ? `<div class="sh-wheel">${timeWheel('te')}</div>` : ''}
+    <div class="sh-row">
+      <span class="sh-ico" aria-hidden="true">${ICON.tag}</span>
+      <div class="chips" role="group" aria-label="${L.changeCat}">${chips(e.cat, 'editcat')}</div>
+    </div>
+    ${isNew ? '' : `<button type="button" class="sh-del" data-act="del" data-id="${esc(S.editId)}">${ICON.trash}<span>${L.del}</span></button>`}
+  </form>`;
+}
+
+function openAdd(date) {
+  S.editId = null;
+  S.edit = { title: '', date, end: '', cat: S.newCat || 'work', time: null };
+  S.timeOpen = null; S.focusId = 'edit-title';
 }
 
 // Left time column, calendar-app style: big "8:00" with a small 오후/PM; multi-day shows the end day under it; no time = 「종일」.
@@ -856,19 +900,6 @@ function timeCol(t) {
 }
 
 function card(t, ci) {
-  if (S.editId === t.id && S.edit) {
-    return `<form class="card edit" data-form="edit" data-id="${esc(t.id)}">
-      <div class="edit-row">
-        <label class="sr" for="edit-title">${L.taskName}</label>
-        <input id="edit-title" class="field" maxlength="200" autocomplete="off" enterkeyhint="done" value="${esc(S.edit.title)}">
-        <button type="button" class="edit-del" data-act="del" data-id="${esc(t.id)}" aria-label="${L.del}">${ICON.trash}</button>
-      </div>
-      ${whenRow()}
-      ${timeWheel('te')}
-      <div class="chips" role="group" aria-label="${L.changeCat}">${chips(S.edit.cat, 'editcat')}</div>
-      <div class="row-end"><button type="button" class="btn-ghost" data-act="cancel">${L.cancel}</button><button type="submit" class="btn-primary">${L.save}</button></div>
-    </form>`;
-  }
   const c = CAT[t.cat] || CAT.life;
   const done = t.status === 'done';
   // Minimal card: the date line only when it adds something (multi-day, or a list that isn't a single day).
@@ -897,9 +928,9 @@ function boardView() {
     const cards = vis.filter(t => t.status === c.id);
     return `<div class="col panel ${S.tab === c.id ? 'active' : ''}">
       <div class="col-head"><span class="dot" style="background:${c.dot}" aria-hidden="true"></span><h3>${c.label}</h3><span class="count num">${cards.length}</span></div>
-      ${c.id === 'todo' ? composer('new-title', '') : ''}
       ${cards.map(t => card(t, ci)).join('')}
-      ${cards.length === 0 && (c.id !== 'todo' || window.matchMedia('(max-width: 760px)').matches) ? `<p class="empty">${L.empty}</p>` : ''}
+      ${cards.length === 0 && c.id !== 'todo' ? `<p class="empty">${L.empty}</p>` : ''}
+      ${c.id === 'todo' ? `<button type="button" class="add-row" data-act="add-open">${ICON.plus}<span>${L.newTask}</span></button>` : ''}
     </div>`;
   }).join('');
   // Phone: [할 일 | 수행 중 | 완료] [+] in one row; + opens the input under it (+ turns into ×).
@@ -908,9 +939,8 @@ function boardView() {
     <h2 class="day-title">${esc(heading)}</h2>
     <div class="tabs-row">
       <div class="tabs" role="group" aria-label="${L.status}">${tabs}</div>
-      <button type="button" class="add-toggle ${S.addOpen ? 'open' : ''}" data-act="add-toggle" aria-expanded="${!!S.addOpen}" aria-label="${S.addOpen ? L.cancel : L.addTask}">${ICON.plus}</button>
+      <button type="button" class="add-toggle" data-act="add-open" aria-label="${L.addTask}">${ICON.plus}</button>
     </div>
-    ${S.addOpen ? composer('new-title-m', 'composer-m') : ''}
     ${cols}
   </section>`;
 }
@@ -988,7 +1018,8 @@ function render() {
       <div class="main">${calendarView()}${boardView()}</div>`}
     </div>`;
   }
-  root.innerHTML = html + toastView();
+  root.innerHTML = html + (S.mode === 'app' ? sheetView() : '') + toastView();
+  document.documentElement.classList.toggle('sheet-open', !!S.edit && S.mode === 'app');
 
   if (fid) {
     const el = document.getElementById(fid);
@@ -1070,6 +1101,8 @@ function swallowNextClick() { suppressClick = true; setTimeout(() => { suppressC
 
 root.addEventListener('click', e => {
   if (suppressClick) { e.preventDefault(); e.stopPropagation(); suppressClick = false; return; }
+  // A submit button must reach its form's submit event — re-rendering here would detach the form first.
+  if (e.target.closest('button[type="submit"]')) return;
   let dirty = false;
   // Tapping anywhere else closes an open swipe or time wheel.
   if (S.openSwipe && !e.target.closest(`.swipe[data-id="${CSS.escape(S.openSwipe)}"] .swipe-del`)) { S.openSwipe = null; dirty = true; }
@@ -1084,7 +1117,16 @@ root.addEventListener('click', e => {
     case 'logout': S.menuOpen = false; render(); signOutFn(); return;
     case 'acct-menu': S.menuOpen = !S.menuOpen; break;
     case 'switch-acct': S.menuOpen = false; render(); signIn(); return;
-    case 'pick': S.sel = b.dataset.date; S.view = 'day'; syncMonth(); break;
+    case 'pick':
+      // Tapping the day that is already selected opens "new task" for that day (minical-style).
+      if (b.dataset.date === S.sel && S.view === 'day') { openAdd(S.sel); break; }
+      S.sel = b.dataset.date; S.view = 'day'; syncMonth(); break;
+    case 'add-open': S.tab = 'todo'; openAdd(S.sel); break;
+    case 'allday':
+      if (!S.edit) break;
+      if (S.edit.time) { S.edit.time = null; S.timeOpen = null; }
+      else { S.timeBefore = null; S.edit.time = nowRounded(); S.timeOpen = 'te'; S.focusId = 'te-h'; }
+      break;
     case 'month': {
       let m = S.ym.m + Number(b.dataset.d), y = S.ym.y;
       if (m < 0) { m = 11; y--; } if (m > 11) { m = 0; y++; }
@@ -1097,11 +1139,6 @@ root.addEventListener('click', e => {
     case 'page': S.page = b.dataset.page; S.statYear = S.statYear || +today().slice(0, 4); window.scrollTo(0, 0); break;
     case 'year': S.statYear += Number(b.dataset.d); break;
     case 'tab': S.tab = b.dataset.tab; break;
-    case 'add-toggle':
-      S.addOpen = !S.addOpen;
-      if (S.addOpen) { S.tab = 'todo'; S.focusId = 'new-title-m'; } else if (S.timeOpen === 'tnm') S.timeOpen = null;
-      render(); if (S.addOpen) { setTimeout(fitEdit, 60); setTimeout(fitEdit, 400); }
-      return;
     case 'newcat': S.newCat = b.dataset.cat; break;
     case 'editcat': if (S.edit) S.edit.cat = b.dataset.cat; break;
     case 'time-open': {
@@ -1124,9 +1161,8 @@ root.addEventListener('click', e => {
       const t = S.tasks.find(x => x.id === id);
       if (!t) return;
       S.editId = id; S.edit = { title: t.title, date: t.date, end: isRange(t) ? t.end : '', cat: CAT[t.cat] ? t.cat : 'life', time: parseTime(t.time) };
-      S.timeOpen = null; S.focusId = 'edit-title';
-      render(); setTimeout(fitEdit, 60); setTimeout(fitEdit, 400);
-      return;
+      S.timeOpen = null;
+      break;
     }
     case 'end-clear': if (S.edit) S.edit.end = ''; break;
     case 'cancel': S.editId = null; S.edit = null; S.timeOpen = null; break;
@@ -1150,7 +1186,7 @@ root.addEventListener('wheel', e => {
 
 root.addEventListener('keydown', e => {
   if (e.key === 'Escape' && S.timeOpen) { S.timeOpen = null; render(); return; }
-  if (e.key === 'Escape' && S.addOpen && e.target.id === 'new-title-m') { S.addOpen = false; render(); return; }
+  if (e.key === 'Escape' && S.edit) { S.editId = null; S.edit = null; render(); return; }
   const col = e.target.closest && e.target.closest('.tw-col');
   if (!col || (e.key !== 'ArrowUp' && e.key !== 'ArrowDown')) return;
   e.preventDefault();
@@ -1159,7 +1195,7 @@ root.addEventListener('keydown', e => {
 
 const DEL_W = 88;
 const moveAt = card => Math.min(120, card.offsetWidth * 0.35);
-let drag = null, sw = null, tabSw = null;
+let drag = null, sw = null, tabSw = null, calSw = null, rd = null;
 
 root.addEventListener('pointerdown', e => {
   const col = e.target.closest('.tw-col');
@@ -1170,6 +1206,7 @@ root.addEventListener('pointerdown', e => {
     return;
   }
   const cardEl = e.target.closest('.card[data-swipe]');
+  if (e.target.closest('.cal .grid7')) { calSw = { x: e.clientX, y: e.clientY }; return; }
   if (e.target.closest('.board .tabs')) {
     tabSw = { x: e.clientX, y: e.clientY };
     return;
@@ -1177,9 +1214,48 @@ root.addEventListener('pointerdown', e => {
   if (!cardEl || (e.pointerType === 'mouse' && e.button !== 0)) return;
   sw = { card: cardEl, wrap: cardEl.parentElement, id: cardEl.dataset.id, next: cardEl.dataset.next, x: e.clientX, y: e.clientY, dx: 0, active: false,
          base: cardEl.parentElement.classList.contains('open') ? -DEL_W : 0, pid: e.pointerId };
+  // Press and hold → pick the card up and drag it up/down to set its priority.
+  const mine = sw;
+  sw.lp = setTimeout(() => { if (sw === mine && !mine.active) startReorder(mine); }, 380);
 });
 
+function startReorder(s) {
+  sw = null;
+  rd = { wrap: s.wrap, col: s.wrap.parentElement, y0: s.y, pid: s.pid };
+  try { s.card.setPointerCapture(s.pid); } catch (er) { /* ignore */ }
+  s.wrap.classList.add('lifting');
+  if (navigator.vibrate) navigator.vibrate(12);
+}
+function moveReorder(y) {
+  const { wrap, col } = rd;
+  const gap = parseFloat(getComputedStyle(col).rowGap) || 8;
+  let prev = wrap.previousElementSibling, next = wrap.nextElementSibling;
+  if (prev && prev.classList.contains('swipe')) {
+    const r = prev.getBoundingClientRect();
+    if (y < r.top + r.height / 2) { col.insertBefore(wrap, prev); rd.y0 -= r.height + gap; }
+  }
+  if (next && next.classList.contains('swipe')) {
+    const r = next.getBoundingClientRect();
+    if (y > r.top + r.height / 2) { col.insertBefore(next, wrap); rd.y0 += r.height + gap; }
+  }
+  wrap.style.transform = `translateY(${y - rd.y0}px)`;
+}
+function endReorder() {
+  const { wrap, col } = rd; rd = null;
+  wrap.classList.remove('lifting'); wrap.style.transform = '';
+  swallowNextClick();
+  [...col.querySelectorAll(':scope > .swipe')].forEach((w, i) => {
+    const t = S.tasks.find(x => x.id === w.dataset.id), o = (i + 1) * 1000;
+    if (t && t.order !== o) { t.order = o; if (store) store.update(t.id, { order: o }).catch(fail); }
+  });
+  render();
+}
+// While a card is picked up, stop the page from scrolling under the finger.
+root.addEventListener('touchmove', e => { if (rd) e.preventDefault(); }, { passive: false });
+root.addEventListener('contextmenu', e => { if (e.target.closest('.card[data-swipe]')) e.preventDefault(); });
+
 root.addEventListener('pointermove', e => {
+  if (rd) { e.preventDefault(); moveReorder(e.clientY); return; }
   if (drag) {
     const step = ITEM_H * 0.8;
     if (Math.abs(e.clientY - drag.startY) > 4) drag.moved = true;
@@ -1195,8 +1271,9 @@ root.addEventListener('pointermove', e => {
       try { sw.card.setPointerCapture(sw.pid); } catch (er) { /* ignore */ }
       sw.card.style.transition = 'none';
       sw.wrap.classList.add('swiping');
-    } else if (Math.abs(dy) > 10) { sw = null; return; } else return;
+    } else if (Math.abs(dy) > 10) { clearTimeout(sw.lp); sw = null; return; } else return;
   }
+  if (sw.lp) { clearTimeout(sw.lp); sw.lp = null; }
   sw.dx = Math.min(sw.next && !sw.base ? sw.card.offsetWidth : 0, sw.base + dx);
   sw.card.style.transform = `translateX(${sw.dx}px)`;
   sw.wrap.classList.toggle('far', sw.dx < -sw.card.offsetWidth * 0.55);
@@ -1205,6 +1282,20 @@ root.addEventListener('pointermove', e => {
 });
 
 function endPointer(e) {
+  if (rd) { endReorder(); return; }
+  if (sw && sw.lp) clearTimeout(sw.lp);
+  if (calSw) {
+    const c = calSw; calSw = null;
+    const dx = e.clientX - c.x, dy = e.clientY - c.y;
+    if (e.type !== 'pointerup' || Math.abs(dx) < 50 || Math.abs(dx) < Math.abs(dy) * 1.5) return;
+    swallowNextClick();
+    const dir = dx < 0 ? 1 : -1;   // swipe left → next month / week
+    const phoneWeek = window.matchMedia('(max-width: 760px)').matches && !S.calOpen;
+    if (phoneWeek) { S.sel = addDays(S.sel, 7 * dir); S.view = 'day'; syncMonth(); }
+    else { let m = S.ym.m + dir, y = S.ym.y; if (m < 0) { m = 11; y--; } if (m > 11) { m = 0; y++; } S.ym = { y, m }; }
+    render();
+    return;
+  }
   if (tabSw) {
     const t = tabSw; tabSw = null;
     const dx = e.clientX - t.x, dy = e.clientY - t.y;
@@ -1250,7 +1341,12 @@ root.addEventListener('pointercancel', endPointer);
 // Date pickers re-render only when the choice is final ('change'), so the native picker isn't closed mid-scroll.
 root.addEventListener('change', e => {
   const el = e.target;
-  if (el.type === 'date') el.blur();
+  if (el.type === 'date' || el.type === 'month') el.blur();
+  if (el.classList && el.classList.contains('month-in') && el.value) {
+    const [yy, mm] = el.value.split('-').map(Number);
+    S.sel = el.value === today().slice(0, 7) ? today() : `${el.value}-01`;
+    S.ym = { y: yy, m: mm - 1 }; S.view = 'day'; render(); return;
+  }
   if (el.id === 'edit-end' && S.edit) { S.edit.end = el.value > S.edit.date ? el.value : ''; render(); }
   else if (el.id === 'edit-date' && S.edit && el.value) { S.edit.date = el.value; if (S.edit.end && S.edit.end <= el.value) S.edit.end = ''; render(); }
   else if (el.classList && el.classList.contains('range-in')) { S.draftEnd = el.value; render(); }
@@ -1280,14 +1376,25 @@ root.addEventListener('submit', e => {
     S.tab = 'todo';
     S.focusId = f.querySelector('input').id;
     render();
-  } else if (f.dataset.form === 'edit' && S.edit) {
+  } else if (f.dataset.form === 'sheet' && S.edit) {
     const title = (S.edit.title || '').trim();
-    if (!title) return;
+    if (!title) { const el = document.getElementById('edit-title'); if (el) el.focus(); return; }
+    if (!S.editId) {
+      const e2 = S.edit, task = { title, date: e2.date, status: 'todo', cat: e2.cat, created: Date.now() };
+      if (e2.time) task.time = fmtTime(e2.time);
+      if (e2.end && e2.end > e2.date) task.end = e2.end;
+      S.newCat = e2.cat;
+      store.add(task).catch(fail);
+      S.sel = e2.date; S.view = 'day'; S.tab = 'todo'; syncMonth();
+      S.edit = null; S.timeOpen = null;
+      render();
+      return;
+    }
     const patch = { title, cat: S.edit.cat, time: S.edit.time ? fmtTime(S.edit.time) : '' };
     if (/^\d{4}-\d{2}-\d{2}$/.test(S.edit.date || '')) patch.date = S.edit.date;
     const d0 = patch.date || S.edit.date;
     patch.end = /^\d{4}-\d{2}-\d{2}$/.test(S.edit.end || '') && S.edit.end > d0 ? S.edit.end : '';
-    store.update(f.dataset.id, patch).catch(fail);
+    store.update(S.editId, patch).catch(fail);
     S.editId = null; S.edit = null; S.timeOpen = null;
     render();
   }
