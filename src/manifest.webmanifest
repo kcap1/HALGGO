@@ -6,7 +6,7 @@
   "background_color": "#000000",
   "theme_color": "#000000",
   "lang": "ko",
-  "description": "캘린더와 칸반보드로 할 일을 관리하는 앱",
+  "description": "한손으로 처리하는 세상 모든 일",
   "icons": [
     { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml" },
     { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png" },

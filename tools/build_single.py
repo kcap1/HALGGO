@@ -29,12 +29,14 @@ for name in ["icon.svg", "icon-180.png", "icon-512.png", "og.png", "manifest.web
 html = head + f'''<meta property="og:type" content="website">
 <meta property="og:site_name" content="HALGGO">
 <meta property="og:title" content="HALGGO">
-<meta property="og:description" content="캘린더와 칸반보드로 오늘, 이번 달, 올해 할 일을 관리하세요.">
+<meta property="og:description" content="한손으로 처리하는 세상 모든 일">
 <meta property="og:url" content="{SITE}/">
 <meta property="og:image" content="{SITE}/og.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="HALGGO">
+<meta name="twitter:description" content="한손으로 처리하는 세상 모든 일">
 <meta name="twitter:image" content="{SITE}/og.png">
 <link rel="manifest" href="/manifest.webmanifest">
 <link rel="icon" href="data:image/svg+xml;base64,{svg}" type="image/svg+xml">
