@@ -763,6 +763,9 @@ function spansFor(key) {
   }).join('');
 }
 
+// "11월" large with a small year next to it.
+function monthTitle(d) { return `<b>${esc(F_M.format(d))}</b><small>${esc(F_Y.format(d))}</small>`; }
+
 function calendarView() {
   assignLanes();
   const { y, m } = S.ym;
@@ -789,7 +792,7 @@ function calendarView() {
   return `<section class="panel cal ${S.calOpen ? 'expanded' : ''}" aria-label="${L.calendar}">
     <div class="cal-month">
       <div class="cal-head">
-        <h2>${F_YM.format(new Date(y, m, 1))}</h2>
+        <h2 class="cal-title">${monthTitle(new Date(y, m, 1))}</h2>
         <div class="nav"><button data-act="month" data-d="-1" aria-label="${L.prevMonth}">${ICON.left}</button><button data-act="month" data-d="1" aria-label="${L.nextMonth}">${ICON.right}</button></div>
       </div>
       <div class="dow" aria-hidden="true">${DAYS.map((d, i) => `<span class="${i === 0 ? 'sun' : i === 6 ? 'sat' : ''}">${d}</span>`).join('')}</div>
@@ -797,7 +800,7 @@ function calendarView() {
     </div>
     <div class="week">
       <div class="cal-head">
-        <h2>${F_YM.format(mid)}</h2>
+        <h2 class="cal-title">${monthTitle(mid)}</h2>
         <div class="nav"><button data-act="week" data-d="-7" aria-label="${L.prevWeek}">${ICON.left}</button><button data-act="week" data-d="7" aria-label="${L.nextWeek}">${ICON.right}</button></div>
       </div>
       <div class="grid7">${week}</div>
@@ -845,7 +848,8 @@ function timeCol(t) {
     const per = (parts.find(p => p.type === 'dayPeriod') || {}).value || '';
     const hm = parts.filter(p => p.type !== 'dayPeriod').map(p => p.value).join('').trim();
     const before = parts.findIndex(p => p.type === 'dayPeriod') < parts.findIndex(p => p.type === 'hour');
-    main = `<span class="ct-main">${before && per ? `<small>${esc(per)}</small>` : ''}<b class="num">${esc(hm)}</b>${!before && per ? `<small>${esc(per)}</small>` : ''}</span>`;
+    main = `<b class="ct-big num">${esc(hm)}</b>${per ? `<span class="ct-per">${esc(per)}</span>` : ''}`;
+    void before;
   }
   const sub = isRange(t) ? `<span class="ct-sub">~${esc(F_MD.format(parse(tEnd(t))))}</span>` : '';
   return `<div class="c-time${t.status === 'done' ? ' fin' : ''}">${main}${sub}</div>`;
@@ -867,16 +871,19 @@ function card(t, ci) {
   }
   const c = CAT[t.cat] || CAT.life;
   const done = t.status === 'done';
+  // Minimal card: the date line only when it adds something (multi-day, or a list that isn't a single day).
+  const meta = isRange(t) || S.view !== 'day' ? dateLabel(t) : '';
   const prev = ORDER[ci - 1], next = ORDER[ci + 1];
   const id = esc(t.id), title = esc(t.title);
   return `<div class="swipe ${S.openSwipe === t.id ? 'open' : ''}" data-id="${id}">
     ${next ? `<div class="swipe-move to-${next}" aria-hidden="true">${ICON.rightBig}<span>${COLS[ci + 1].label}</span></div>` : ''}
     <button class="swipe-del" data-act="del" data-id="${id}" tabindex="-1" aria-label="${L.del}: ${title}">${ICON.trashBig}<span>${L.del}</span></button>
     <article class="card ${prev ? 'has-back' : ''}" data-swipe data-id="${id}" data-next="${next || ''}">
+      ${timeCol(t)}
       <i class="c-bar" style="background:${c.color}" aria-hidden="true"></i>
       <div class="card-main">
-        <button class="title ${done ? 'done' : ''}" data-act="edit" data-id="${id}" aria-label="${L.editAria(title)}">${title}${done ? '' : ICON.pencil}</button>
-        <span class="cat">${t.time ? `<span class="c-tm num">${esc(showTime(parseTime(t.time)) || t.time)}</span>` : ''}${c.label} · ${esc(dateLabel(t))}</span>
+        <button class="title ${done ? 'done' : ''}" data-act="edit" data-id="${id}" aria-label="${L.editAria(title)}">${title}</button>
+        ${meta ? `<span class="cat">${esc(meta)}</span>` : ''}
       </div>
       ${prev ? `<button class="arrow back" data-act="move" data-id="${id}" data-to="${prev}" aria-label="${L.backTo(title, COLS[ci - 1].label)}"><span class="back-box">${ICON.leftBig}</span></button>` : ''}
     </article>
@@ -896,7 +903,9 @@ function boardView() {
     </div>`;
   }).join('');
   // Phone: [할 일 | 수행 중 | 완료] [+] in one row; + opens the input under it (+ turns into ×).
+  const heading = S.view === 'day' ? (S.sel.slice(0, 4) === today().slice(0, 4) ? F_MDW : dtf({ year: 'numeric', month: 'long', day: 'numeric', weekday: 'short' })).format(parse(S.sel)) : F_YM.format(parse(S.sel));
   return `<section class="board" aria-label="${L.board}">
+    <h2 class="day-title">${esc(heading)}</h2>
     <div class="tabs-row">
       <div class="tabs" role="group" aria-label="${L.status}">${tabs}</div>
       <button type="button" class="add-toggle ${S.addOpen ? 'open' : ''}" data-act="add-toggle" aria-expanded="${!!S.addOpen}" aria-label="${S.addOpen ? L.cancel : L.addTask}">${ICON.plus}</button>

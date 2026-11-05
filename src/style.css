@@ -430,3 +430,29 @@ input::placeholder { color: var(--fg-3); }
 }
 .c-tm { color: var(--fg); font-weight: 600; margin-right: -2px; }
 .c-tm::after { content: '·'; margin-left: 5px; color: var(--fg-3); font-weight: 400; }
+
+/* minical-style refinements */
+.cal-title { display: flex; align-items: baseline; gap: 8px; }
+.cal-title b { font-size: 24px; font-weight: 800; letter-spacing: -0.03em; }
+.cal-title small { font-size: 13px; color: var(--fg-3); font-weight: 600; }
+.day.sel { background: var(--surface-2); }
+.day.today { background: var(--surface-4); }
+.day.today .n { background: none !important; color: #FFFFFF !important; font-weight: 800; }
+.day-title { display: none; margin: 6px 2px 2px; font-size: 22px; font-weight: 800; letter-spacing: -0.02em; }
+.c-time { width: 56px; align-items: flex-start; justify-content: center; gap: 0; }
+.ct-big { font-size: 17px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.2; }
+.ct-per { font-size: 11px; color: var(--fg-2); font-weight: 600; }
+.ct-all { font-size: 13px; }
+.card { padding-top: 14px; padding-bottom: 14px; }
+.card .title { font-size: 16px; font-weight: 600; }
+.cat { font-size: 12px; color: var(--fg-3); }
+.c-bar { min-height: 38px; }
+@media (max-width: 760px) {
+  .day-title { display: block; }
+  .c-time { width: 60px; }
+  .ct-big { font-size: 19px; }
+  .card .title { font-size: 17px; }
+  .card { padding: 16px 14px; }
+  .card.has-back .card-main { padding: 16px 0; }
+  .card.has-back .c-bar { margin: 14px 0; }
+}
