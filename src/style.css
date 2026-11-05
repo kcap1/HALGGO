@@ -102,7 +102,7 @@ input::placeholder { color: var(--fg-3); }
 .nav button { width: 44px; height: 44px; margin: -4px 0; border-radius: 50%; color: var(--blue-text); display: flex; align-items: center; justify-content: center; }
 .dow, .grid7 { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); }
 .dow { text-align: center; font-size: 11px; font-weight: 600; color: var(--fg-2); padding-bottom: 4px; }
-.day { height: 40px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; }
+.day { position: relative; height: 44px; padding-bottom: 6px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; }
 .day .n { width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-variant-numeric: tabular-nums; }
 .dow .sun, .day.sun .n, .day.sun .w, .day.hol .n, .day.hol .w { color: #FF6961; }
 .dow .sat, .day.sat .n, .day.sat .w { color: var(--blue-text); }
@@ -257,7 +257,7 @@ input::placeholder { color: var(--fg-3); }
   .cal-more svg { width: 18px; height: 18px; }
   .cal.expanded .cal-month { display: block; margin-bottom: 0; padding: 4px 2px 0; }
   .cal.expanded .week { display: none; }
-  .week .day { height: auto; gap: 3px; padding: 2px 0; }
+  .week .day { height: auto; gap: 3px; padding: 2px 0 9px; }
   .week .day .w { font-size: 11px; font-weight: 600; color: var(--fg-2); }
   .week .day .n { width: 34px; height: 34px; font-size: 15px; }
   .week .dots { gap: 3px; height: 5px; }
@@ -351,3 +351,18 @@ input::placeholder { color: var(--fg-3); }
   .stats .panel { padding: 14px; }
   .page-btn { padding: 0 12px; }
 }
+
+/* Multi-day tasks */
+.spans { position: absolute; left: 0; right: 0; bottom: 0; height: 7px; pointer-events: none; }
+.span { position: absolute; left: -1px; right: -1px; height: 3px; display: block; }
+.span.l0 { bottom: 4px; }
+.span.l1 { bottom: 0; }
+.span.s { left: 18%; border-top-left-radius: 2px; border-bottom-left-radius: 2px; }
+.span.e { right: 18%; border-top-right-radius: 2px; border-bottom-right-radius: 2px; }
+.span.fin { opacity: .35; }
+.range-pill { position: relative; flex: none; height: 36px; min-width: 36px; padding: 0 8px; margin: 4px 0; border-radius: 999px; color: var(--fg-2); display: flex; align-items: center; justify-content: center; cursor: pointer; overflow: hidden; }
+.range-pill.set { background: var(--surface-3); color: var(--fg); font-size: 13px; font-weight: 600; padding: 0 10px; white-space: nowrap; }
+.range-pill input { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; border: 0; padding: 0; cursor: pointer; }
+.range-pill input::-webkit-calendar-picker-indicator { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
+.end-field:not(.set) .date-text { color: var(--fg-3); }
+.end-clear { flex: none; width: 40px; height: 40px; border-radius: 8px; background: var(--surface); color: var(--fg-2); font-size: 20px; }

@@ -9,7 +9,7 @@
 - Firebase 프로젝트: `halggo` (Authentication: Google 로그인 / Firestore: 서울 asia-northeast3)
   - 승인된 도메인에 `halggo-6e9d.vercel.app` 등록되어 있음. 도메인이 바뀌면 다시 추가해야 로그인됨.
   - 콘솔: https://console.firebase.google.com/project/halggo
-- 데이터 경로: `users/{uid}/tasks/{taskId}` — 필드 `title, date(YYYY-MM-DD), time('HH:MM' 또는 ''), status(todo|doing|done), cat, created(ms)`
+- 데이터 경로: `users/{uid}/tasks/{taskId}` — 필드 `title, date(YYYY-MM-DD, 시작일), end(YYYY-MM-DD 또는 '' — 여러 날 할 일의 끝나는 날, 선택), time('HH:MM' 또는 ''), status(todo|doing|done), cat, created(ms)`
 - 보안 규칙: `firestore.rules` (변경 시 사용자가 콘솔 → Firestore → 규칙에 붙여 넣고 게시해야 함)
 
 ## 파일 구조
@@ -52,6 +52,9 @@
     선거일·임시공휴일·중국 调休처럼 매년 정부가 따로 정하는 날은 계산 불가 → 필요하면 `buildHolidays`에 직접 추가.
 16. **링크 미리보기 설명 문구**: 「한손으로 처리하는 세상 모든 일」 (사용자가 직접 정함. `tools/build_single.py`의 og/twitter description, `src/index.html` description, manifest).
 14. **아이콘**: 이마에 흰 머리띠(파란 체크)를 두른 검은 고양이, 크림색 배경. (세련된 버전을 시도했다가 사용자 요청으로 **처음 버전(동그란 노란 눈·볼터치·땀방울)으로 복구**함.) 원본 `src/icon.svg`, 링크 미리보기 `src/og.png`(1200×630).
+17. **여러 날 할 일(기간)**: `end`가 있으면 date~end 동안 매일 보임(오늘·선택한 날·이번 달·성과 모두 "겹치는 기간" 기준, `covers`/`overlaps`).
+    달력: 기간은 점 대신 **카테고리 색 가로 막대**(최대 2줄, 같은 할 일은 같은 줄 `assignLanes`, 완료는 흐리게). 카드: 「11월 3일~7일 · 3/5일째」.
+    만들기: 입력창 시계 옆 **달력 버튼**으로 끝나는 날 선택. 수정: 날짜 줄 아래 「기간 (끝나는 날)」 줄, ×로 기간 지우기.
 15. **계정**: 로그아웃 버튼은 숨김. 오른쪽 위 **프로필 사진을 누르면** 메뉴(가운데 정렬: 이메일 / 「계정 전환」 / 연한 빨간 글씨 「로그아웃」). 계정 전환 = Google 계정 선택 창.
 12. **기기 언어대로 표시**: 한국어·영어·일본어·중국어(그 외는 영어). 문구는 `app.js` 맨 위 `I18N` 사전에 있음.
     새 문구를 넣을 때는 네 언어 모두 추가. 날짜·요일은 `Intl`로 자동 변환. 확인용: 주소 끝에 `?lang=ja` 등.
