@@ -622,3 +622,4 @@ html.sheet-open, html.sheet-open body { overflow: hidden; }
 .add-toggle { transition: opacity .2s ease; }
 .add-toggle.hide { display: none; }
 @media (min-width: 761px) { .fab { display: none; } }
+.hg-hint { font-size: 13px !important; color: var(--fg-3) !important; }

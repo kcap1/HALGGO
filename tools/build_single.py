@@ -10,6 +10,7 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 SRC = ROOT / "src"
 
 css = (SRC / "style.css").read_text(encoding="utf-8")
+boot = (SRC / "boot.js").read_text(encoding="utf-8")
 js = (SRC / "app.js").read_text(encoding="utf-8")
 cfg = (SRC / "firebase-config.js").read_text(encoding="utf-8").replace(
     "export const firebaseConfig", "const firebaseConfig")
@@ -51,6 +52,9 @@ html = head + f'''<meta property="og:type" content="website">
 </head>
 <body>
 <div id="app"><p class="boot">…</p></div>
+<script>
+{boot}
+</script>
 <script type="module">
 {js}
 </script>

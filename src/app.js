@@ -1196,6 +1196,8 @@ function toastView() {
 }
 
 function render() {
+  window.__halggoReady = true;
+  if (window.__halggoInApp) return;   // boot.js is showing "open in Safari/Chrome"
   expandTasks();
   const a = document.activeElement;
   // Never re-focus a date field after re-rendering: on phones that reopens the date picker again and again.
