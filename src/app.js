@@ -496,11 +496,6 @@ function timeWheel(target) {
       <span class="tw-colon" aria-hidden="true">:</span>
       <div class="tw-col" id="${target}-m" data-part="m" tabindex="0" role="spinbutton" aria-label="${L.minute}" aria-valuemin="0" aria-valuemax="59" aria-valuenow="${t.m}">${wheelItems('m', t.m)}</div>
     </div>
-      <div class="tw-type">
-        <input class="tw-in num" id="${target}-ih" data-part="h" value="${pad(t.h)}" inputmode="numeric" maxlength="2" autocomplete="off" enterkeyhint="next" aria-label="${L.hour}">
-        <span aria-hidden="true">:</span>
-        <input class="tw-in num" id="${target}-im" data-part="m" value="${pad(t.m)}" inputmode="numeric" maxlength="2" autocomplete="off" enterkeyhint="done" aria-label="${L.minute}">
-      </div>
     </div>
     <div class="tw-side">
       <button type="button" class="btn-primary tw-ok" data-act="time-close">${L.ok}</button>
@@ -516,9 +511,6 @@ function refreshTime(target) {
     const v = col.dataset.part === 'h' ? t.h : t.m;
     col.innerHTML = wheelItems(col.dataset.part, v);
     col.setAttribute('aria-valuenow', v);
-  });
-  root.querySelectorAll(`.tw[data-target="${target}"] .tw-in`).forEach(inp => {
-    if (inp !== document.activeElement) inp.value = pad(inp.dataset.part === 'h' ? t.h : t.m);
   });
   root.querySelectorAll(`.time-pill[data-target="${target}"]`).forEach(pill => {
     pill.classList.add('set');
@@ -883,13 +875,6 @@ root.addEventListener('wheel', e => {
 
 root.addEventListener('keydown', e => {
   if (e.key === 'Escape' && S.timeOpen) { S.timeOpen = null; render(); return; }
-  if (e.key === 'Enter' && e.target.classList && e.target.classList.contains('tw-in')) {
-    e.preventDefault();
-    typeTime(e.target, true);
-    if (e.target.dataset.part === 'h') { const m = e.target.closest('.tw').querySelector('.tw-in[data-part="m"]'); m.focus(); }
-    else { S.timeOpen = null; render(); }
-    return;
-  }
   const col = e.target.closest && e.target.closest('.tw-col');
   if (!col || (e.key !== 'ArrowUp' && e.key !== 'ArrowDown')) return;
   e.preventDefault();
@@ -986,26 +971,8 @@ function endPointer(e) {
 root.addEventListener('pointerup', endPointer);
 root.addEventListener('pointercancel', endPointer);
 
-/* Typing the time: two hour digits (or one digit 3–9) jump straight to the minutes. */
-function typeTime(el, done) {
-  const target = el.closest('.tw').dataset.target, isH = el.dataset.part === 'h';
-  const raw = el.value.replace(/\D/g, '').slice(0, 2);
-  if (raw !== el.value) el.value = raw;
-  const full = raw.length === 2 || (raw.length === 1 && Number(raw) > (isH ? 2 : 5));
-  if (!raw || (!full && !done)) return;
-  const t = getTime(target) || nowRounded();
-  const v = Math.min(Number(raw), isH ? 23 : 59);
-  setTime(target, isH ? { h: v, m: t.m } : { h: t.h, m: v });
-  if (isH && full) { const m = el.closest('.tw').querySelector('.tw-in[data-part="m"]'); m.focus(); m.select(); }
-  else el.value = pad(v);
-  refreshTime(target);
-}
-root.addEventListener('focusin', e => { if (e.target.classList && e.target.classList.contains('tw-in')) e.target.select(); });
-root.addEventListener('focusout', e => { if (e.target.classList && e.target.classList.contains('tw-in')) typeTime(e.target, true); });
-
 root.addEventListener('input', e => {
   const el = e.target;
-  if (el.classList.contains('tw-in')) { typeTime(el, false); return; }
   if (el.classList.contains('composer-input')) S.draft = el.value;
   else if (el.id === 'edit-title' && S.edit) S.edit.title = el.value;
   else if (el.id === 'edit-date' && S.edit) { S.edit.date = el.value; const tx = el.parentElement.querySelector('.date-text'); if (tx) tx.textContent = editDateText(el.value); }
