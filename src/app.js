@@ -402,15 +402,13 @@ function card(t, ci) {
   const prev = ORDER[ci - 1], next = ORDER[ci + 1];
   const id = esc(t.id), title = esc(t.title);
   return `<div class="swipe ${S.openSwipe === t.id ? 'open' : ''}" data-id="${id}">
+    ${next ? `<div class="swipe-move to-${next}" aria-hidden="true">${ICON.rightBig}<span>${COLS[ci + 1].label}</span></div>` : ''}
     <button class="swipe-del" data-act="del" data-id="${id}" tabindex="-1" aria-label="삭제: ${title}">${ICON.trashBig}<span>삭제</span></button>
-    <article class="card" data-swipe data-id="${id}">
+    <article class="card ${prev ? 'has-back' : ''}" data-swipe data-id="${id}" data-next="${next || ''}">
+      ${prev ? `<button class="arrow back" data-act="move" data-id="${id}" data-to="${prev}" aria-label="${title}: ${COLS[ci - 1].label}(으)로 되돌리기">${ICON.leftBig}</button>` : ''}
       <div class="card-main">
         <button class="title ${done ? 'done' : ''}" data-act="edit" data-id="${id}" aria-label="수정: ${title}">${title}${done ? '' : ICON.pencil}</button>
         <span class="cat"><i style="background:${c.color}"></i>${c.label} · ${relLabel(t.date)}${t.time ? ` <span class="num">${esc(t.time)}</span>` : ''}</span>
-      </div>
-      <div class="card-arrows">
-        ${prev ? `<button class="arrow" data-act="move" data-id="${id}" data-to="${prev}" aria-label="${title}: ${COLS[ci - 1].label}(으)로 이동">${ICON.leftBig}</button>` : ''}
-        ${next ? `<button class="arrow fwd" data-act="move" data-id="${id}" data-to="${next}" aria-label="${title}: ${COLS[ci + 1].label}(으)로 이동">${ICON.rightBig}</button>` : ''}
       </div>
     </article>
   </div>`;
@@ -436,7 +434,12 @@ function boardView() {
 }
 
 function headerView() {
-  const views = [['day', '선택한 날'], ['all', '전체']].map(([v, l]) => `<button data-act="view" data-view="${v}" aria-pressed="${S.view === v}">${l}</button>`).join('');
+  const isToday = S.sel === today(), day = S.view === 'day';
+  const views = [
+    `<button data-act="today" aria-pressed="${day && isToday}">오늘</button>`,
+    isToday ? '' : `<button data-act="view" data-view="day" aria-pressed="${day}">선택한 날</button>`,
+    `<button data-act="view" data-view="all" aria-pressed="${!day}">전체</button>`
+  ].join('');
   let account = '';
   if (DEMO) account = '<span class="badge">체험 모드</span>';
   else if (S.user) {
@@ -447,7 +450,6 @@ function headerView() {
     <div class="title-group"><h1>할 일</h1><span class="sub">${S.view === 'day' ? longDate(S.sel) : '모든 날짜'}</span></div>
     <div class="top-actions">
       <div class="seg" role="group" aria-label="보기">${views}</div>
-      ${S.sel !== today() || S.view !== 'day' ? '<button class="pill" data-act="today">오늘</button>' : ''}
       ${account}
     </div>
   </header>`;
@@ -603,6 +605,7 @@ root.addEventListener('keydown', e => {
 });
 
 const DEL_W = 88;
+const moveAt = card => Math.min(120, card.offsetWidth * 0.35);
 let drag = null, sw = null;
 
 root.addEventListener('pointerdown', e => {
@@ -615,7 +618,7 @@ root.addEventListener('pointerdown', e => {
   }
   const cardEl = e.target.closest('.card[data-swipe]');
   if (!cardEl || (e.pointerType === 'mouse' && e.button !== 0)) return;
-  sw = { card: cardEl, wrap: cardEl.parentElement, id: cardEl.dataset.id, x: e.clientX, y: e.clientY, dx: 0, active: false,
+  sw = { card: cardEl, wrap: cardEl.parentElement, id: cardEl.dataset.id, next: cardEl.dataset.next, x: e.clientX, y: e.clientY, dx: 0, active: false,
          base: cardEl.parentElement.classList.contains('open') ? -DEL_W : 0, pid: e.pointerId };
 });
 
@@ -637,9 +640,11 @@ root.addEventListener('pointermove', e => {
       sw.wrap.classList.add('swiping');
     } else if (Math.abs(dy) > 10) { sw = null; return; } else return;
   }
-  sw.dx = Math.min(0, sw.base + dx);
+  sw.dx = Math.min(sw.next && !sw.base ? sw.card.offsetWidth : 0, sw.base + dx);
   sw.card.style.transform = `translateX(${sw.dx}px)`;
   sw.wrap.classList.toggle('far', sw.dx < -sw.card.offsetWidth * 0.55);
+  sw.wrap.classList.toggle('fwd', sw.dx > 0);
+  sw.wrap.classList.toggle('go', sw.dx > moveAt(sw.card));
 });
 
 function endPointer(e) {
@@ -656,9 +661,16 @@ function endPointer(e) {
   const s = sw; sw = null;
   if (!s.active) return;
   swallowNextClick();
-  s.wrap.classList.remove('swiping', 'far');
+  s.wrap.classList.remove('swiping', 'far', 'fwd', 'go');
   s.card.style.transition = '';
   if (e.type === 'pointerup' && s.dx < -s.card.offsetWidth * 0.55) { deleteTask(s.id); return; }
+  if (e.type === 'pointerup' && s.next && s.dx > moveAt(s.card)) {
+    S.openSwipe = null;
+    s.card.style.transform = '';
+    if (store) store.update(s.id, { status: s.next }).catch(fail);
+    render();
+    return;
+  }
   S.openSwipe = s.dx < -DEL_W / 2 ? s.id : null;
   s.card.style.transform = '';
   render();
