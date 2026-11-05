@@ -694,9 +694,13 @@ function boardView() {
       ${cards.length === 0 && (c.id !== 'todo' || window.matchMedia('(max-width: 760px)').matches) ? `<p class="empty">${L.empty}</p>` : ''}
     </div>`;
   }).join('');
+  // Phone: [할 일 | 수행 중 | 완료] [+] in one row; + opens the input under it (+ turns into ×).
   return `<section class="board" aria-label="${L.board}">
-    ${composer('new-title-m', 'composer-m')}
-    <div class="tabs" role="group" aria-label="${L.status}">${tabs}</div>
+    <div class="tabs-row">
+      <div class="tabs" role="group" aria-label="${L.status}">${tabs}</div>
+      <button type="button" class="add-toggle ${S.addOpen ? 'open' : ''}" data-act="add-toggle" aria-expanded="${!!S.addOpen}" aria-label="${S.addOpen ? L.cancel : L.addTask}">${ICON.plus}</button>
+    </div>
+    ${S.addOpen ? composer('new-title-m', 'composer-m') : ''}
     ${cols}
   </section>`;
 }
@@ -785,7 +789,7 @@ function render() {
 function alignBack() {
   const phone = window.matchMedia('(max-width: 760px)').matches;
   root.querySelectorAll('.board > .col').forEach(col => {
-    const ref = phone ? root.querySelector('.board > .tabs button:last-child .num') : col.querySelector('.col-head .count');
+    const ref = phone ? root.querySelector('.board .tabs button:last-child .num') : col.querySelector('.col-head .count');
     const wrap = col.querySelector('.card.has-back');
     if (!ref || !wrap) return;
     const r = ref.getBoundingClientRect(), c = wrap.parentElement.getBoundingClientRect();
@@ -869,6 +873,10 @@ root.addEventListener('click', e => {
     case 'today': S.sel = today(); S.view = 'day'; syncMonth(); break;
     case 'view': S.view = b.dataset.view; break;
     case 'tab': S.tab = b.dataset.tab; break;
+    case 'add-toggle':
+      S.addOpen = !S.addOpen;
+      if (S.addOpen) { S.tab = 'todo'; S.focusId = 'new-title-m'; } else if (S.timeOpen === 'tnm') S.timeOpen = null;
+      break;
     case 'newcat': S.newCat = b.dataset.cat; break;
     case 'editcat': if (S.edit) S.edit.cat = b.dataset.cat; break;
     case 'time-open': {
@@ -916,6 +924,7 @@ root.addEventListener('wheel', e => {
 
 root.addEventListener('keydown', e => {
   if (e.key === 'Escape' && S.timeOpen) { S.timeOpen = null; render(); return; }
+  if (e.key === 'Escape' && S.addOpen && e.target.id === 'new-title-m') { S.addOpen = false; render(); return; }
   const col = e.target.closest && e.target.closest('.tw-col');
   if (!col || (e.key !== 'ArrowUp' && e.key !== 'ArrowDown')) return;
   e.preventDefault();
@@ -935,7 +944,7 @@ root.addEventListener('pointerdown', e => {
     return;
   }
   const cardEl = e.target.closest('.card[data-swipe]');
-  if (e.target.closest('.board > .tabs')) {
+  if (e.target.closest('.board .tabs')) {
     tabSw = { x: e.clientX, y: e.clientY };
     return;
   }

@@ -149,7 +149,7 @@ input::placeholder { color: var(--fg-3); }
 .week { display: none; }
 
 .board { flex: 999 1 600px; min-width: 0; display: flex; flex-wrap: wrap; gap: 12px; align-items: stretch; }
-.board > .tabs, .board > .composer-m { display: none; }
+.board > .tabs-row, .board > .composer-m { display: none; }
 .col { flex: 1 1 200px; min-width: 0; display: flex; flex-direction: column; gap: 8px; }
 .col-head { display: flex; align-items: center; gap: 8px; height: 36px; padding: 0 4px; }
 .col-head .dot { width: 8px; height: 8px; border-radius: 50%; }
@@ -290,13 +290,19 @@ input::placeholder { color: var(--fg-3); }
   .week .dots { gap: 3px; height: 5px; }
   .week .dots i { width: 5px; height: 5px; }
   .board { flex-direction: column; flex-wrap: nowrap; gap: 8px; }
-  .board > .composer-m, .board > .tabs { display: flex; }
-  .board > .composer-m { flex-direction: column; }
+  .board > .composer-m, .board > .tabs-row { display: flex; }
+  .board > .composer-m { flex-direction: column; animation: drop-in .2s ease; transform-origin: top center; }
+  .tabs-row { gap: 8px; align-items: stretch; }
+  .tabs-row .tabs { flex: 1; min-width: 0; display: flex; }
+  .add-toggle { flex: none; width: 48px; border-radius: 10px; background: var(--blue); color: #FFFFFF; display: flex; align-items: center; justify-content: center; }
+  .add-toggle svg { transition: transform .2s ease; }
+  .add-toggle.open { background: var(--surface-3); }
+  .add-toggle.open svg { transform: rotate(45deg); }
   .composer-m .composer-input { font-size: 16px; }
   .tabs { padding: 3px; border-radius: 10px; background: var(--surface); }
   .tabs button { flex: 1; min-height: 36px; border-radius: 8px; color: var(--fg-2); font-size: 14px; font-weight: 500; }
   .tabs button[aria-pressed="true"] { background: var(--blue); color: #FFFFFF; font-weight: 600; }
-  .board > .tabs { touch-action: pan-y; }
+  .board .tabs { touch-action: pan-y; }
     .chips { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); }
   .col { background: var(--surface); border-radius: 16px; padding: 8px; flex: none; }
   .col:not(.active) { display: none; }
@@ -313,6 +319,7 @@ input::placeholder { color: var(--fg-3); }
 .composer, .card.edit { transition: transform .18s ease, box-shadow .18s ease; }
 .composer:focus-within, .card.edit:focus-within { transform: scale(1.025); box-shadow: 0 8px 24px rgba(0, 0, 0, .45); position: relative; z-index: 2; }
 @media (prefers-reduced-motion: reduce) { .composer:focus-within, .card.edit:focus-within { transform: none; } }
+@keyframes drop-in { from { opacity: 0; transform: translateY(-8px) scale(.98); } to { opacity: 1; transform: none; } }
 
 </style>
 </head>
@@ -1025,9 +1032,13 @@ function boardView() {
       ${cards.length === 0 && (c.id !== 'todo' || window.matchMedia('(max-width: 760px)').matches) ? `<p class="empty">${L.empty}</p>` : ''}
     </div>`;
   }).join('');
+  // Phone: [할 일 | 수행 중 | 완료] [+] in one row; + opens the input under it (+ turns into ×).
   return `<section class="board" aria-label="${L.board}">
-    ${composer('new-title-m', 'composer-m')}
-    <div class="tabs" role="group" aria-label="${L.status}">${tabs}</div>
+    <div class="tabs-row">
+      <div class="tabs" role="group" aria-label="${L.status}">${tabs}</div>
+      <button type="button" class="add-toggle ${S.addOpen ? 'open' : ''}" data-act="add-toggle" aria-expanded="${!!S.addOpen}" aria-label="${S.addOpen ? L.cancel : L.addTask}">${ICON.plus}</button>
+    </div>
+    ${S.addOpen ? composer('new-title-m', 'composer-m') : ''}
     ${cols}
   </section>`;
 }
@@ -1116,7 +1127,7 @@ function render() {
 function alignBack() {
   const phone = window.matchMedia('(max-width: 760px)').matches;
   root.querySelectorAll('.board > .col').forEach(col => {
-    const ref = phone ? root.querySelector('.board > .tabs button:last-child .num') : col.querySelector('.col-head .count');
+    const ref = phone ? root.querySelector('.board .tabs button:last-child .num') : col.querySelector('.col-head .count');
     const wrap = col.querySelector('.card.has-back');
     if (!ref || !wrap) return;
     const r = ref.getBoundingClientRect(), c = wrap.parentElement.getBoundingClientRect();
@@ -1200,6 +1211,10 @@ root.addEventListener('click', e => {
     case 'today': S.sel = today(); S.view = 'day'; syncMonth(); break;
     case 'view': S.view = b.dataset.view; break;
     case 'tab': S.tab = b.dataset.tab; break;
+    case 'add-toggle':
+      S.addOpen = !S.addOpen;
+      if (S.addOpen) { S.tab = 'todo'; S.focusId = 'new-title-m'; } else if (S.timeOpen === 'tnm') S.timeOpen = null;
+      break;
     case 'newcat': S.newCat = b.dataset.cat; break;
     case 'editcat': if (S.edit) S.edit.cat = b.dataset.cat; break;
     case 'time-open': {
@@ -1247,6 +1262,7 @@ root.addEventListener('wheel', e => {
 
 root.addEventListener('keydown', e => {
   if (e.key === 'Escape' && S.timeOpen) { S.timeOpen = null; render(); return; }
+  if (e.key === 'Escape' && S.addOpen && e.target.id === 'new-title-m') { S.addOpen = false; render(); return; }
   const col = e.target.closest && e.target.closest('.tw-col');
   if (!col || (e.key !== 'ArrowUp' && e.key !== 'ArrowDown')) return;
   e.preventDefault();
@@ -1266,7 +1282,7 @@ root.addEventListener('pointerdown', e => {
     return;
   }
   const cardEl = e.target.closest('.card[data-swipe]');
-  if (e.target.closest('.board > .tabs')) {
+  if (e.target.closest('.board .tabs')) {
     tabSw = { x: e.clientX, y: e.clientY };
     return;
   }
