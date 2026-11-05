@@ -153,8 +153,18 @@ input::placeholder { color: var(--fg-3); }
 .tw-type { display: flex; justify-content: center; align-items: center; gap: 4px; font-size: 17px; font-weight: 600; }
 .tw-in { width: 48px; height: 36px; border: 0; border-radius: 8px; background: var(--surface-3); color: var(--fg); text-align: center; font-size: 17px; font-weight: 600; font-family: inherit; }
 .tw-in:focus { outline: 2px solid var(--blue-text); outline-offset: 0; }
-.edit-time { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--fg-2); }
-.edit-time .time-pill:not(.set) { background: var(--surface); }
+.edit-row { display: flex; align-items: center; gap: 8px; }
+.edit-row .field { flex: 1; min-width: 0; }
+.edit-row .time-pill { margin: 0; height: 40px; min-width: 64px; border-radius: 8px; }
+.edit-row .time-pill:not(.set) { background: var(--surface); }
+.edit-del { flex: none; width: 40px; height: 40px; border-radius: 8px; color: #FF6961; display: flex; align-items: center; justify-content: center; }
+.edit-del svg { width: 20px; height: 20px; }
+.edit-del:hover { background: var(--surface); }
+.date-field { position: relative; flex: 1; min-width: 0; height: 40px; border-radius: 8px; padding: 0 10px; background: var(--surface); display: flex; align-items: center; font-size: 14px; cursor: pointer; }
+.date-text { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.date-field input { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; border: 0; padding: 0; cursor: pointer; }
+.date-field input::-webkit-calendar-picker-indicator { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
+.date-field:focus-within { outline: 2px solid var(--blue-text); outline-offset: 0; }
 
 /* Cards: swipe left to reveal delete */
 .swipe { position: relative; border-radius: 12px; overflow: hidden; user-select: none; -webkit-user-select: none; flex: none; }
@@ -208,7 +218,7 @@ input::placeholder { color: var(--fg-3); }
 
 /* Phone */
 @media (max-width: 760px) {
-  .wrap { padding-block: 20px 40px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); gap: 12px; }
+  .wrap { padding-block: 20px calc(40px + var(--kb, 0px)); padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); gap: 12px; }
   .title-group h1 { font-size: 28px; }
   .title-group .sub { font-size: 14px; }
   .top-actions { width: 100%; }
@@ -251,7 +261,7 @@ input::placeholder { color: var(--fg-3); }
   .col-head, .col .composer { display: none; }
   .card .title { font-size: 15px; }
   .card { padding: 12px 14px; }
-  .field { font-size: 16px; }
+  .field, .date-field { font-size: 16px; }
 }
 
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }

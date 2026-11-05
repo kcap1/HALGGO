@@ -633,17 +633,29 @@ function calendarView() {
   </section>`;
 }
 
+// Date in the edit form: "11월 5일 목요일" (year added when it is not this year).
+const F_LONG_Y = dtf({ year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' });
+function editDateText(k) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(k || '')) return L.date;
+  return (k.slice(0, 4) === today().slice(0, 4) ? F_LONG : F_LONG_Y).format(parse(k));
+}
+
 function card(t, ci) {
   if (S.editId === t.id && S.edit) {
     return `<form class="card edit" data-form="edit" data-id="${esc(t.id)}">
-      <label class="sr" for="edit-title">${L.taskName}</label>
-      <input id="edit-title" class="field" maxlength="200" autocomplete="off" value="${esc(S.edit.title)}">
-      <label class="sr" for="edit-date">${L.date}</label>
-      <input id="edit-date" class="field" type="date" value="${esc(S.edit.date)}">
-      <div class="edit-time"><span>${L.time}</span>${timePill('te')}</div>
+      <div class="edit-row">
+        <label class="sr" for="edit-title">${L.taskName}</label>
+        <input id="edit-title" class="field" maxlength="200" autocomplete="off" enterkeyhint="done" value="${esc(S.edit.title)}">
+        <button type="button" class="edit-del" data-act="del" data-id="${esc(t.id)}" aria-label="${L.del}">${ICON.trash}</button>
+      </div>
+      <div class="edit-row">
+        <label class="date-field"><span class="date-text">${editDateText(S.edit.date)}</span>
+          <input id="edit-date" type="date" value="${esc(S.edit.date)}" aria-label="${L.date}"></label>
+        ${timePill('te')}
+      </div>
       ${timeWheel('te')}
       <div class="chips" role="group" aria-label="${L.changeCat}">${chips(S.edit.cat, 'editcat')}</div>
-      <div class="row-end"><button type="button" class="btn-danger" data-act="del" data-id="${esc(t.id)}">${L.del}</button><span class="spacer"></span><button type="button" class="btn-ghost" data-act="cancel">${L.cancel}</button><button type="submit" class="btn-primary">${L.save}</button></div>
+      <div class="row-end"><button type="button" class="btn-ghost" data-act="cancel">${L.cancel}</button><button type="submit" class="btn-primary">${L.save}</button></div>
     </form>`;
   }
   const c = CAT[t.cat] || CAT.life;
@@ -755,6 +767,24 @@ function render() {
   S.focusId = null;
 }
 
+/* Phone keyboard: keep the edit form above the keyboard (scroll it into the visible part of the screen). */
+function fitEdit() {
+  const f = root.querySelector('form.card.edit');
+  if (!f) return;
+  const vv = window.visualViewport, top = vv ? vv.offsetTop : 0, h = vv ? vv.height : window.innerHeight;
+  const r = f.getBoundingClientRect();
+  const over = r.bottom + 12 - (top + h);
+  if (over > 0) window.scrollBy({ top: Math.min(over, r.top - top - 12), behavior: 'smooth' });
+}
+if (window.visualViewport) {
+  let kbT = null;
+  window.visualViewport.addEventListener('resize', () => {
+    const kb = Math.max(0, Math.round(window.innerHeight - window.visualViewport.height));
+    document.documentElement.style.setProperty('--kb', kb + 'px');
+    clearTimeout(kbT); kbT = setTimeout(fitEdit, 80);
+  });
+}
+
 /* ---------- Actions ---------- */
 
 let toastTimer = null;
@@ -829,7 +859,8 @@ root.addEventListener('click', e => {
       if (!t) return;
       S.editId = id; S.edit = { title: t.title, date: t.date, cat: CAT[t.cat] ? t.cat : 'life', time: parseTime(t.time) };
       S.timeOpen = null; S.focusId = 'edit-title';
-      break;
+      render(); setTimeout(fitEdit, 60); setTimeout(fitEdit, 400);
+      return;
     }
     case 'cancel': S.editId = null; S.edit = null; S.timeOpen = null; break;
     default: if (dirty) render(); return;
@@ -977,7 +1008,7 @@ root.addEventListener('input', e => {
   if (el.classList.contains('tw-in')) { typeTime(el, false); return; }
   if (el.classList.contains('composer-input')) S.draft = el.value;
   else if (el.id === 'edit-title' && S.edit) S.edit.title = el.value;
-  else if (el.id === 'edit-date' && S.edit) S.edit.date = el.value;
+  else if (el.id === 'edit-date' && S.edit) { S.edit.date = el.value; const tx = el.parentElement.querySelector('.date-text'); if (tx) tx.textContent = editDateText(el.value); }
 });
 
 root.addEventListener('submit', e => {
