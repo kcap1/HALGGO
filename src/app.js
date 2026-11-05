@@ -560,8 +560,8 @@ function progressView() {
   const t = today(), mk = t.slice(0, 7), yk = t.slice(0, 4);
   const now = new Date();
   const items = [
-    { label: L.today, sub: F_MD.format(now), color: 'var(--blue-text)', s: stat(k => k === t) },
-    { label: L.thisMonth, sub: F_M.format(now), color: 'var(--orange)', s: stat(k => k.slice(0, 7) === mk) }
+    { label: L.today, sub: F_MD.format(now), color: 'var(--orange)', s: stat(k => k === t) },
+    { label: L.thisMonth, sub: F_M.format(now), color: 'var(--blue-text)', s: stat(k => k.slice(0, 7) === mk) }
   ];
   if (S.view === 'all') items.push({ label: L.thisYear, sub: F_Y.format(now), color: 'var(--green)', s: stat(k => k.slice(0, 4) === yk) });
   return `<section class="progress cols-${items.length}" aria-label="${L.progress}">${items.map(p => `
@@ -652,11 +652,11 @@ function card(t, ci) {
     ${next ? `<div class="swipe-move to-${next}" aria-hidden="true">${ICON.rightBig}<span>${COLS[ci + 1].label}</span></div>` : ''}
     <button class="swipe-del" data-act="del" data-id="${id}" tabindex="-1" aria-label="${L.del}: ${title}">${ICON.trashBig}<span>${L.del}</span></button>
     <article class="card ${prev ? 'has-back' : ''}" data-swipe data-id="${id}" data-next="${next || ''}">
-      ${prev ? `<button class="arrow back" data-act="move" data-id="${id}" data-to="${prev}" aria-label="${L.backTo(title, COLS[ci - 1].label)}">${ICON.leftBig}</button>` : ''}
       <div class="card-main">
         <button class="title ${done ? 'done' : ''}" data-act="edit" data-id="${id}" aria-label="${L.editAria(title)}">${title}${done ? '' : ICON.pencil}</button>
         <span class="cat"><i style="background:${c.color}"></i>${c.label} · ${relLabel(t.date)}${t.time ? ` <span class="num">${esc(t.time)}</span>` : ''}</span>
       </div>
+      ${prev ? `<button class="arrow back" data-act="move" data-id="${id}" data-to="${prev}" aria-label="${L.backTo(title, COLS[ci - 1].label)}">${ICON.leftBig}</button>` : ''}
     </article>
   </div>`;
 }
