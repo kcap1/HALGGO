@@ -162,7 +162,8 @@ input::placeholder { color: var(--fg-3); }
 .composer-row { display: flex; align-items: center; gap: 4px; }
 .composer-input { flex: 1; min-width: 0; height: 44px; border: 0; padding: 0; background: transparent; font-size: 15px; }
 .composer-input:focus-visible { outline: none; }
-.add-btn { flex: none; width: 44px; height: 44px; margin: 2px 0 2px 10px; border-radius: 50%; background: var(--blue); color: #FFFFFF; display: flex; align-items: center; justify-content: center; }
+.add-btn { flex: none; width: 50px; height: 50px; margin: 2px 0 2px 10px; border-radius: 12px; background: var(--blue); color: #FFFFFF; display: flex; align-items: center; justify-content: center; }
+.add-btn svg { width: 26px; height: 26px; }
 .chips { display: flex; flex-wrap: wrap; gap: 2px; margin-left: -4px; }
 .chip { min-width: 0; white-space: nowrap; overflow: hidden; height: 32px; padding: 0 7px; border-radius: 999px; color: var(--fg-2); font-size: 12px; font-weight: 500; display: inline-flex; align-items: center; gap: 5px; }
 .chip i, .cat i { width: 7px; height: 7px; border-radius: 50%; display: block; flex: none; }
@@ -292,10 +293,10 @@ input::placeholder { color: var(--fg-3); }
   .board { flex-direction: column; flex-wrap: nowrap; gap: 8px; }
   .board > .composer-m, .board > .tabs-row { display: flex; }
   .board > .composer-m { flex-direction: column; animation: drop-in .2s ease; transform-origin: top center; }
-  .tabs-row { gap: 8px; align-items: stretch; }
+  .tabs-row { gap: 10px; align-items: center; }
   .tabs-row .tabs { flex: 1; min-width: 0; display: flex; }
-  .add-toggle { flex: none; width: 48px; border-radius: 10px; background: var(--blue); color: #FFFFFF; display: flex; align-items: center; justify-content: center; }
-  .add-toggle svg { transition: transform .2s ease; }
+  .add-toggle { flex: none; width: 52px; height: 52px; border-radius: 50%; background: var(--blue); color: #FFFFFF; display: flex; align-items: center; justify-content: center; }
+  .add-toggle svg { width: 26px; height: 26px; transition: transform .2s ease; }
   .add-toggle.open { background: #FF453A; }
   .add-toggle.open svg { transform: rotate(45deg); }
   .composer-m .composer-input { font-size: 16px; }
