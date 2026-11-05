@@ -69,7 +69,7 @@ input::placeholder { color: var(--fg-3); }
 
 /* Header */
 .top { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; min-height: 44px; }
-.title-group { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; min-width: 0; }
+.title-group { flex: 1; display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; min-width: 0; }
 .title-group h1 { margin: 0; font-size: 30px; font-weight: 700; letter-spacing: -0.03em; }
 .title-group .sub { font-size: 16px; font-weight: 500; color: var(--fg-2); }
 .top-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
@@ -161,7 +161,10 @@ input::placeholder { color: var(--fg-3); }
 .tw-item.d1 { color: var(--fg-2); font-size: 20px; }
 .tw-item.d2 { color: var(--fg-3); font-size: 17px; }
 .tw-colon { position: relative; font-size: 22px; font-weight: 600; padding-bottom: 2px; }
-.tw-actions { display: flex; justify-content: space-between; }
+.tw-actions { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.tw-type { display: flex; align-items: center; gap: 4px; font-size: 17px; font-weight: 600; }
+.tw-in { width: 46px; height: 36px; border: 0; border-radius: 8px; background: var(--surface-3); color: var(--fg); text-align: center; font-size: 17px; font-weight: 600; font-family: inherit; }
+.tw-in:focus { outline: 2px solid var(--blue-text); outline-offset: 0; }
 .edit-time { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--fg-2); }
 .edit-time .time-pill:not(.set) { background: var(--surface); }
 
@@ -262,7 +265,7 @@ input::placeholder { color: var(--fg-3); }
 </style>
 </head>
 <body>
-<div id="app"><p class="boot">불러오는 중…</p></div>
+<div id="app"><p class="boot">…</p></div>
 <script type="module">
 // Firebase 웹 설정값. 웹앱에 원래 공개되는 값이라 비밀이 아니에요.
 // 데이터는 firestore.rules와 Authentication의 승인된 도메인으로 보호돼요.
@@ -279,22 +282,150 @@ const firebaseConfig = {
 const FIREBASE_VERSION = '10.12.2';
 const DEMO = !firebaseConfig || !firebaseConfig.apiKey || String(firebaseConfig.apiKey).startsWith('YOUR_');
 
-const DAYS = ['일', '월', '화', '수', '목', '금', '토'];
+/* ---------- Language: follows the device language (ko / en / ja / zh, others → en). ?lang=xx overrides. ---------- */
+const LANGS = ['ko', 'en', 'ja', 'zh'];
+const LANG = (() => {
+  const q = new URLSearchParams(location.search).get('lang');
+  const prefs = [q, ...(navigator.languages || []), navigator.language].filter(Boolean);
+  for (const p of prefs) { const b = String(p).toLowerCase().split('-')[0]; if (LANGS.includes(b)) return b; }
+  return 'en';
+})();
+const LOC = LANG === 'zh' ? 'zh-CN' : LANG;
+document.documentElement.lang = LOC;
+
+const I18N = {
+  ko: {
+    title: '할 일', cols: ['할 일', '수행 중', '완료'],
+    cats: ['업무', '공부', '운동·건강', '재테크', '집안일', '약속', '쇼핑', '개인'],
+    newTask: '새로운 할 일', addTask: '할 일 추가', pickCat: '카테고리 선택', changeCat: '카테고리 변경',
+    today: '오늘', thisMonth: '이번 달', thisYear: '올해', progress: '진행도',
+    ring: (l, p, t, d) => `${l} 진행률 ${p}%, ${t}개 중 ${d}개 완료`, doneWord: '완료',
+    openLeft: n => `, 남은 할 일 ${n}개`, calendar: '캘린더', collapse: '접기', monthView: '한 달 보기',
+    prevMonth: '이전 달', nextMonth: '다음 달', prevWeek: '이전 주', nextWeek: '다음 주',
+    monthLeft: '이번 달 남은 할 일', count: n => `${n}개`,
+    taskName: '할 일 이름', date: '날짜', time: '시간', del: '삭제', cancel: '취소', save: '저장',
+    backTo: (t, c) => `${t}: ${c}(으)로 되돌리기`, editAria: t => `수정: ${t}`, empty: '비어 있음',
+    board: '칸반 보드', status: '상태', selDay: '선택한 날', all: '전체', view: '보기', allDates: '모든 날짜',
+    demo: '체험 모드', logout: '로그아웃',
+    loginText: '캘린더와 칸반보드로 오늘, 이번 달, 올해 할 일을 관리하세요. 휴대폰과 컴퓨터에서 같은 목록이 보여요.',
+    google: 'Google로 시작하기', undo: '되돌리기', loading: '불러오는 중…', retry: '다시 시도',
+    demoNotice: '<strong>체험 모드예요.</strong> 지금은 이 브라우저에만 저장돼요. 설정 가이드대로 Firebase를 연결하면 구글 로그인과 휴대폰·PC 동기화가 켜져요.',
+    saveFail: '저장하지 못했어요. 인터넷 연결을 확인해 주세요.', deleted: '삭제했어요', loadFail: '목록을 불러오지 못했어요. 새로고침해 주세요.',
+    timeAdd: '시간 추가', timeChange: t => `시간 ${t}, 바꾸기`, timePick: '시간 선택', hour: '시', minute: '분', clear: '지우기', ok: '완료',
+    eDomain: '이 주소가 Firebase에 등록되지 않았어요. Authentication → 설정 → 승인된 도메인에 이 사이트 주소를 추가해 주세요.',
+    eNet: '인터넷 연결을 확인하고 다시 시도해 주세요.',
+    eOff: 'Firebase에서 Google 로그인이 아직 꺼져 있어요. Authentication → 로그인 방법에서 Google을 사용 설정하고 저장해 주세요.',
+    eKey: 'Firebase 설정값(apiKey)이 맞지 않아요.', eStorage: '브라우저 설정에서 쿠키와 사이트 데이터를 허용한 뒤 다시 시도해 주세요.',
+    eLogin: c => `로그인하지 못했어요. 잠시 후 다시 시도해 주세요. (오류 코드: ${c})`, unknown: '알 수 없음',
+    eApp: '앱을 불러오지 못했어요. 인터넷 연결을 확인하고 새로고침해 주세요.',
+    eInApp: '로그인 정보를 불러오지 못했어요. 메신저나 다른 앱 안에서 열었다면 Safari나 Chrome에서 다시 열어 주세요.'
+  },
+  en: {
+    title: 'To-do', cols: ['To do', 'In progress', 'Done'],
+    cats: ['Work', 'Study', 'Fitness', 'Money', 'Chores', 'Plans', 'Shopping', 'Personal'],
+    newTask: 'New task', addTask: 'Add task', pickCat: 'Choose category', changeCat: 'Change category',
+    today: 'Today', thisMonth: 'This month', thisYear: 'This year', progress: 'Progress',
+    ring: (l, p, t, d) => `${l} ${p}% complete, ${d} of ${t} done`, doneWord: 'done',
+    openLeft: n => `, ${n} left`, calendar: 'Calendar', collapse: 'Less', monthView: 'Month',
+    prevMonth: 'Previous month', nextMonth: 'Next month', prevWeek: 'Previous week', nextWeek: 'Next week',
+    monthLeft: 'Left this month', count: n => `${n}`,
+    taskName: 'Task name', date: 'Date', time: 'Time', del: 'Delete', cancel: 'Cancel', save: 'Save',
+    backTo: (t, c) => `${t}: move back to ${c}`, editAria: t => `Edit: ${t}`, empty: 'Empty',
+    board: 'Kanban board', status: 'Status', selDay: 'Selected', all: 'All', view: 'View', allDates: 'All dates',
+    demo: 'Demo', logout: 'Sign out',
+    loginText: 'Plan today, this month and this year with a calendar and a kanban board. Your list syncs between phone and computer.',
+    google: 'Continue with Google', undo: 'Undo', loading: 'Loading…', retry: 'Try again',
+    demoNotice: '<strong>Demo mode.</strong> Tasks are saved only in this browser. Connect Firebase to turn on Google sign-in and sync.',
+    saveFail: "Couldn't save. Check your internet connection.", deleted: 'Deleted', loadFail: "Couldn't load your list. Please refresh.",
+    timeAdd: 'Add time', timeChange: t => `Time ${t}, change`, timePick: 'Choose time', hour: 'Hour', minute: 'Minute', clear: 'Clear', ok: 'Done',
+    eDomain: 'This address is not registered in Firebase. Add it under Authentication → Settings → Authorized domains.',
+    eNet: 'Check your internet connection and try again.',
+    eOff: 'Google sign-in is turned off in Firebase. Enable Google under Authentication → Sign-in method.',
+    eKey: 'The Firebase apiKey is not valid.', eStorage: 'Allow cookies and site data in your browser settings, then try again.',
+    eLogin: c => `Couldn't sign in. Please try again shortly. (Error code: ${c})`, unknown: 'unknown',
+    eApp: "Couldn't load the app. Check your internet connection and refresh.",
+    eInApp: "Couldn't load your sign-in. If you opened this inside a messenger or another app, open it in Safari or Chrome."
+  },
+  ja: {
+    title: 'やること', cols: ['やること', '進行中', '完了'],
+    cats: ['仕事', '勉強', '運動・健康', '資産運用', '家事', '約束', '買い物', '個人'],
+    newTask: '新しいやること', addTask: 'やることを追加', pickCat: 'カテゴリを選択', changeCat: 'カテゴリを変更',
+    today: '今日', thisMonth: '今月', thisYear: '今年', progress: '進捗',
+    ring: (l, p, t, d) => `${l} 進捗 ${p}%、${t}件中${d}件完了`, doneWord: '完了',
+    openLeft: n => `、残り${n}件`, calendar: 'カレンダー', collapse: '閉じる', monthView: '月表示',
+    prevMonth: '前の月', nextMonth: '次の月', prevWeek: '前の週', nextWeek: '次の週',
+    monthLeft: '今月の残り', count: n => `${n}件`,
+    taskName: 'やることの名前', date: '日付', time: '時間', del: '削除', cancel: 'キャンセル', save: '保存',
+    backTo: (t, c) => `${t}: ${c}に戻す`, editAria: t => `編集: ${t}`, empty: 'なし',
+    board: 'カンバンボード', status: '状態', selDay: '選択日', all: 'すべて', view: '表示', allDates: 'すべての日付',
+    demo: '体験モード', logout: 'ログアウト',
+    loginText: 'カレンダーとカンバンボードで、今日・今月・今年のやることを管理しましょう。スマホとパソコンで同じリストが見られます。',
+    google: 'Googleで始める', undo: '元に戻す', loading: '読み込み中…', retry: '再試行',
+    demoNotice: '<strong>体験モードです。</strong> このブラウザにだけ保存されます。Firebaseを接続するとGoogleログインと同期が使えます。',
+    saveFail: '保存できませんでした。インターネット接続を確認してください。', deleted: '削除しました', loadFail: 'リストを読み込めませんでした。再読み込みしてください。',
+    timeAdd: '時間を追加', timeChange: t => `時間 ${t}、変更`, timePick: '時間を選択', hour: '時', minute: '分', clear: '消去', ok: '完了',
+    eDomain: 'このアドレスはFirebaseに登録されていません。Authentication → 設定 → 承認済みドメインに追加してください。',
+    eNet: 'インターネット接続を確認して、もう一度お試しください。',
+    eOff: 'FirebaseでGoogleログインがオフになっています。Authentication → ログイン方法でGoogleを有効にしてください。',
+    eKey: 'Firebaseの設定値(apiKey)が正しくありません。', eStorage: 'ブラウザの設定でCookieとサイトデータを許可してから、もう一度お試しください。',
+    eLogin: c => `ログインできませんでした。しばらくしてからお試しください。(エラーコード: ${c})`, unknown: '不明',
+    eApp: 'アプリを読み込めませんでした。インターネット接続を確認して再読み込みしてください。',
+    eInApp: 'ログイン情報を読み込めませんでした。メッセンジャーなどのアプリ内で開いた場合は、SafariかChromeで開き直してください。'
+  },
+  zh: {
+    title: '待办', cols: ['待办', '进行中', '已完成'],
+    cats: ['工作', '学习', '运动健康', '理财', '家务', '约会', '购物', '个人'],
+    newTask: '新的待办', addTask: '添加待办', pickCat: '选择类别', changeCat: '更改类别',
+    today: '今天', thisMonth: '本月', thisYear: '今年', progress: '进度',
+    ring: (l, p, t, d) => `${l} 进度 ${p}%，共${t}项，已完成${d}项`, doneWord: '完成',
+    openLeft: n => `，剩余${n}项`, calendar: '日历', collapse: '收起', monthView: '月视图',
+    prevMonth: '上个月', nextMonth: '下个月', prevWeek: '上一周', nextWeek: '下一周',
+    monthLeft: '本月剩余', count: n => `${n}项`,
+    taskName: '待办名称', date: '日期', time: '时间', del: '删除', cancel: '取消', save: '保存',
+    backTo: (t, c) => `${t}：退回到${c}`, editAria: t => `编辑：${t}`, empty: '空',
+    board: '看板', status: '状态', selDay: '所选日期', all: '全部', view: '视图', allDates: '所有日期',
+    demo: '体验模式', logout: '退出登录',
+    loginText: '用日历和看板管理今天、本月和今年的待办事项。手机和电脑同步显示同一份清单。',
+    google: '使用 Google 开始', undo: '撤销', loading: '加载中…', retry: '重试',
+    demoNotice: '<strong>体验模式。</strong> 目前只保存在此浏览器中。连接 Firebase 后即可使用 Google 登录和同步。',
+    saveFail: '保存失败。请检查网络连接。', deleted: '已删除', loadFail: '无法加载清单，请刷新。',
+    timeAdd: '添加时间', timeChange: t => `时间 ${t}，更改`, timePick: '选择时间', hour: '时', minute: '分', clear: '清除', ok: '完成',
+    eDomain: '此地址未在 Firebase 中注册。请在 Authentication → 设置 → 已授权网域中添加。',
+    eNet: '请检查网络连接后重试。',
+    eOff: 'Firebase 中的 Google 登录尚未开启。请在 Authentication → 登录方法中启用 Google。',
+    eKey: 'Firebase 配置(apiKey)不正确。', eStorage: '请在浏览器设置中允许 Cookie 和网站数据后重试。',
+    eLogin: c => `登录失败，请稍后重试。（错误代码：${c}）`, unknown: '未知',
+    eApp: '无法加载应用。请检查网络连接并刷新。',
+    eInApp: '无法加载登录信息。如果是在聊天软件等应用内打开的，请用 Safari 或 Chrome 重新打开。'
+  }
+};
+const L = I18N[LANG];
+
+const dtf = o => new Intl.DateTimeFormat(LOC, o);
+const F_LONG = dtf({ month: 'long', day: 'numeric', weekday: 'long' });
+const F_MD = dtf({ month: 'short', day: 'numeric' });
+const F_YM = dtf({ year: 'numeric', month: 'long' });
+const F_M = dtf({ month: 'long' });
+const F_Y = dtf({ year: 'numeric' });
+const DAYS = [0, 1, 2, 3, 4, 5, 6].map(i => dtf({ weekday: LANG === 'en' ? 'short' : 'narrow' }).format(new Date(2023, 0, 1 + i)));
+const REL = new Intl.RelativeTimeFormat(LOC, { numeric: 'auto' });
+const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
+
 const COLS = [
-  { id: 'todo', label: '할 일', dot: 'var(--fg-3)' },
-  { id: 'doing', label: '수행 중', dot: 'var(--orange)' },
-  { id: 'done', label: '완료', dot: 'var(--green)' }
+  { id: 'todo', label: L.cols[0], dot: 'var(--fg-3)' },
+  { id: 'doing', label: L.cols[1], dot: 'var(--orange)' },
+  { id: 'done', label: L.cols[2], dot: 'var(--green)' }
 ];
 const ORDER = COLS.map(c => c.id);
 const CATS = [
-  { id: 'work', label: '업무', color: '#64D2FF' },
-  { id: 'study', label: '공부', color: '#7D7AFF' },
-  { id: 'health', label: '운동·건강', color: '#30D158' },
-  { id: 'money', label: '재테크', color: '#FFD60A' },
-  { id: 'home', label: '집안일', color: '#FF9F0A' },
-  { id: 'social', label: '약속', color: '#FF6482' },
-  { id: 'shopping', label: '쇼핑', color: '#C9A47A' },
-  { id: 'life', label: '개인', color: '#BF5AF2' }
+  { id: 'work', label: L.cats[0], color: '#64D2FF' },
+  { id: 'study', label: L.cats[1], color: '#7D7AFF' },
+  { id: 'health', label: L.cats[2], color: '#30D158' },
+  { id: 'money', label: L.cats[3], color: '#FFD60A' },
+  { id: 'home', label: L.cats[4], color: '#FF9F0A' },
+  { id: 'social', label: L.cats[5], color: '#FF6482' },
+  { id: 'shopping', label: L.cats[6], color: '#C9A47A' },
+  { id: 'life', label: L.cats[7], color: '#BF5AF2' }
 ];
 const CAT = Object.fromEntries(CATS.map(c => [c.id, c]));
 const parseTime = s => { const m = /^(\d{2}):(\d{2})$/.exec(s || ''); return m ? { h: +m[1], m: +m[2] } : null; };
@@ -308,7 +439,7 @@ const parse = k => { const [y, m, d] = k.split('-').map(Number); return new Date
 const addDays = (k, n) => { const d = parse(k); d.setDate(d.getDate() + n); return ymd(d); };
 const today = () => ymd(new Date());
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-const longDate = k => { const d = parse(k); return `${d.getMonth() + 1}월 ${d.getDate()}일 ${DAYS[d.getDay()]}요일`; };
+const longDate = k => F_LONG.format(parse(k));
 
 const ICON = {
   leftBig: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>',
@@ -387,12 +518,12 @@ function demoStore() {
 function authMessage(e) {
   const code = e && e.code || '';
   if (code === 'auth/popup-closed-by-user' || code === 'auth/cancelled-popup-request') return '';
-  if (code === 'auth/unauthorized-domain') return '이 주소가 Firebase에 등록되지 않았어요. Authentication → 설정 → 승인된 도메인에 이 사이트 주소를 추가해 주세요.';
-  if (code === 'auth/network-request-failed') return '인터넷 연결을 확인하고 다시 시도해 주세요.';
-  if (code === 'auth/operation-not-allowed' || code === 'auth/configuration-not-found') return 'Firebase에서 Google 로그인이 아직 꺼져 있어요. Authentication → 로그인 방법에서 Google을 사용 설정하고 저장해 주세요.';
-  if (code === 'auth/invalid-api-key' || code === 'auth/api-key-not-valid.-please-pass-a-valid-api-key.') return 'Firebase 설정값(apiKey)이 맞지 않아요.';
-  if (code === 'auth/web-storage-unsupported') return '브라우저 설정에서 쿠키와 사이트 데이터를 허용한 뒤 다시 시도해 주세요.';
-  return `로그인하지 못했어요. 잠시 후 다시 시도해 주세요. (오류 코드: ${code || (e && e.message) || '알 수 없음'})`;
+  if (code === 'auth/unauthorized-domain') return L.eDomain;
+  if (code === 'auth/network-request-failed') return L.eNet;
+  if (code === 'auth/operation-not-allowed' || code === 'auth/configuration-not-found') return L.eOff;
+  if (code === 'auth/invalid-api-key' || code === 'auth/api-key-not-valid.-please-pass-a-valid-api-key.') return L.eKey;
+  if (code === 'auth/web-storage-unsupported') return L.eStorage;
+  return L.eLogin(code || (e && e.message) || L.unknown);
 }
 
 async function initCloud() {
@@ -407,7 +538,7 @@ async function initCloud() {
     initializeApp = mods[0].initializeApp; A = mods[1]; F = mods[2];
   } catch (e) {
     S.mode = 'fatal';
-    S.error = '앱을 불러오지 못했어요. 인터넷 연결을 확인하고 새로고침해 주세요.';
+    S.error = L.eApp;
     render();
     return;
   }
@@ -442,7 +573,7 @@ async function initCloud() {
   setTimeout(() => {
     if (S.mode !== 'loading') return;
     S.mode = 'fatal';
-    S.error = '로그인 정보를 불러오지 못했어요. 메신저나 다른 앱 안에서 열었다면 Safari나 Chrome에서 다시 열어 주세요.';
+    S.error = L.eInApp;
     render();
   }, 10000);
 
@@ -463,7 +594,7 @@ async function initCloud() {
       S.tasks = snap.docs.map(d => ({ id: d.id, ...d.data() }));
       render();
     }, () => {
-      showToast('목록을 불러오지 못했어요. 새로고침해 주세요.');
+      showToast(L.loadFail);
     });
     render();
   });
@@ -488,11 +619,8 @@ function dotsFor(key) {
 
 function relLabel(k) {
   const t = today();
-  if (k === t) return '오늘';
-  if (k === addDays(t, 1)) return '내일';
-  if (k === addDays(t, -1)) return '어제';
-  const d = parse(k);
-  return `${d.getMonth() + 1}월 ${d.getDate()}일`;
+  for (const n of [0, 1, -1]) if (k === addDays(t, n)) return cap(REL.format(n, 'day'));
+  return F_MD.format(parse(k));
 }
 
 function visibleTasks() {
@@ -511,7 +639,7 @@ const ITEM_H = 34;
 function timePill(target) {
   const t = getTime(target);
   const open = S.timeOpen === target;
-  const label = t ? `시간 ${fmtTime(t)}, 바꾸기` : '시간 추가';
+  const label = t ? L.timeChange(fmtTime(t)) : L.timeAdd;
   return `<button type="button" class="time-pill ${t ? 'set' : ''}" data-act="time-open" data-target="${target}" aria-haspopup="dialog" aria-expanded="${open}" aria-label="${label}">${t ? `<span class="num">${fmtTime(t)}</span>` : CLOCK}</button>`;
 }
 
@@ -525,16 +653,21 @@ function wheelItems(part, val) {
 function timeWheel(target) {
   if (S.timeOpen !== target) return '';
   const t = getTime(target) || nowRounded();
-  return `<div class="tw" data-target="${target}" role="dialog" aria-label="시간 선택">
+  return `<div class="tw" data-target="${target}" role="dialog" aria-label="${L.timePick}">
     <div class="tw-body">
       <div class="tw-band" aria-hidden="true"></div>
-      <div class="tw-col" id="${target}-h" data-part="h" tabindex="0" role="spinbutton" aria-label="시" aria-valuemin="0" aria-valuemax="23" aria-valuenow="${t.h}">${wheelItems('h', t.h)}</div>
+      <div class="tw-col" id="${target}-h" data-part="h" tabindex="0" role="spinbutton" aria-label="${L.hour}" aria-valuemin="0" aria-valuemax="23" aria-valuenow="${t.h}">${wheelItems('h', t.h)}</div>
       <span class="tw-colon" aria-hidden="true">:</span>
-      <div class="tw-col" id="${target}-m" data-part="m" tabindex="0" role="spinbutton" aria-label="분" aria-valuemin="0" aria-valuemax="59" aria-valuenow="${t.m}">${wheelItems('m', t.m)}</div>
+      <div class="tw-col" id="${target}-m" data-part="m" tabindex="0" role="spinbutton" aria-label="${L.minute}" aria-valuemin="0" aria-valuemax="59" aria-valuenow="${t.m}">${wheelItems('m', t.m)}</div>
     </div>
     <div class="tw-actions">
-      <button type="button" class="btn-ghost" data-act="time-off" data-target="${target}">지우기</button>
-      <button type="button" class="btn-primary" data-act="time-close">완료</button>
+      <button type="button" class="btn-ghost" data-act="time-off" data-target="${target}">${L.clear}</button>
+      <div class="tw-type">
+        <input class="tw-in num" id="${target}-ih" data-part="h" value="${pad(t.h)}" inputmode="numeric" maxlength="2" autocomplete="off" enterkeyhint="next" aria-label="${L.hour}">
+        <span aria-hidden="true">:</span>
+        <input class="tw-in num" id="${target}-im" data-part="m" value="${pad(t.m)}" inputmode="numeric" maxlength="2" autocomplete="off" enterkeyhint="done" aria-label="${L.minute}">
+      </div>
+      <button type="button" class="btn-primary" data-act="time-close">${L.ok}</button>
     </div>
   </div>`;
 }
@@ -547,10 +680,13 @@ function refreshTime(target) {
     col.innerHTML = wheelItems(col.dataset.part, v);
     col.setAttribute('aria-valuenow', v);
   });
+  root.querySelectorAll(`.tw[data-target="${target}"] .tw-in`).forEach(inp => {
+    if (inp !== document.activeElement) inp.value = pad(inp.dataset.part === 'h' ? t.h : t.m);
+  });
   root.querySelectorAll(`.time-pill[data-target="${target}"]`).forEach(pill => {
     pill.classList.add('set');
     pill.innerHTML = `<span class="num">${fmtTime(t)}</span>`;
-    pill.setAttribute('aria-label', `시간 ${fmtTime(t)}, 바꾸기`);
+    pill.setAttribute('aria-label', L.timeChange(fmtTime(t)));
   });
 }
 
@@ -575,13 +711,13 @@ function composer(id, cls) {
   const target = cls ? 'tnm' : 'tn';
   return `<form class="composer ${cls}" data-form="add">
     <div class="composer-row">
-      <label class="sr" for="${id}">새로운 할 일</label>
-      <input id="${id}" class="composer-input" placeholder="새로운 할 일" maxlength="200" autocomplete="off" enterkeyhint="done" value="${esc(S.draft)}">
+      <label class="sr" for="${id}">${L.newTask}</label>
+      <input id="${id}" class="composer-input" placeholder="${L.newTask}" maxlength="200" autocomplete="off" enterkeyhint="done" value="${esc(S.draft)}">
       ${timePill(target)}
-      <button type="submit" class="add-btn" aria-label="할 일 추가">${ICON.plus}</button>
+      <button type="submit" class="add-btn" aria-label="${L.addTask}">${ICON.plus}</button>
     </div>
     ${timeWheel(target)}
-    <div class="chips" role="group" aria-label="카테고리 선택">${chips(S.newCat, 'newcat')}</div>
+    <div class="chips" role="group" aria-label="${L.pickCat}">${chips(S.newCat, 'newcat')}</div>
   </form>`;
 }
 
@@ -589,14 +725,14 @@ function progressView() {
   const t = today(), mk = t.slice(0, 7), yk = t.slice(0, 4);
   const now = new Date();
   const items = [
-    { label: '오늘', sub: `${now.getMonth() + 1}월 ${now.getDate()}일`, color: 'var(--blue-text)', s: stat(k => k === t) },
-    { label: '이번 달', sub: `${now.getMonth() + 1}월`, color: 'var(--orange)', s: stat(k => k.slice(0, 7) === mk) }
+    { label: L.today, sub: F_MD.format(now), color: 'var(--blue-text)', s: stat(k => k === t) },
+    { label: L.thisMonth, sub: F_M.format(now), color: 'var(--orange)', s: stat(k => k.slice(0, 7) === mk) }
   ];
-  if (S.view === 'all') items.push({ label: '올해', sub: `${yk}년`, color: 'var(--green)', s: stat(k => k.slice(0, 4) === yk) });
-  return `<section class="progress cols-${items.length}" aria-label="진행도">${items.map(p => `
+  if (S.view === 'all') items.push({ label: L.thisYear, sub: F_Y.format(now), color: 'var(--green)', s: stat(k => k.slice(0, 4) === yk) });
+  return `<section class="progress cols-${items.length}" aria-label="${L.progress}">${items.map(p => `
     <div class="pcard">
       <div class="ring-box">
-        <svg viewBox="0 0 64 64" role="img" aria-label="${p.label} 진행률 ${p.s.pct}%, ${p.s.total}개 중 ${p.s.done}개 완료">
+        <svg viewBox="0 0 64 64" role="img" aria-label="${L.ring(p.label, p.s.pct, p.s.total, p.s.done)}">
           <circle cx="32" cy="32" r="26" fill="none" class="track" stroke-width="7"></circle>
           <circle cx="32" cy="32" r="26" fill="none" stroke="${p.color}" stroke-width="7" stroke-dasharray="${(RING_C * p.s.pct / 100).toFixed(1)} ${RING_C.toFixed(1)}" transform="rotate(-90 32 32)"></circle>
         </svg>
@@ -604,8 +740,8 @@ function progressView() {
       </div>
       <div class="ptext">
         <div class="head"><h2>${p.label}</h2><span class="muted">${p.sub}</span></div>
-        <span class="frac num"><strong>${p.s.done}</strong> / ${p.s.total} 완료</span>
-        <span class="counts num"><span>할 일 ${p.s.todo}</span><span>수행 중 ${p.s.doing}</span></span>
+        <span class="frac num"><strong>${p.s.done}</strong> / ${p.s.total} ${L.doneWord}</span>
+        <span class="counts num"><span>${L.cols[0]} ${p.s.todo}</span><span>${L.cols[1]} ${p.s.doing}</span></span>
       </div>
     </div>`).join('')}</section>`;
 }
@@ -615,7 +751,7 @@ function dayButton(key, label, extra) {
   const cls = key === S.sel ? 'sel' : key === t ? 'today' : '';
   const open = S.tasks.filter(x => x.date === key && x.status !== 'done').length;
   const d = parse(key);
-  const aria = `${d.getMonth() + 1}월 ${d.getDate()}일${open ? `, 남은 할 일 ${open}개` : ''}`;
+  const aria = `${F_MD.format(d)}${open ? L.openLeft(open) : ''}`;
   return `<button class="day ${cls}" data-act="pick" data-date="${key}" aria-label="${aria}" aria-pressed="${key === S.sel}">${extra || ''}<span class="n">${label}</span><span class="dots" aria-hidden="true">${dotsFor(key)}</span></button>`;
 }
 
@@ -638,39 +774,39 @@ function calendarView() {
     week += dayButton(ymd(d), d.getDate(), `<span class="w">${DAYS[i]}</span>`);
   }
 
-  return `<section class="panel cal ${S.calOpen ? 'expanded' : ''}" aria-label="캘린더">
+  return `<section class="panel cal ${S.calOpen ? 'expanded' : ''}" aria-label="${L.calendar}">
     <div class="cal-month">
       <div class="cal-head">
-        <h2>${y}년 ${m + 1}월</h2>
-        <button class="cal-toggle" data-act="cal-toggle" aria-expanded="true">접기 ${ICON.up}</button>
-        <div class="nav"><button data-act="month" data-d="-1" aria-label="이전 달">${ICON.left}</button><button data-act="month" data-d="1" aria-label="다음 달">${ICON.right}</button></div>
+        <h2>${F_YM.format(new Date(y, m, 1))}</h2>
+        <button class="cal-toggle" data-act="cal-toggle" aria-expanded="true">${L.collapse} ${ICON.up}</button>
+        <div class="nav"><button data-act="month" data-d="-1" aria-label="${L.prevMonth}">${ICON.left}</button><button data-act="month" data-d="1" aria-label="${L.nextMonth}">${ICON.right}</button></div>
       </div>
       <div class="dow" aria-hidden="true">${DAYS.map(d => `<span>${d}</span>`).join('')}</div>
       <div class="grid7">${cells}</div>
     </div>
     <div class="week">
       <div class="cal-head">
-        <h2>${mid.getFullYear()}년 ${mid.getMonth() + 1}월</h2>
-        <button class="cal-toggle" data-act="cal-toggle" aria-expanded="false">한 달 보기 ${ICON.down}</button>
-        <div class="nav"><button data-act="week" data-d="-7" aria-label="이전 주">${ICON.left}</button><button data-act="week" data-d="7" aria-label="다음 주">${ICON.right}</button></div>
+        <h2>${F_YM.format(mid)}</h2>
+        <button class="cal-toggle" data-act="cal-toggle" aria-expanded="false">${L.monthView} ${ICON.down}</button>
+        <div class="nav"><button data-act="week" data-d="-7" aria-label="${L.prevWeek}">${ICON.left}</button><button data-act="week" data-d="7" aria-label="${L.nextWeek}">${ICON.right}</button></div>
       </div>
       <div class="grid7">${week}</div>
     </div>
-    <div class="cal-foot"><span>이번 달 남은 할 일</span><span class="num">${monthOpen}개</span></div>
+    <div class="cal-foot"><span>${L.monthLeft}</span><span class="num">${L.count(monthOpen)}</span></div>
   </section>`;
 }
 
 function card(t, ci) {
   if (S.editId === t.id && S.edit) {
     return `<form class="card edit" data-form="edit" data-id="${esc(t.id)}">
-      <label class="sr" for="edit-title">할 일 이름</label>
+      <label class="sr" for="edit-title">${L.taskName}</label>
       <input id="edit-title" class="field" maxlength="200" autocomplete="off" value="${esc(S.edit.title)}">
-      <label class="sr" for="edit-date">날짜</label>
+      <label class="sr" for="edit-date">${L.date}</label>
       <input id="edit-date" class="field" type="date" value="${esc(S.edit.date)}">
-      <div class="edit-time"><span>시간</span>${timePill('te')}</div>
+      <div class="edit-time"><span>${L.time}</span>${timePill('te')}</div>
       ${timeWheel('te')}
-      <div class="chips" role="group" aria-label="카테고리 변경">${chips(S.edit.cat, 'editcat')}</div>
-      <div class="row-end"><button type="button" class="btn-danger" data-act="del" data-id="${esc(t.id)}">삭제</button><span class="spacer"></span><button type="button" class="btn-ghost" data-act="cancel">취소</button><button type="submit" class="btn-primary">저장</button></div>
+      <div class="chips" role="group" aria-label="${L.changeCat}">${chips(S.edit.cat, 'editcat')}</div>
+      <div class="row-end"><button type="button" class="btn-danger" data-act="del" data-id="${esc(t.id)}">${L.del}</button><span class="spacer"></span><button type="button" class="btn-ghost" data-act="cancel">${L.cancel}</button><button type="submit" class="btn-primary">${L.save}</button></div>
     </form>`;
   }
   const c = CAT[t.cat] || CAT.life;
@@ -679,11 +815,11 @@ function card(t, ci) {
   const id = esc(t.id), title = esc(t.title);
   return `<div class="swipe ${S.openSwipe === t.id ? 'open' : ''}" data-id="${id}">
     ${next ? `<div class="swipe-move to-${next}" aria-hidden="true">${ICON.rightBig}<span>${COLS[ci + 1].label}</span></div>` : ''}
-    <button class="swipe-del" data-act="del" data-id="${id}" tabindex="-1" aria-label="삭제: ${title}">${ICON.trashBig}<span>삭제</span></button>
+    <button class="swipe-del" data-act="del" data-id="${id}" tabindex="-1" aria-label="${L.del}: ${title}">${ICON.trashBig}<span>${L.del}</span></button>
     <article class="card ${prev ? 'has-back' : ''}" data-swipe data-id="${id}" data-next="${next || ''}">
-      ${prev ? `<button class="arrow back" data-act="move" data-id="${id}" data-to="${prev}" aria-label="${title}: ${COLS[ci - 1].label}(으)로 되돌리기">${ICON.leftBig}</button>` : ''}
+      ${prev ? `<button class="arrow back" data-act="move" data-id="${id}" data-to="${prev}" aria-label="${L.backTo(title, COLS[ci - 1].label)}">${ICON.leftBig}</button>` : ''}
       <div class="card-main">
-        <button class="title ${done ? 'done' : ''}" data-act="edit" data-id="${id}" aria-label="수정: ${title}">${title}${done ? '' : ICON.pencil}</button>
+        <button class="title ${done ? 'done' : ''}" data-act="edit" data-id="${id}" aria-label="${L.editAria(title)}">${title}${done ? '' : ICON.pencil}</button>
         <span class="cat"><i style="background:${c.color}"></i>${c.label} · ${relLabel(t.date)}${t.time ? ` <span class="num">${esc(t.time)}</span>` : ''}</span>
       </div>
     </article>
@@ -699,12 +835,12 @@ function boardView() {
       <div class="col-head"><span class="dot" style="background:${c.dot}" aria-hidden="true"></span><h3>${c.label}</h3><span class="count num">${cards.length}</span></div>
       ${c.id === 'todo' ? composer('new-title', '') : ''}
       ${cards.map(t => card(t, ci)).join('')}
-      ${cards.length === 0 && (c.id !== 'todo' || window.matchMedia('(max-width: 760px)').matches) ? '<p class="empty">비어 있음</p>' : ''}
+      ${cards.length === 0 && (c.id !== 'todo' || window.matchMedia('(max-width: 760px)').matches) ? `<p class="empty">${L.empty}</p>` : ''}
     </div>`;
   }).join('');
-  return `<section class="board" aria-label="칸반 보드">
+  return `<section class="board" aria-label="${L.board}">
     ${composer('new-title-m', 'composer-m')}
-    <div class="tabs" role="group" aria-label="상태">${tabs}</div>
+    <div class="tabs" role="group" aria-label="${L.status}">${tabs}</div>
     ${cols}
   </section>`;
 }
@@ -712,20 +848,20 @@ function boardView() {
 function headerView() {
   const isToday = S.sel === today(), day = S.view === 'day';
   const views = [
-    `<button data-act="today" aria-pressed="${day && isToday}">오늘</button>`,
-    isToday ? '' : `<button data-act="view" data-view="day" aria-pressed="${day}">선택한 날</button>`,
-    `<button data-act="view" data-view="all" aria-pressed="${!day}">전체</button>`
+    `<button data-act="today" aria-pressed="${day && isToday}">${L.today}</button>`,
+    isToday ? '' : `<button data-act="view" data-view="day" aria-pressed="${day}">${L.selDay}</button>`,
+    `<button data-act="view" data-view="all" aria-pressed="${!day}">${L.all}</button>`
   ].join('');
   let account = '';
-  if (DEMO) account = '<span class="badge">체험 모드</span>';
+  if (DEMO) account = `<span class="badge">${L.demo}</span>`;
   else if (S.user) {
     const photo = S.user.photoURL ? `<img class="avatar" src="${esc(S.user.photoURL)}" alt="" referrerpolicy="no-referrer">` : '';
-    account = `<div class="account">${photo}<button class="pill" data-act="logout">로그아웃</button></div>`;
+    account = `<div class="account">${photo}<button class="pill" data-act="logout">${L.logout}</button></div>`;
   }
   return `<header class="top">
-    <div class="title-group"><h1>할 일</h1><span class="sub">${S.view === 'day' ? longDate(S.sel) : '모든 날짜'}</span></div>
+    <div class="title-group"><h1>${L.title}</h1><span class="sub">${S.view === 'day' ? longDate(S.sel) : L.allDates}</span></div>
     <div class="top-actions">
-      <div class="seg" role="group" aria-label="보기">${views}</div>
+      <div class="seg" role="group" aria-label="${L.view}">${views}</div>
       ${account}
     </div>
   </header>`;
@@ -735,15 +871,15 @@ function loginView() {
   return `<main class="login"><div class="login-card">
     <div class="logo">${ICON.check}</div>
     <h1>HALGGO</h1>
-    <p>캘린더와 칸반보드로 오늘, 이번 달, 올해 할 일을 관리하세요. 휴대폰과 컴퓨터에서 같은 목록이 보여요.</p>
-    <button class="google" data-act="login">${ICON.google}Google로 시작하기</button>
+    <p>${L.loginText}</p>
+    <button class="google" data-act="login">${ICON.google}${L.google}</button>
     ${S.error ? `<p class="err" role="alert">${esc(S.error)}</p>` : ''}
   </div></main>`;
 }
 
 function toastView() {
   if (!S.toast) return '';
-  return `<div class="toast" role="status">${esc(S.toast.text)}${S.toast.undo ? '<button data-act="undo">되돌리기</button>' : ''}</div>`;
+  return `<div class="toast" role="status">${esc(S.toast.text)}${S.toast.undo ? `<button data-act="undo">${L.undo}</button>` : ''}</div>`;
 }
 
 function render() {
@@ -753,13 +889,13 @@ function render() {
   if (!S.focusId && a && a.id) { try { ss = a.selectionStart; se = a.selectionEnd; } catch (e) { /* not a text field */ } }
 
   let html;
-  if (S.mode === 'loading') html = '<p class="boot">불러오는 중…</p>';
-  else if (S.mode === 'fatal') html = `<main class="login"><div class="login-card"><h1>HALGGO</h1><p>${esc(S.error)}</p><button class="google" data-act="reload">다시 시도</button></div></main>`;
+  if (S.mode === 'loading') html = `<p class="boot">${L.loading}</p>`;
+  else if (S.mode === 'fatal') html = `<main class="login"><div class="login-card"><h1>HALGGO</h1><p>${esc(S.error)}</p><button class="google" data-act="reload">${L.retry}</button></div></main>`;
   else if (S.mode === 'login') html = loginView();
   else {
     html = `<div class="wrap">
       ${headerView()}
-      ${DEMO ? '<p class="notice"><strong>체험 모드예요.</strong> 지금은 이 브라우저에만 저장돼요. 설정 가이드대로 Firebase를 연결하면 구글 로그인과 휴대폰·PC 동기화가 켜져요.</p>' : ''}
+      ${DEMO ? `<p class="notice">${L.demoNotice}</p>` : ''}
       ${progressView()}
       <div class="main">${calendarView()}${boardView()}</div>
     </div>`;
@@ -787,7 +923,7 @@ function showToast(text, undo) {
   toastTimer = setTimeout(() => { S.toast = null; render(); }, 5000);
 }
 
-function fail() { showToast('저장하지 못했어요. 인터넷 연결을 확인해 주세요.'); }
+function fail() { showToast(L.saveFail); }
 
 function syncMonth() { const d = parse(S.sel); S.ym = { y: d.getFullYear(), m: d.getMonth() }; }
 
@@ -798,7 +934,7 @@ function deleteTask(id) {
   S.openSwipe = null;
   store.remove(id).then(() => {
     const { id: _drop, ...rest } = t;
-    showToast('삭제했어요', rest);
+    showToast(L.deleted, rest);
   }).catch(fail);
   render();
 }
@@ -874,6 +1010,13 @@ root.addEventListener('wheel', e => {
 
 root.addEventListener('keydown', e => {
   if (e.key === 'Escape' && S.timeOpen) { S.timeOpen = null; render(); return; }
+  if (e.key === 'Enter' && e.target.classList && e.target.classList.contains('tw-in')) {
+    e.preventDefault();
+    typeTime(e.target, true);
+    if (e.target.dataset.part === 'h') { const m = e.target.closest('.tw').querySelector('.tw-in[data-part="m"]'); m.focus(); }
+    else { S.timeOpen = null; render(); }
+    return;
+  }
   const col = e.target.closest && e.target.closest('.tw-col');
   if (!col || (e.key !== 'ArrowUp' && e.key !== 'ArrowDown')) return;
   e.preventDefault();
@@ -954,8 +1097,26 @@ function endPointer(e) {
 root.addEventListener('pointerup', endPointer);
 root.addEventListener('pointercancel', endPointer);
 
+/* Typing the time: two hour digits (or one digit 3–9) jump straight to the minutes. */
+function typeTime(el, done) {
+  const target = el.closest('.tw').dataset.target, isH = el.dataset.part === 'h';
+  const raw = el.value.replace(/\D/g, '').slice(0, 2);
+  if (raw !== el.value) el.value = raw;
+  const full = raw.length === 2 || (raw.length === 1 && Number(raw) > (isH ? 2 : 5));
+  if (!raw || (!full && !done)) return;
+  const t = getTime(target) || nowRounded();
+  const v = Math.min(Number(raw), isH ? 23 : 59);
+  setTime(target, isH ? { h: v, m: t.m } : { h: t.h, m: v });
+  if (isH && full) { const m = el.closest('.tw').querySelector('.tw-in[data-part="m"]'); m.focus(); m.select(); }
+  else el.value = pad(v);
+  refreshTime(target);
+}
+root.addEventListener('focusin', e => { if (e.target.classList && e.target.classList.contains('tw-in')) e.target.select(); });
+root.addEventListener('focusout', e => { if (e.target.classList && e.target.classList.contains('tw-in')) typeTime(e.target, true); });
+
 root.addEventListener('input', e => {
   const el = e.target;
+  if (el.classList.contains('tw-in')) { typeTime(el, false); return; }
   if (el.classList.contains('composer-input')) S.draft = el.value;
   else if (el.id === 'edit-title' && S.edit) S.edit.title = el.value;
   else if (el.id === 'edit-date' && S.edit) S.edit.date = el.value;

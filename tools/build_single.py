@@ -30,7 +30,7 @@ html = head + f'''<link rel="icon" href="data:image/svg+xml;base64,{svg}" type="
 </style>
 </head>
 <body>
-<div id="app"><p class="boot">불러오는 중…</p></div>
+<div id="app"><p class="boot">…</p></div>
 <script type="module">
 {js}
 </script>
