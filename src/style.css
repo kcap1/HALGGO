@@ -428,3 +428,5 @@ input::placeholder { color: var(--fg-3); }
   .ct-main b { font-size: 18px; }
   .card.has-back .c-bar { margin: 12px 0; }
 }
+.c-tm { color: var(--fg); font-weight: 600; margin-right: -2px; }
+.c-tm::after { content: '·'; margin-left: 5px; color: var(--fg-3); font-weight: 400; }

@@ -873,11 +873,10 @@ function card(t, ci) {
     ${next ? `<div class="swipe-move to-${next}" aria-hidden="true">${ICON.rightBig}<span>${COLS[ci + 1].label}</span></div>` : ''}
     <button class="swipe-del" data-act="del" data-id="${id}" tabindex="-1" aria-label="${L.del}: ${title}">${ICON.trashBig}<span>${L.del}</span></button>
     <article class="card ${prev ? 'has-back' : ''}" data-swipe data-id="${id}" data-next="${next || ''}">
-      ${timeCol(t)}
       <i class="c-bar" style="background:${c.color}" aria-hidden="true"></i>
       <div class="card-main">
         <button class="title ${done ? 'done' : ''}" data-act="edit" data-id="${id}" aria-label="${L.editAria(title)}">${title}${done ? '' : ICON.pencil}</button>
-        <span class="cat">${c.label} · ${esc(dateLabel(t))}</span>
+        <span class="cat">${t.time ? `<span class="c-tm num">${esc(showTime(parseTime(t.time)) || t.time)}</span>` : ''}${c.label} · ${esc(dateLabel(t))}</span>
       </div>
       ${prev ? `<button class="arrow back" data-act="move" data-id="${id}" data-to="${prev}" aria-label="${L.backTo(title, COLS[ci - 1].label)}"><span class="back-box">${ICON.leftBig}</span></button>` : ''}
     </article>
@@ -963,7 +962,8 @@ function toastView() {
 
 function render() {
   const a = document.activeElement;
-  const fid = S.focusId || (a && a.id) || null;
+  // Never re-focus a date field after re-rendering: on phones that reopens the date picker again and again.
+  const fid = S.focusId || (a && a.id && a.type !== 'date' ? a.id : null);
   let ss = null, se = null;
   if (!S.focusId && a && a.id) { try { ss = a.selectionStart; se = a.selectionEnd; } catch (e) { /* not a text field */ } }
 
@@ -1241,6 +1241,7 @@ root.addEventListener('pointercancel', endPointer);
 // Date pickers re-render only when the choice is final ('change'), so the native picker isn't closed mid-scroll.
 root.addEventListener('change', e => {
   const el = e.target;
+  if (el.type === 'date') el.blur();
   if (el.id === 'edit-end' && S.edit) { S.edit.end = el.value > S.edit.date ? el.value : ''; render(); }
   else if (el.id === 'edit-date' && S.edit && el.value) { S.edit.date = el.value; if (S.edit.end && S.edit.end <= el.value) S.edit.end = ''; render(); }
   else if (el.classList && el.classList.contains('range-in')) { S.draftEnd = el.value; render(); }
