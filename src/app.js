@@ -19,6 +19,7 @@ const I18N = {
     title: '할 일', cols: ['할 일', '수행 중', '완료'],
     cats: ['업무', '개인', '집안일', '쇼핑', '운동·건강', '약속', '공부', '금융'],
     newTask: '새로운 할 일', addTask: '할 일 추가', pickCat: '카테고리 선택', changeCat: '카테고리 변경',
+    stats: '성과', yearIn: y => `${y}년 성과`, byMonth: '월별 완료', byCat: '카테고리별', topCat: '가장 많이 한 일', busiest: '가장 바빴던 달', noData: '아직 기록이 없어요', prevYear: '이전 해', nextYear: '다음 해', rate: '완료율', legendDone: '완료', legendAll: '전체 할 일',
     today: '오늘', thisMonth: '이번 달', thisYear: '올해', progress: '진행도',
     ring: (l, p, t, d) => `${l} 진행률 ${p}%, ${t}개 중 ${d}개 완료`, doneWord: '완료',
     openLeft: n => `, 남은 할 일 ${n}개`, calendar: '캘린더', collapse: '접기', monthView: '한 달 보기',
@@ -45,6 +46,7 @@ const I18N = {
     title: 'To-do', cols: ['To do', 'In progress', 'Done'],
     cats: ['Work', 'Personal', 'Chores', 'Shopping', 'Health', 'Plans', 'Study', 'Finance'],
     newTask: 'New task', addTask: 'Add task', pickCat: 'Choose category', changeCat: 'Change category',
+    stats: 'Insights', yearIn: y => `${y} in review`, byMonth: 'Completed by month', byCat: 'By category', topCat: 'Top category', busiest: 'Busiest month', noData: 'No tasks yet', prevYear: 'Previous year', nextYear: 'Next year', rate: 'Completion', legendDone: 'Done', legendAll: 'All tasks',
     today: 'Today', thisMonth: 'This month', thisYear: 'This year', progress: 'Progress',
     ring: (l, p, t, d) => `${l} ${p}% complete, ${d} of ${t} done`, doneWord: 'done',
     openLeft: n => `, ${n} left`, calendar: 'Calendar', collapse: 'Less', monthView: 'Month',
@@ -71,6 +73,7 @@ const I18N = {
     title: 'やること', cols: ['やること', '進行中', '完了'],
     cats: ['仕事', '個人', '家事', '買い物', '健康', '予定', '勉強', 'お金'],
     newTask: '新しいやること', addTask: 'やることを追加', pickCat: 'カテゴリを選択', changeCat: 'カテゴリを変更',
+    stats: '実績', yearIn: y => `${y}年の実績`, byMonth: '月別の完了', byCat: 'カテゴリ別', topCat: '一番多いカテゴリ', busiest: '一番忙しかった月', noData: 'まだ記録がありません', prevYear: '前の年', nextYear: '次の年', rate: '完了率', legendDone: '完了', legendAll: 'すべて',
     today: '今日', thisMonth: '今月', thisYear: '今年', progress: '進捗',
     ring: (l, p, t, d) => `${l} 進捗 ${p}%、${t}件中${d}件完了`, doneWord: '完了',
     openLeft: n => `、残り${n}件`, calendar: 'カレンダー', collapse: '閉じる', monthView: '月表示',
@@ -97,6 +100,7 @@ const I18N = {
     title: '待办', cols: ['待办', '进行中', '已完成'],
     cats: ['工作', '个人', '家务', '购物', '运动健康', '约会', '学习', '财务'],
     newTask: '新的待办', addTask: '添加待办', pickCat: '选择类别', changeCat: '更改类别',
+    stats: '成果', yearIn: y => `${y}年成果`, byMonth: '每月完成', byCat: '按类别', topCat: '最多类别', busiest: '最忙的月份', noData: '还没有记录', prevYear: '上一年', nextYear: '下一年', rate: '完成率', legendDone: '已完成', legendAll: '全部',
     today: '今天', thisMonth: '本月', thisYear: '今年', progress: '进度',
     ring: (l, p, t, d) => `${l} 进度 ${p}%，共${t}项，已完成${d}项`, doneWord: '完成',
     openLeft: n => `，剩余${n}项`, calendar: '日历', collapse: '收起', monthView: '月视图',
@@ -287,6 +291,8 @@ const ICON = {
   left: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>',
   right: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>',
   ok: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',
+  chart: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M5 20V12M12 20V5M19 20v-9"/></svg>',
+  list: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M9 6h11M9 12h11M9 18h11M4.5 6h.01M4.5 12h.01M4.5 18h.01"/></svg>',
   plus: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>',
   trash: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3"/></svg>',
   pencil: '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--fg-3)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16v4z"/></svg>',
@@ -462,7 +468,7 @@ function relLabel(k) {
 }
 
 function visibleTasks() {
-  const list = S.view === 'day' ? S.tasks.filter(t => t.date === S.sel) : S.tasks.slice();
+  const list = S.view === 'day' ? S.tasks.filter(t => t.date === S.sel) : S.tasks.filter(t => (t.date || '').slice(0, 7) === S.sel.slice(0, 7));
   return list.sort((a, b) => (a.date || '').localeCompare(b.date || '')
     || (a.time || '99:99').localeCompare(b.time || '99:99')
     || (a.created || 0) - (b.created || 0));
@@ -573,7 +579,6 @@ function progressView() {
     { label: L.today, sub: F_MD.format(now), color: 'var(--orange)', s: stat(k => k === t) },
     { label: L.thisMonth, sub: F_M.format(now), color: 'var(--blue-text)', s: stat(k => k.slice(0, 7) === mk) }
   ];
-  if (S.view === 'all') items.push({ label: L.thisYear, sub: F_Y.format(now), color: 'var(--green)', s: stat(k => k.slice(0, 4) === yk) });
   return `<section class="progress cols-${items.length}" aria-label="${L.progress}">${items.map(p => `
     <div class="pcard">
       <div class="ring-box">
@@ -589,6 +594,76 @@ function progressView() {
         <span class="counts num"><span>${L.cols[0]} ${p.s.todo}</span><span>${L.cols[1]} ${p.s.doing}</span></span>
       </div>
     </div>`).join('')}</section>`;
+}
+
+/* ---------- Year in review (separate 성과 page) ---------- */
+function statsView() {
+  const y = S.statYear || +today().slice(0, 4), yk = String(y);
+  const ts = S.tasks.filter(t => (t.date || '').slice(0, 4) === yk);
+  const s = stat(k => k.slice(0, 4) === yk);
+  const months = Array.from({ length: 12 }, (_, i) => {
+    const mk = `${yk}-${pad(i + 1)}`, list = ts.filter(t => t.date.slice(0, 7) === mk);
+    return { i, total: list.length, done: list.filter(t => t.status === 'done').length };
+  });
+  const cats = CATS.map(c => {
+    const list = ts.filter(t => (CAT[t.cat] ? t.cat : 'life') === c.id);
+    return { c, total: list.length, done: list.filter(t => t.status === 'done').length };
+  }).filter(x => x.total).sort((a, b) => b.total - a.total);
+  const maxM = Math.max(1, ...months.map(m => m.total));
+  const busiest = months.reduce((a, b) => (b.total > a.total ? b : a), months[0]);
+  const curM = yk === today().slice(0, 4) ? new Date().getMonth() : -1;
+  const mName = i => F_M.format(new Date(y, i, 1));
+  const mShort = i => LANG === 'en' ? dtf({ month: 'narrow' }).format(new Date(y, i, 1)) : String(i + 1);
+  const R2 = 2 * Math.PI * 44;
+
+  const hero = `<section class="panel stat-hero">
+    <div class="year-nav"><button data-act="year" data-d="-1" aria-label="${L.prevYear}">${ICON.left}</button><h2>${esc(L.yearIn(y))}</h2><button data-act="year" data-d="1" aria-label="${L.nextYear}">${ICON.right}</button></div>
+    <div class="hero-body">
+      <div class="ring-box big">
+        <svg viewBox="0 0 100 100" role="img" aria-label="${L.ring(F_Y.format(new Date(y, 0, 1)), s.pct, s.total, s.done)}">
+          <circle cx="50" cy="50" r="44" fill="none" class="track" stroke-width="10"></circle>
+          <circle cx="50" cy="50" r="44" fill="none" stroke="var(--green)" stroke-width="10" stroke-linecap="round" stroke-dasharray="${(R2 * s.pct / 100).toFixed(1)} ${R2.toFixed(1)}" transform="rotate(-90 50 50)"></circle>
+        </svg>
+        <span class="pct num"><strong>${s.pct}%</strong><small>${L.rate}</small></span>
+      </div>
+      <div class="hero-nums">
+        <div><span class="num big-n">${s.done}</span><span class="lbl">${L.cols[2]}</span></div>
+        <div><span class="num">${s.doing}</span><span class="lbl">${L.cols[1]}</span></div>
+        <div><span class="num">${s.todo}</span><span class="lbl">${L.cols[0]}</span></div>
+      </div>
+    </div>
+  </section>`;
+
+  const tiles = `<section class="stat-tiles">
+    <div class="panel tile"><span class="lbl">${L.topCat}</span><strong>${cats[0] ? `<i style="background:${cats[0].c.color}"></i>${esc(cats[0].c.label)}` : '—'}</strong><span class="num sub2">${cats[0] ? L.count(cats[0].total) : ''}</span></div>
+    <div class="panel tile"><span class="lbl">${L.busiest}</span><strong>${busiest.total ? esc(mName(busiest.i)) : '—'}</strong><span class="num sub2">${busiest.total ? L.count(busiest.total) : ''}</span></div>
+  </section>`;
+
+  const bars = months.map(m => {
+    const th = m.total / maxM * 100, dh = m.done / maxM * 100;
+    const tip = `${mName(m.i)} · ${L.legendDone} ${m.done} / ${m.total}`;
+    return `<div class="mbar ${m.i === curM ? 'cur' : ''}" title="${esc(tip)}" aria-label="${esc(tip)}" role="img" tabindex="0">
+      <div class="mcol"><span class="mtrack" style="height:${th.toFixed(1)}%"></span><span class="mfill" style="height:${dh.toFixed(1)}%"></span>${m.i === busiest.i && m.total ? `<span class="mval num" style="bottom:${th.toFixed(1)}%">${m.done}/${m.total}</span>` : ''}</div>
+      <span class="mlabel">${mShort(m.i)}</span>
+    </div>`;
+  }).join('');
+  const monthly = `<section class="panel stat-card">
+    <div class="stat-head"><h3>${L.byMonth}</h3><span class="legend"><i class="lg-done"></i>${L.legendDone}<i class="lg-all"></i>${L.legendAll}</span></div>
+    ${s.total ? `<div class="mchart">${bars}</div>` : `<p class="empty">${L.noData}</p>`}
+  </section>`;
+
+  const maxC = Math.max(1, ...cats.map(x => x.total));
+  const catRows = cats.map(x => `<div class="crow" title="${esc(`${x.c.label} · ${L.legendDone} ${x.done} / ${x.total}`)}">
+      <span class="cname"><i style="background:${x.c.color}"></i>${esc(x.c.label)}</span>
+      <span class="cbar"><span class="ctrack" style="width:${(x.total / maxC * 100).toFixed(1)}%"></span><span class="cfill" style="width:${(x.done / maxC * 100).toFixed(1)}%;background:${x.c.color}"></span></span>
+      <span class="cnum num">${x.done}<small>/${x.total}</small></span>
+    </div>`).join('');
+  const byCat = `<section class="panel stat-card">
+    <div class="stat-head"><h3>${L.byCat}</h3></div>
+    ${cats.length ? `<div class="clist">${catRows}</div>` : `<p class="empty">${L.noData}</p>`}
+  </section>`;
+
+  return `<div class="stats">${hero}${tiles}${monthly}${byCat}</div>`;
 }
 
 function dayButton(key, label, extra) {
@@ -713,11 +788,16 @@ function holTag(k) {
 
 function headerView() {
   const isToday = S.sel === today(), day = S.view === 'day';
+  const monthLabel = S.sel.slice(0, 7) === today().slice(0, 7) ? L.thisMonth : F_M.format(parse(S.sel));
   const views = [
     `<button data-act="today" aria-pressed="${day && isToday}">${L.today}</button>`,
     isToday ? '' : `<button data-act="view" data-view="day" aria-pressed="${day}">${L.selDay}</button>`,
-    `<button data-act="view" data-view="all" aria-pressed="${!day}">${L.all}</button>`
+    `<button data-act="view" data-view="month" aria-pressed="${!day}">${monthLabel}</button>`
   ].join('');
+  const stats = S.page === 'stats';
+  const pageBtn = stats
+    ? `<button class="pill page-btn" data-act="page" data-page="tasks">${ICON.list}<span>${L.title}</span></button>`
+    : `<button class="pill page-btn" data-act="page" data-page="stats">${ICON.chart}<span>${L.stats}</span></button>`;
   let account = '';
   if (DEMO) account = `<span class="badge">${L.demo}</span>`;
   else if (S.user) {
@@ -731,9 +811,10 @@ function headerView() {
     account = `<div class="account"><button class="avatar-btn" data-act="acct-menu" aria-haspopup="menu" aria-expanded="${!!S.menuOpen}" aria-label="${L.account}">${face}</button>${menu}</div>`;
   }
   return `<header class="top">
-    <div class="title-group"><h1>${L.title}</h1><span class="sub">${S.view === 'day' ? longDate(S.sel) + holTag(S.sel) : L.allDates}</span></div>
+    <div class="title-group"><h1>${stats ? L.stats : L.title}</h1><span class="sub">${stats ? '' : S.view === 'day' ? longDate(S.sel) + holTag(S.sel) : F_YM.format(parse(S.sel))}</span></div>
     <div class="top-actions">
-      <div class="seg" role="group" aria-label="${L.view}">${views}</div>
+      ${stats ? '<span class="seg-spacer"></span>' : `<div class="seg" role="group" aria-label="${L.view}">${views}</div>`}
+      ${pageBtn}
       ${account}
     </div>
   </header>`;
@@ -768,8 +849,8 @@ function render() {
     html = `<div class="wrap">
       ${headerView()}
       ${DEMO ? `<p class="notice">${L.demoNotice}</p>` : ''}
-      ${progressView()}
-      <div class="main">${calendarView()}${boardView()}</div>
+      ${S.page === 'stats' ? statsView() : `${progressView()}
+      <div class="main">${calendarView()}${boardView()}</div>`}
     </div>`;
   }
   root.innerHTML = html + toastView();
@@ -878,6 +959,8 @@ root.addEventListener('click', e => {
     case 'cal-toggle': S.calOpen = !S.calOpen; syncMonth(); break;
     case 'today': S.sel = today(); S.view = 'day'; syncMonth(); break;
     case 'view': S.view = b.dataset.view; break;
+    case 'page': S.page = b.dataset.page; S.statYear = S.statYear || +today().slice(0, 4); window.scrollTo(0, 0); break;
+    case 'year': S.statYear += Number(b.dataset.d); break;
     case 'tab': S.tab = b.dataset.tab; break;
     case 'add-toggle':
       S.addOpen = !S.addOpen;
