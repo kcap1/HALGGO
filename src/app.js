@@ -22,6 +22,7 @@ const I18N = {
     stats: '성과', yearIn: y => `${y}년 성과`, byMonth: '월별 완료', byCat: '카테고리별', topCat: '가장 많이 한 일', busiest: '가장 바빴던 달', noData: '아직 기록이 없어요', prevYear: '이전 해', nextYear: '다음 해', rate: '완료율', legendDone: '완료', legendAll: '전체 할 일',
     endHint: '기간 (끝나는 날)', endPick: '끝나는 날 선택', dayOf: (n, N) => `${n}/${N}일째`, removeEnd: '기간 지우기',
     nDays: n => `${n}일간`, oneDay: '하루',
+    allDay: '종일',
     today: '오늘', thisMonth: '이번 달', thisYear: '올해', progress: '진행도',
     ring: (l, p, t, d) => `${l} 진행률 ${p}%, ${t}개 중 ${d}개 완료`, doneWord: '완료',
     openLeft: n => `, 남은 할 일 ${n}개`, calendar: '캘린더', collapse: '접기', monthView: '한 달 보기',
@@ -51,6 +52,7 @@ const I18N = {
     stats: 'Insights', yearIn: y => `${y} in review`, byMonth: 'Completed by month', byCat: 'By category', topCat: 'Top category', busiest: 'Busiest month', noData: 'No tasks yet', prevYear: 'Previous year', nextYear: 'Next year', rate: 'Completion', legendDone: 'Done', legendAll: 'All tasks',
     endHint: 'Multi-day (end date)', endPick: 'Choose end date', dayOf: (n, N) => `Day ${n}/${N}`, removeEnd: 'Remove end date',
     nDays: n => `${n} days`, oneDay: 'One day',
+    allDay: 'All day',
     today: 'Today', thisMonth: 'This month', thisYear: 'This year', progress: 'Progress',
     ring: (l, p, t, d) => `${l} ${p}% complete, ${d} of ${t} done`, doneWord: 'done',
     openLeft: n => `, ${n} left`, calendar: 'Calendar', collapse: 'Less', monthView: 'Month',
@@ -80,6 +82,7 @@ const I18N = {
     stats: '実績', yearIn: y => `${y}年の実績`, byMonth: '月別の完了', byCat: 'カテゴリ別', topCat: '一番多いカテゴリ', busiest: '一番忙しかった月', noData: 'まだ記録がありません', prevYear: '前の年', nextYear: '次の年', rate: '完了率', legendDone: '完了', legendAll: 'すべて',
     endHint: '期間（終了日）', endPick: '終了日を選択', dayOf: (n, N) => `${n}/${N}日目`, removeEnd: '期間を削除',
     nDays: n => `${n}日間`, oneDay: '1日',
+    allDay: '終日',
     today: '今日', thisMonth: '今月', thisYear: '今年', progress: '進捗',
     ring: (l, p, t, d) => `${l} 進捗 ${p}%、${t}件中${d}件完了`, doneWord: '完了',
     openLeft: n => `、残り${n}件`, calendar: 'カレンダー', collapse: '閉じる', monthView: '月表示',
@@ -109,6 +112,7 @@ const I18N = {
     stats: '成果', yearIn: y => `${y}年成果`, byMonth: '每月完成', byCat: '按类别', topCat: '最多类别', busiest: '最忙的月份', noData: '还没有记录', prevYear: '上一年', nextYear: '下一年', rate: '完成率', legendDone: '已完成', legendAll: '全部',
     endHint: '多天（结束日期）', endPick: '选择结束日期', dayOf: (n, N) => `第${n}/${N}天`, removeEnd: '删除结束日期',
     nDays: n => `${n}天`, oneDay: '一天',
+    allDay: '全天',
     today: '今天', thisMonth: '本月', thisYear: '今年', progress: '进度',
     ring: (l, p, t, d) => `${l} 进度 ${p}%，共${t}项，已完成${d}项`, doneWord: '完成',
     openLeft: n => `，剩余${n}项`, calendar: '日历', collapse: '收起', monthView: '月视图',
@@ -832,6 +836,21 @@ function whenRow() {
   </div>`;
 }
 
+// Left time column, calendar-app style: big "8:00" with a small 오후/PM; multi-day shows the end day under it; no time = 「종일」.
+function timeCol(t) {
+  const tm = parseTime(t.time);
+  let main = `<span class="ct-all">${L.allDay}</span>`;
+  if (tm) {
+    const parts = F_HM.formatToParts(new Date(2024, 0, 1, tm.h, tm.m));
+    const per = (parts.find(p => p.type === 'dayPeriod') || {}).value || '';
+    const hm = parts.filter(p => p.type !== 'dayPeriod').map(p => p.value).join('').trim();
+    const before = parts.findIndex(p => p.type === 'dayPeriod') < parts.findIndex(p => p.type === 'hour');
+    main = `<span class="ct-main">${before && per ? `<small>${esc(per)}</small>` : ''}<b class="num">${esc(hm)}</b>${!before && per ? `<small>${esc(per)}</small>` : ''}</span>`;
+  }
+  const sub = isRange(t) ? `<span class="ct-sub">~${esc(F_MD.format(parse(tEnd(t))))}</span>` : '';
+  return `<div class="c-time${t.status === 'done' ? ' fin' : ''}">${main}${sub}</div>`;
+}
+
 function card(t, ci) {
   if (S.editId === t.id && S.edit) {
     return `<form class="card edit" data-form="edit" data-id="${esc(t.id)}">
@@ -854,9 +873,11 @@ function card(t, ci) {
     ${next ? `<div class="swipe-move to-${next}" aria-hidden="true">${ICON.rightBig}<span>${COLS[ci + 1].label}</span></div>` : ''}
     <button class="swipe-del" data-act="del" data-id="${id}" tabindex="-1" aria-label="${L.del}: ${title}">${ICON.trashBig}<span>${L.del}</span></button>
     <article class="card ${prev ? 'has-back' : ''}" data-swipe data-id="${id}" data-next="${next || ''}">
+      ${timeCol(t)}
+      <i class="c-bar" style="background:${c.color}" aria-hidden="true"></i>
       <div class="card-main">
         <button class="title ${done ? 'done' : ''}" data-act="edit" data-id="${id}" aria-label="${L.editAria(title)}">${title}${done ? '' : ICON.pencil}</button>
-        <span class="cat"><i style="background:${c.color}"></i>${c.label} · ${esc(dateLabel(t))}${t.time ? ` <span class="num">${esc(showTime(parseTime(t.time)) || t.time)}</span>` : ''}</span>
+        <span class="cat">${c.label} · ${esc(dateLabel(t))}</span>
       </div>
       ${prev ? `<button class="arrow back" data-act="move" data-id="${id}" data-to="${prev}" aria-label="${L.backTo(title, COLS[ci - 1].label)}"><span class="back-box">${ICON.leftBig}</span></button>` : ''}
     </article>
