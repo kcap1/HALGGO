@@ -27,7 +27,7 @@ const I18N = {
     taskName: '할 일 이름', date: '날짜', time: '시간', del: '삭제', cancel: '취소', save: '저장',
     backTo: (t, c) => `${t}: ${c}(으)로 되돌리기`, editAria: t => `수정: ${t}`, empty: '비어 있음',
     board: '칸반 보드', status: '상태', selDay: '선택한 날', all: '전체', view: '보기', allDates: '모든 날짜',
-    demo: '체험 모드', logout: '로그아웃',
+    demo: '체험 모드', logout: '로그아웃', switchAcct: '계정 전환', account: '계정',
     loginText: '캘린더와 칸반보드로 오늘, 이번 달, 올해 할 일을 관리하세요. 휴대폰과 컴퓨터에서 같은 목록이 보여요.',
     google: 'Google로 시작하기', undo: '되돌리기', loading: '불러오는 중…', retry: '다시 시도',
     demoNotice: '<strong>체험 모드예요.</strong> 지금은 이 브라우저에만 저장돼요. 설정 가이드대로 Firebase를 연결하면 구글 로그인과 휴대폰·PC 동기화가 켜져요.',
@@ -53,7 +53,7 @@ const I18N = {
     taskName: 'Task name', date: 'Date', time: 'Time', del: 'Delete', cancel: 'Cancel', save: 'Save',
     backTo: (t, c) => `${t}: move back to ${c}`, editAria: t => `Edit: ${t}`, empty: 'Empty',
     board: 'Kanban board', status: 'Status', selDay: 'Selected', all: 'All', view: 'View', allDates: 'All dates',
-    demo: 'Demo', logout: 'Sign out',
+    demo: 'Demo', logout: 'Sign out', switchAcct: 'Switch account', account: 'Account',
     loginText: 'Plan today, this month and this year with a calendar and a kanban board. Your list syncs between phone and computer.',
     google: 'Continue with Google', undo: 'Undo', loading: 'Loading…', retry: 'Try again',
     demoNotice: '<strong>Demo mode.</strong> Tasks are saved only in this browser. Connect Firebase to turn on Google sign-in and sync.',
@@ -79,7 +79,7 @@ const I18N = {
     taskName: 'やることの名前', date: '日付', time: '時間', del: '削除', cancel: 'キャンセル', save: '保存',
     backTo: (t, c) => `${t}: ${c}に戻す`, editAria: t => `編集: ${t}`, empty: 'なし',
     board: 'カンバンボード', status: '状態', selDay: '選択日', all: 'すべて', view: '表示', allDates: 'すべての日付',
-    demo: '体験モード', logout: 'ログアウト',
+    demo: '体験モード', logout: 'ログアウト', switchAcct: 'アカウントを切り替え', account: 'アカウント',
     loginText: 'カレンダーとカンバンボードで、今日・今月・今年のやることを管理しましょう。スマホとパソコンで同じリストが見られます。',
     google: 'Googleで始める', undo: '元に戻す', loading: '読み込み中…', retry: '再試行',
     demoNotice: '<strong>体験モードです。</strong> このブラウザにだけ保存されます。Firebaseを接続するとGoogleログインと同期が使えます。',
@@ -105,7 +105,7 @@ const I18N = {
     taskName: '待办名称', date: '日期', time: '时间', del: '删除', cancel: '取消', save: '保存',
     backTo: (t, c) => `${t}：退回到${c}`, editAria: t => `编辑：${t}`, empty: '空',
     board: '看板', status: '状态', selDay: '所选日期', all: '全部', view: '视图', allDates: '所有日期',
-    demo: '体验模式', logout: '退出登录',
+    demo: '体验模式', logout: '退出登录', switchAcct: '切换账号', account: '账号',
     loginText: '用日历和看板管理今天、本月和今年的待办事项。手机和电脑同步显示同一份清单。',
     google: '使用 Google 开始', undo: '撤销', loading: '加载中…', retry: '重试',
     demoNotice: '<strong>体验模式。</strong> 目前只保存在此浏览器中。连接 Firebase 后即可使用 Google 登录和同步。',
@@ -714,8 +714,14 @@ function headerView() {
   let account = '';
   if (DEMO) account = `<span class="badge">${L.demo}</span>`;
   else if (S.user) {
-    const photo = S.user.photoURL ? `<img class="avatar" src="${esc(S.user.photoURL)}" alt="" referrerpolicy="no-referrer">` : '';
-    account = `<div class="account">${photo}<button class="pill" data-act="logout">${L.logout}</button></div>`;
+    const u = S.user, initial = esc(((u.displayName || u.email || '?').trim()[0] || '?').toUpperCase());
+    const face = u.photoURL ? `<img class="avatar" src="${esc(u.photoURL)}" alt="" referrerpolicy="no-referrer">` : `<span class="avatar">${initial}</span>`;
+    const menu = S.menuOpen ? `<div class="acct-menu" role="menu">
+        ${u.email ? `<div class="acct-mail">${esc(u.email)}</div>` : ''}
+        <button role="menuitem" data-act="switch-acct">${L.switchAcct}</button>
+        <button role="menuitem" class="acct-out" data-act="logout">${L.logout}</button>
+      </div>` : '';
+    account = `<div class="account"><button class="avatar-btn" data-act="acct-menu" aria-haspopup="menu" aria-expanded="${!!S.menuOpen}" aria-label="${L.account}">${face}</button>${menu}</div>`;
   }
   return `<header class="top">
     <div class="title-group"><h1>${L.title}</h1><span class="sub">${S.view === 'day' ? longDate(S.sel) + holTag(S.sel) : L.allDates}</span></div>
@@ -825,13 +831,16 @@ root.addEventListener('click', e => {
   // Tapping anywhere else closes an open swipe or time wheel.
   if (S.openSwipe && !e.target.closest(`.swipe[data-id="${CSS.escape(S.openSwipe)}"] .swipe-del`)) { S.openSwipe = null; dirty = true; }
   if (S.timeOpen && !e.target.closest('.tw') && !e.target.closest('.time-pill')) { S.timeOpen = null; dirty = true; }
+  if (S.menuOpen && !e.target.closest('.account')) { S.menuOpen = false; dirty = true; }
   const b = e.target.closest('[data-act]');
   if (!b) { if (dirty) render(); return; }
   const act = b.dataset.act, id = b.dataset.id;
   switch (act) {
     case 'login': signIn(); return;
     case 'reload': location.reload(); return;
-    case 'logout': signOutFn(); return;
+    case 'logout': S.menuOpen = false; render(); signOutFn(); return;
+    case 'acct-menu': S.menuOpen = !S.menuOpen; break;
+    case 'switch-acct': S.menuOpen = false; render(); signIn(); return;
     case 'pick': S.sel = b.dataset.date; S.view = 'day'; syncMonth(); break;
     case 'month': {
       let m = S.ym.m + Number(b.dataset.d), y = S.ym.y;
