@@ -181,7 +181,7 @@ input::placeholder { color: var(--fg-3); }
 .tw-item.d2 { color: var(--fg-3); font-size: 17px; }
 .tw-colon { position: relative; font-size: 22px; font-weight: 600; padding-bottom: 2px; }
 .tw-ok { grid-column: 3; grid-row: 1; justify-self: end; white-space: nowrap; width: 100%; max-width: 72px; height: 44px; padding: 0 8px; font-size: 15px; border-radius: 10px; }
-.tw-clear { grid-column: 3; grid-row: 1; white-space: nowrap; align-self: end; justify-self: end; height: 30px; padding: 0 6px; border-radius: 8px; color: var(--fg-3); font-size: 12px; font-weight: 500; }
+.tw-clear { grid-column: 3; grid-row: 1; white-space: nowrap; align-self: end; justify-self: end; width: 100%; max-width: 72px; text-align: center; height: 30px; padding: 0 6px; border-radius: 8px; color: var(--fg-3); font-size: 12px; font-weight: 500; }
 .tw-clear:hover { color: var(--fg); }
 .edit-row { display: flex; align-items: center; gap: 8px; }
 .edit-row .field { flex: 1; min-width: 0; }
@@ -210,13 +210,14 @@ input::placeholder { color: var(--fg-3); }
 .card { position: relative; background: var(--surface-2); border-radius: 12px; padding: 10px 12px; display: flex; align-items: center; gap: 4px; transition: transform .22s ease; touch-action: pan-y; }
 .swipe.open .card { transform: translateX(-88px); }
 .card-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 5px; }
-.card .title { text-align: left; padding-right: 6px; font-size: 14px; font-weight: 500; line-height: 1.4; display: inline-flex; align-items: center; gap: 6px; word-break: break-word; }
+.card .title { text-align: left; padding-right: 6px; font-size: 14px; font-weight: 500; line-height: 1.4; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden; word-break: break-word; }
 .card .title.done { color: var(--fg-2); font-weight: 400; text-decoration: line-through; }
-.card .title svg { flex: none; }
+.card .title svg { display: inline; vertical-align: -1px; margin-left: 6px; }
 .cat { min-width: 0; display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--fg-2); }
 .arrow { width: 44px; height: 44px; border-radius: 12px; color: var(--fg-2); display: flex; align-items: center; justify-content: center; }
-.card.has-back { padding-right: 0; }
-.arrow.back { flex: none; width: 40px; color: var(--fg-3); }
+.card.has-back { padding-top: 0; padding-bottom: 0; padding-right: 0; align-items: stretch; }
+.card.has-back .card-main { padding: 10px 0; justify-content: center; }
+.arrow.back { flex: 0 0 33%; width: auto; height: auto; min-height: 44px; border-radius: 0 12px 12px 0; color: var(--fg-3); }
 .arrow:hover { background: var(--surface-3); }
 .card.edit { display: flex; flex-direction: column; align-items: stretch; }
 .edit { padding: 8px; gap: 6px; }
@@ -289,6 +290,7 @@ input::placeholder { color: var(--fg-3); }
   .col-head, .col .composer { display: none; }
   .card .title { font-size: 15px; }
   .card { padding: 12px 14px; }
+  .card.has-back .card-main { padding: 12px 0; }
   .field, .date-field { font-size: 16px; }
 }
 
@@ -348,7 +350,7 @@ const I18N = {
     google: 'Google로 시작하기', undo: '되돌리기', loading: '불러오는 중…', retry: '다시 시도',
     demoNotice: '<strong>체험 모드예요.</strong> 지금은 이 브라우저에만 저장돼요. 설정 가이드대로 Firebase를 연결하면 구글 로그인과 휴대폰·PC 동기화가 켜져요.',
     saveFail: '저장하지 못했어요. 인터넷 연결을 확인해 주세요.', deleted: '삭제했어요', loadFail: '목록을 불러오지 못했어요. 새로고침해 주세요.',
-    timeAdd: '시간 추가', timeChange: t => `시간 ${t}, 바꾸기`, timePick: '시간 선택', hour: '시', minute: '분', clear: '지우기', ok: '설정',
+    timeAdd: '시간 추가', timeChange: t => `시간 ${t}, 바꾸기`, timePick: '시간 선택', hour: '시', minute: '분', clear: '취소', ok: '설정',
     eDomain: '이 주소가 Firebase에 등록되지 않았어요. Authentication → 설정 → 승인된 도메인에 이 사이트 주소를 추가해 주세요.',
     eNet: '인터넷 연결을 확인하고 다시 시도해 주세요.',
     eOff: 'Firebase에서 Google 로그인이 아직 꺼져 있어요. Authentication → 로그인 방법에서 Google을 사용 설정하고 저장해 주세요.',
@@ -374,7 +376,7 @@ const I18N = {
     google: 'Continue with Google', undo: 'Undo', loading: 'Loading…', retry: 'Try again',
     demoNotice: '<strong>Demo mode.</strong> Tasks are saved only in this browser. Connect Firebase to turn on Google sign-in and sync.',
     saveFail: "Couldn't save. Check your internet connection.", deleted: 'Deleted', loadFail: "Couldn't load your list. Please refresh.",
-    timeAdd: 'Add time', timeChange: t => `Time ${t}, change`, timePick: 'Choose time', hour: 'Hour', minute: 'Minute', clear: 'Clear', ok: 'Set',
+    timeAdd: 'Add time', timeChange: t => `Time ${t}, change`, timePick: 'Choose time', hour: 'Hour', minute: 'Minute', clear: 'Cancel', ok: 'Set',
     eDomain: 'This address is not registered in Firebase. Add it under Authentication → Settings → Authorized domains.',
     eNet: 'Check your internet connection and try again.',
     eOff: 'Google sign-in is turned off in Firebase. Enable Google under Authentication → Sign-in method.',
@@ -400,7 +402,7 @@ const I18N = {
     google: 'Googleで始める', undo: '元に戻す', loading: '読み込み中…', retry: '再試行',
     demoNotice: '<strong>体験モードです。</strong> このブラウザにだけ保存されます。Firebaseを接続するとGoogleログインと同期が使えます。',
     saveFail: '保存できませんでした。インターネット接続を確認してください。', deleted: '削除しました', loadFail: 'リストを読み込めませんでした。再読み込みしてください。',
-    timeAdd: '時間を追加', timeChange: t => `時間 ${t}、変更`, timePick: '時間を選択', hour: '時', minute: '分', clear: '消去', ok: '設定',
+    timeAdd: '時間を追加', timeChange: t => `時間 ${t}、変更`, timePick: '時間を選択', hour: '時', minute: '分', clear: 'キャンセル', ok: '設定',
     eDomain: 'このアドレスはFirebaseに登録されていません。Authentication → 設定 → 承認済みドメインに追加してください。',
     eNet: 'インターネット接続を確認して、もう一度お試しください。',
     eOff: 'FirebaseでGoogleログインがオフになっています。Authentication → ログイン方法でGoogleを有効にしてください。',
@@ -426,7 +428,7 @@ const I18N = {
     google: '使用 Google 开始', undo: '撤销', loading: '加载中…', retry: '重试',
     demoNotice: '<strong>体验模式。</strong> 目前只保存在此浏览器中。连接 Firebase 后即可使用 Google 登录和同步。',
     saveFail: '保存失败。请检查网络连接。', deleted: '已删除', loadFail: '无法加载清单，请刷新。',
-    timeAdd: '添加时间', timeChange: t => `时间 ${t}，更改`, timePick: '选择时间', hour: '时', minute: '分', clear: '清除', ok: '设定',
+    timeAdd: '添加时间', timeChange: t => `时间 ${t}，更改`, timePick: '选择时间', hour: '时', minute: '分', clear: '取消', ok: '设定',
     eDomain: '此地址未在 Firebase 中注册。请在 Authentication → 设置 → 已授权网域中添加。',
     eNet: '请检查网络连接后重试。',
     eOff: 'Firebase 中的 Google 登录尚未开启。请在 Authentication → 登录方法中启用 Google。',
@@ -1164,12 +1166,14 @@ root.addEventListener('click', e => {
     case 'time-open': {
       const tg = b.dataset.target;
       if (S.timeOpen === tg) { S.timeOpen = null; break; }
+      S.timeBefore = getTime(tg) || null;
       if (!getTime(tg)) setTime(tg, nowRounded());
       S.timeOpen = tg; S.focusId = tg + '-h';
       break;
     }
     case 'time-close': S.timeOpen = null; break;
-    case 'time-off': setTime(b.dataset.target, null); S.timeOpen = null; break;
+    // 취소: put back the time it had before the wheel opened (none → no time).
+    case 'time-off': setTime(b.dataset.target, S.timeBefore || null); S.timeOpen = null; break;
     case 'move': store && store.update(id, { status: b.dataset.to }).catch(fail); if (dirty) render(); return;
     case 'del': deleteTask(id); return;
     case 'undo':
