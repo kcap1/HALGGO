@@ -105,7 +105,8 @@ input::placeholder { color: var(--fg-3); }
 .panel { background: var(--surface); border-radius: 16px; padding: 14px; }
 .cal { flex: 1 1 280px; max-width: 300px; display: flex; flex-direction: column; }
 .cal-head { display: flex; align-items: center; justify-content: space-between; height: 36px; margin-bottom: 8px; }
-.cal-head h2 { margin: 0 0 0 4px; font-size: 15px; font-weight: 600; }
+.cal-head h2 { margin: 0 auto 0 4px; font-size: 15px; font-weight: 600; }
+.cal-toggle { display: none; }
 .nav { display: flex; margin-right: -6px; }
 .nav button { width: 44px; height: 44px; margin: -4px 0; border-radius: 50%; color: var(--blue-text); display: flex; align-items: center; justify-content: center; }
 .dow, .grid7 { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); }
@@ -142,31 +143,50 @@ input::placeholder { color: var(--fg-3); }
 .chip i, .cat i { width: 7px; height: 7px; border-radius: 50%; display: block; flex: none; }
 .chip[aria-pressed="true"] { background: var(--surface-4); color: var(--fg); font-weight: 600; }
 
-/* Time picker */
-.time-row { display: flex; align-items: center; min-height: 32px; }
-.time-add { height: 32px; padding: 0 10px; margin-left: -4px; border-radius: 999px; color: var(--blue-text); font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; gap: 4px; }
-.time-add::before { content: "+"; font-size: 14px; font-weight: 700; }
-.tp { display: inline-flex; align-items: center; gap: 2px; height: 36px; padding: 0 2px 0 10px; border-radius: 10px; background: var(--surface); }
-.composer .tp { background: var(--surface-3); margin-left: -4px; }
-.tp-label { font-size: 12px; color: var(--fg-2); margin-right: 6px; }
-.tp-in { width: 34px; height: 30px; border: 0; border-radius: 6px; background: transparent; text-align: center; font-size: 16px; font-weight: 600; font-variant-numeric: tabular-nums; cursor: ns-resize; touch-action: none; }
-.tp-in:hover, .tp-in:focus { background: var(--surface-4); outline: none; }
-.tp-colon { font-weight: 600; color: var(--fg-2); }
-.tp-clear { width: 32px; height: 32px; border-radius: 8px; color: var(--fg-2); display: flex; align-items: center; justify-content: center; }
+/* Time pill + iOS-style wheel */
+.time-pill { flex: none; height: 36px; min-width: 36px; padding: 0 8px; margin: 4px 0; border-radius: 999px; color: var(--fg-2); display: flex; align-items: center; justify-content: center; }
+.time-pill:hover { color: var(--fg); }
+.time-pill.set { background: var(--surface-3); color: var(--fg); font-size: 14px; font-weight: 600; padding: 0 11px; }
+.time-pill[aria-expanded="true"] { background: var(--surface-4); color: var(--fg); }
+.tw { background: var(--surface); border-radius: 12px; padding: 8px; margin: 2px 0 6px; display: flex; flex-direction: column; gap: 8px; user-select: none; -webkit-user-select: none; }
+.composer .tw { margin-left: -4px; }
+.tw-body { position: relative; display: flex; align-items: center; justify-content: center; gap: 6px; height: 170px; }
+.tw-band { position: absolute; left: 8px; right: 8px; top: 50%; height: 34px; transform: translateY(-50%); border-radius: 9px; background: var(--surface-3); }
+.tw-col { position: relative; width: 68px; height: 170px; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: ns-resize; touch-action: none; border-radius: 9px;
+  -webkit-mask-image: linear-gradient(transparent, #000 28%, #000 72%, transparent); mask-image: linear-gradient(transparent, #000 28%, #000 72%, transparent); }
+.tw-col:focus-visible { outline: 2px solid var(--blue-text); outline-offset: -2px; }
+.tw-item { height: 34px; line-height: 34px; font-variant-numeric: tabular-nums; pointer-events: none; }
+.tw-item.d0 { color: var(--fg); font-size: 23px; font-weight: 600; }
+.tw-item.d1 { color: var(--fg-2); font-size: 20px; }
+.tw-item.d2 { color: var(--fg-3); font-size: 17px; }
+.tw-colon { position: relative; font-size: 22px; font-weight: 600; padding-bottom: 2px; }
+.tw-actions { display: flex; justify-content: space-between; }
+.edit-time { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--fg-2); }
+.edit-time .time-pill:not(.set) { background: var(--surface); }
 
-/* Cards */
-.card { background: var(--surface-2); border-radius: 12px; padding: 10px 2px 2px 12px; display: flex; flex-direction: column; }
-.card .title { text-align: left; padding-right: 10px; font-size: 14px; font-weight: 500; line-height: 1.4; display: inline-flex; align-items: center; gap: 6px; word-break: break-word; }
+/* Cards: swipe left to reveal delete */
+.swipe { position: relative; border-radius: 12px; overflow: hidden; user-select: none; -webkit-user-select: none; flex: none; }
+.swipe-del { position: absolute; top: 0; right: 0; bottom: 0; width: 88px; color: #FFFFFF; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; font-size: 12px; font-weight: 600; background: #D92D20; border-radius: 0 12px 12px 0; visibility: hidden; transition: width .15s ease; }
+.swipe.open .swipe-del, .swipe.swiping .swipe-del { visibility: visible; }
+.swipe.far .swipe-del { border-radius: 12px; }
+.swipe.far .swipe-del { width: 100%; }
+.card { position: relative; background: var(--surface-2); border-radius: 12px; padding: 10px 4px 10px 12px; display: flex; align-items: center; gap: 4px; transition: transform .22s ease; touch-action: pan-y; }
+.swipe.open .card { transform: translateX(-88px); }
+.card-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 5px; }
+.card .title { text-align: left; padding-right: 6px; font-size: 14px; font-weight: 500; line-height: 1.4; display: inline-flex; align-items: center; gap: 6px; word-break: break-word; }
 .card .title.done { color: var(--fg-2); font-weight: 400; text-decoration: line-through; }
 .card .title svg { flex: none; }
-.meta { display: flex; align-items: center; }
-.cat { flex: 1; min-width: 0; display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--fg-2); }
-.icon { flex: none; width: 44px; height: 40px; border-radius: 10px; color: var(--fg-2); display: flex; align-items: center; justify-content: center; }
-.icon.fwd { color: var(--blue-text); }
-.icon.del { color: var(--icon); }
+.cat { min-width: 0; display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--fg-2); }
+.card-arrows { flex: none; display: flex; align-items: center; }
+.arrow { width: 44px; height: 44px; border-radius: 12px; color: var(--fg-2); display: flex; align-items: center; justify-content: center; }
+.arrow.fwd { color: var(--blue-text); }
+.arrow:hover { background: var(--surface-3); }
+.card.edit { display: flex; flex-direction: column; align-items: stretch; }
 .edit { padding: 8px; gap: 6px; }
 .field { height: 40px; border: 0; border-radius: 8px; padding: 0 10px; background: var(--surface); font-size: 14px; width: 100%; }
-.row-end { display: flex; justify-content: flex-end; gap: 6px; }
+.row-end { display: flex; justify-content: flex-end; align-items: center; gap: 6px; }
+.row-end .spacer { flex: 1; }
+.btn-danger { height: 36px; padding: 0 12px; border-radius: 8px; color: #FF6961; font-size: 13px; font-weight: 600; }
 .btn-ghost { height: 36px; padding: 0 14px; border-radius: 8px; color: var(--fg-2); font-size: 13px; font-weight: 500; }
 .btn-primary { height: 36px; padding: 0 14px; border-radius: 8px; background: var(--blue); color: #FFFFFF; font-size: 13px; font-weight: 600; }
 
@@ -208,6 +228,9 @@ input::placeholder { color: var(--fg-3); }
   .cal-month, .cal-foot { display: none; }
   .week { display: block; }
   .week .cal-head { margin-bottom: 2px; }
+  .cal-toggle { display: inline-flex; align-items: center; gap: 4px; height: 32px; padding: 0 10px; margin-right: 2px; border-radius: 999px; background: var(--surface-2); color: var(--fg); font-size: 12px; font-weight: 600; }
+  .cal.expanded .cal-month { display: block; margin-bottom: 0; padding: 4px 2px 0; }
+  .cal.expanded .week { display: none; }
   .week .day { height: auto; gap: 3px; padding: 2px 0; }
   .week .day .w { font-size: 11px; font-weight: 600; color: var(--fg-2); }
   .week .day .n { width: 34px; height: 34px; font-size: 15px; }
@@ -224,6 +247,7 @@ input::placeholder { color: var(--fg-3); }
   .col:not(.active) { display: none; }
   .col-head, .col .composer { display: none; }
   .card .title { font-size: 15px; }
+  .card { padding: 12px 4px 12px 14px; }
   .field { font-size: 16px; }
 }
 
@@ -281,6 +305,11 @@ const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': 
 const longDate = k => { const d = parse(k); return `${d.getMonth() + 1}월 ${d.getDate()}일 ${DAYS[d.getDay()]}요일`; };
 
 const ICON = {
+  leftBig: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>',
+  rightBig: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>',
+  down: '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>',
+  up: '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 15l6-6 6 6"/></svg>',
+  trashBig: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3"/></svg>',
   left: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>',
   right: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>',
   plus: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>',
@@ -301,6 +330,9 @@ const S = {
   newCat: 'work',
   draft: '',
   draftTime: null,
+  timeOpen: null,
+  openSwipe: null,
+  calOpen: false,
   editId: null,
   edit: null,
   toast: null,
@@ -464,58 +496,67 @@ function visibleTasks() {
     || (a.created || 0) - (b.created || 0));
 }
 
-/* Time picker: target 'tn' / 'tnm' = new task (S.draftTime), 'te' = task being edited (S.edit.time). */
+/* Time picker (iOS-style wheel). target 'tn' / 'tnm' = new task (S.draftTime), 'te' = task being edited (S.edit.time). */
 function getTime(target) { return target === 'te' ? (S.edit && S.edit.time) : S.draftTime; }
 function setTime(target, t) { if (target === 'te') { if (S.edit) S.edit.time = t; } else S.draftTime = t; }
+const CLOCK = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>';
+const ITEM_H = 34;
 
-function timeField(target) {
+function timePill(target) {
   const t = getTime(target);
-  if (!t) return `<button type="button" class="time-add" data-act="time-on" data-target="${target}">시간 추가</button>`;
-  return `<div class="tp" data-target="${target}">
-    <span class="tp-label">시간</span>
-    <label class="sr" for="${target}-h">시</label>
-    <input id="${target}-h" class="tp-in" data-part="h" inputmode="numeric" maxlength="2" autocomplete="off" value="${pad(t.h)}">
-    <span class="tp-colon" aria-hidden="true">:</span>
-    <label class="sr" for="${target}-m">분</label>
-    <input id="${target}-m" class="tp-in" data-part="m" inputmode="numeric" maxlength="2" autocomplete="off" value="${pad(t.m)}">
-    <button type="button" class="tp-clear" data-act="time-off" data-target="${target}" aria-label="시간 지우기"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+  const open = S.timeOpen === target;
+  const label = t ? `시간 ${fmtTime(t)}, 바꾸기` : '시간 추가';
+  return `<button type="button" class="time-pill ${t ? 'set' : ''}" data-act="time-open" data-target="${target}" aria-haspopup="dialog" aria-expanded="${open}" aria-label="${label}">${t ? `<span class="num">${fmtTime(t)}</span>` : CLOCK}</button>`;
+}
+
+function wheelItems(part, val) {
+  const n = part === 'h' ? 24 : 60;
+  let out = '';
+  for (let o = -2; o <= 2; o++) out += `<span class="tw-item d${Math.abs(o)}">${pad((val + o + n) % n)}</span>`;
+  return out;
+}
+
+function timeWheel(target) {
+  if (S.timeOpen !== target) return '';
+  const t = getTime(target) || nowRounded();
+  return `<div class="tw" data-target="${target}" role="dialog" aria-label="시간 선택">
+    <div class="tw-body">
+      <div class="tw-band" aria-hidden="true"></div>
+      <div class="tw-col" id="${target}-h" data-part="h" tabindex="0" role="spinbutton" aria-label="시" aria-valuemin="0" aria-valuemax="23" aria-valuenow="${t.h}">${wheelItems('h', t.h)}</div>
+      <span class="tw-colon" aria-hidden="true">:</span>
+      <div class="tw-col" id="${target}-m" data-part="m" tabindex="0" role="spinbutton" aria-label="분" aria-valuemin="0" aria-valuemax="59" aria-valuenow="${t.m}">${wheelItems('m', t.m)}</div>
+    </div>
+    <div class="tw-actions">
+      <button type="button" class="btn-ghost" data-act="time-off" data-target="${target}">지우기</button>
+      <button type="button" class="btn-primary" data-act="time-close">완료</button>
+    </div>
   </div>`;
 }
 
+function refreshTime(target) {
+  const t = getTime(target);
+  if (!t) return;
+  root.querySelectorAll(`.tw[data-target="${target}"] .tw-col`).forEach(col => {
+    const v = col.dataset.part === 'h' ? t.h : t.m;
+    col.innerHTML = wheelItems(col.dataset.part, v);
+    col.setAttribute('aria-valuenow', v);
+  });
+  root.querySelectorAll(`.time-pill[data-target="${target}"]`).forEach(pill => {
+    pill.classList.add('set');
+    pill.innerHTML = `<span class="num">${fmtTime(t)}</span>`;
+    pill.setAttribute('aria-label', `시간 ${fmtTime(t)}, 바꾸기`);
+  });
+}
+
+// Minutes carry into hours: 09:59 → 10:00, and 00:00 back one → 23:59.
 function stepTime(target, part, dir) {
   const t = getTime(target);
   if (!t) return;
   let next;
-  if (part === 'h') {
-    next = { h: (t.h + dir + 24) % 24, m: t.m };
-  } else {
-    let total = t.h * 60 + t.m;
-    total = dir > 0 ? Math.floor(total / 5) * 5 + 5 : Math.ceil(total / 5) * 5 - 5;
-    total = (total + 1440) % 1440;
-    next = { h: Math.floor(total / 60), m: total % 60 };
-  }
+  if (part === 'h') next = { h: (t.h + dir + 24) % 24, m: t.m };
+  else { const total = (t.h * 60 + t.m + dir + 1440) % 1440; next = { h: Math.floor(total / 60), m: total % 60 }; }
   setTime(target, next);
-  root.querySelectorAll(`.tp[data-target="${target}"]`).forEach(box => {
-    box.querySelector('[data-part="h"]').value = pad(next.h);
-    box.querySelector('[data-part="m"]').value = pad(next.m);
-  });
-}
-
-function commitTyped(input) {
-  const box = input.closest('.tp');
-  if (!box) return;
-  const target = box.dataset.target;
-  const t = getTime(target);
-  if (!t) return;
-  const n = parseInt(input.value, 10);
-  const part = input.dataset.part;
-  const next = { ...t };
-  if (!Number.isNaN(n)) {
-    if (part === 'h') next.h = Math.min(23, Math.max(0, n));
-    else next.m = Math.min(59, Math.max(0, n));
-  }
-  setTime(target, next);
-  input.value = pad(part === 'h' ? next.h : next.m);
+  refreshTime(target);
 }
 
 /* ---------- Views ---------- */
@@ -525,14 +566,16 @@ function chips(current, act) {
 }
 
 function composer(id, cls) {
+  const target = cls ? 'tnm' : 'tn';
   return `<form class="composer ${cls}" data-form="add">
     <div class="composer-row">
       <label class="sr" for="${id}">새로운 할 일</label>
       <input id="${id}" class="composer-input" placeholder="새로운 할 일" maxlength="200" autocomplete="off" enterkeyhint="done" value="${esc(S.draft)}">
+      ${timePill(target)}
       <button type="submit" class="add-btn" aria-label="할 일 추가">${ICON.plus}</button>
     </div>
+    ${timeWheel(target)}
     <div class="chips" role="group" aria-label="카테고리 선택">${chips(S.newCat, 'newcat')}</div>
-    <div class="time-row">${timeField(cls ? 'tnm' : 'tn')}</div>
   </form>`;
 }
 
@@ -589,10 +632,11 @@ function calendarView() {
     week += dayButton(ymd(d), d.getDate(), `<span class="w">${DAYS[i]}</span>`);
   }
 
-  return `<section class="panel cal" aria-label="캘린더">
+  return `<section class="panel cal ${S.calOpen ? 'expanded' : ''}" aria-label="캘린더">
     <div class="cal-month">
       <div class="cal-head">
         <h2>${y}년 ${m + 1}월</h2>
+        <button class="cal-toggle" data-act="cal-toggle" aria-expanded="true">접기 ${ICON.up}</button>
         <div class="nav"><button data-act="month" data-d="-1" aria-label="이전 달">${ICON.left}</button><button data-act="month" data-d="1" aria-label="다음 달">${ICON.right}</button></div>
       </div>
       <div class="dow" aria-hidden="true">${DAYS.map(d => `<span>${d}</span>`).join('')}</div>
@@ -601,6 +645,7 @@ function calendarView() {
     <div class="week">
       <div class="cal-head">
         <h2>${mid.getFullYear()}년 ${mid.getMonth() + 1}월</h2>
+        <button class="cal-toggle" data-act="cal-toggle" aria-expanded="false">한 달 보기 ${ICON.down}</button>
         <div class="nav"><button data-act="week" data-d="-7" aria-label="이전 주">${ICON.left}</button><button data-act="week" data-d="7" aria-label="다음 주">${ICON.right}</button></div>
       </div>
       <div class="grid7">${week}</div>
@@ -616,24 +661,29 @@ function card(t, ci) {
       <input id="edit-title" class="field" maxlength="200" autocomplete="off" value="${esc(S.edit.title)}">
       <label class="sr" for="edit-date">날짜</label>
       <input id="edit-date" class="field" type="date" value="${esc(S.edit.date)}">
-      <div class="time-row">${timeField('te')}</div>
+      <div class="edit-time"><span>시간</span>${timePill('te')}</div>
+      ${timeWheel('te')}
       <div class="chips" role="group" aria-label="카테고리 변경">${chips(S.edit.cat, 'editcat')}</div>
-      <div class="row-end"><button type="button" class="btn-ghost" data-act="cancel">취소</button><button type="submit" class="btn-primary">저장</button></div>
+      <div class="row-end"><button type="button" class="btn-danger" data-act="del" data-id="${esc(t.id)}">삭제</button><span class="spacer"></span><button type="button" class="btn-ghost" data-act="cancel">취소</button><button type="submit" class="btn-primary">저장</button></div>
     </form>`;
   }
   const c = CAT[t.cat] || CAT.life;
   const done = t.status === 'done';
   const prev = ORDER[ci - 1], next = ORDER[ci + 1];
   const id = esc(t.id), title = esc(t.title);
-  return `<article class="card">
-    <button class="title ${done ? 'done' : ''}" data-act="edit" data-id="${id}" aria-label="수정: ${title}">${title}${done ? '' : ICON.pencil}</button>
-    <div class="meta">
-      <span class="cat"><i style="background:${c.color}"></i>${c.label} · ${relLabel(t.date)}${t.time ? ` <span class="num">${esc(t.time)}</span>` : ''}</span>
-      ${prev ? `<button class="icon" data-act="move" data-id="${id}" data-to="${prev}" aria-label="${title}: ${COLS[ci - 1].label}(으)로 이동">${ICON.left}</button>` : ''}
-      ${next ? `<button class="icon fwd" data-act="move" data-id="${id}" data-to="${next}" aria-label="${title}: ${COLS[ci + 1].label}(으)로 이동">${ICON.right}</button>` : ''}
-      <button class="icon del" data-act="del" data-id="${id}" aria-label="삭제: ${title}">${ICON.trash}</button>
-    </div>
-  </article>`;
+  return `<div class="swipe ${S.openSwipe === t.id ? 'open' : ''}" data-id="${id}">
+    <button class="swipe-del" data-act="del" data-id="${id}" tabindex="-1" aria-label="삭제: ${title}">${ICON.trashBig}<span>삭제</span></button>
+    <article class="card" data-swipe data-id="${id}">
+      <div class="card-main">
+        <button class="title ${done ? 'done' : ''}" data-act="edit" data-id="${id}" aria-label="수정: ${title}">${title}${done ? '' : ICON.pencil}</button>
+        <span class="cat"><i style="background:${c.color}"></i>${c.label} · ${relLabel(t.date)}${t.time ? ` <span class="num">${esc(t.time)}</span>` : ''}</span>
+      </div>
+      <div class="card-arrows">
+        ${prev ? `<button class="arrow" data-act="move" data-id="${id}" data-to="${prev}" aria-label="${title}: ${COLS[ci - 1].label}(으)로 이동">${ICON.leftBig}</button>` : ''}
+        ${next ? `<button class="arrow fwd" data-act="move" data-id="${id}" data-to="${next}" aria-label="${title}: ${COLS[ci + 1].label}(으)로 이동">${ICON.rightBig}</button>` : ''}
+      </div>
+    </article>
+  </div>`;
 }
 
 function boardView() {
@@ -733,9 +783,29 @@ function fail() { showToast('저장하지 못했어요. 인터넷 연결을 확�
 
 function syncMonth() { const d = parse(S.sel); S.ym = { y: d.getFullYear(), m: d.getMonth() }; }
 
+function deleteTask(id) {
+  const t = S.tasks.find(x => x.id === id);
+  if (!t || !store) return;
+  if (S.editId === id) { S.editId = null; S.edit = null; S.timeOpen = null; }
+  S.openSwipe = null;
+  store.remove(id).then(() => {
+    const { id: _drop, ...rest } = t;
+    showToast('삭제했어요', rest);
+  }).catch(fail);
+  render();
+}
+
+let suppressClick = false;
+function swallowNextClick() { suppressClick = true; setTimeout(() => { suppressClick = false; }, 400); }
+
 root.addEventListener('click', e => {
+  if (suppressClick) { e.preventDefault(); e.stopPropagation(); suppressClick = false; return; }
+  let dirty = false;
+  // Tapping anywhere else closes an open swipe or time wheel.
+  if (S.openSwipe && !e.target.closest(`.swipe[data-id="${CSS.escape(S.openSwipe)}"] .swipe-del`)) { S.openSwipe = null; dirty = true; }
+  if (S.timeOpen && !e.target.closest('.tw') && !e.target.closest('.time-pill')) { S.timeOpen = null; dirty = true; }
   const b = e.target.closest('[data-act]');
-  if (!b) return;
+  if (!b) { if (dirty) render(); return; }
   const act = b.dataset.act, id = b.dataset.id;
   switch (act) {
     case 'login': signIn(); return;
@@ -748,76 +818,126 @@ root.addEventListener('click', e => {
       S.ym = { y, m }; break;
     }
     case 'week': S.sel = addDays(S.sel, Number(b.dataset.d)); S.view = 'day'; syncMonth(); break;
+    case 'cal-toggle': S.calOpen = !S.calOpen; syncMonth(); break;
     case 'today': S.sel = today(); S.view = 'day'; syncMonth(); break;
     case 'view': S.view = b.dataset.view; break;
     case 'tab': S.tab = b.dataset.tab; break;
     case 'newcat': S.newCat = b.dataset.cat; break;
     case 'editcat': if (S.edit) S.edit.cat = b.dataset.cat; break;
-    case 'time-on': setTime(b.dataset.target, nowRounded()); S.focusId = b.dataset.target + '-h'; break;
-    case 'time-off': setTime(b.dataset.target, null); break;
-    case 'move': store && store.update(id, { status: b.dataset.to }).catch(fail); return;
-    case 'del': {
-      const t = S.tasks.find(x => x.id === id);
-      if (!t || !store) return;
-      store.remove(id).then(() => {
-        const { id: _drop, ...rest } = t;
-        showToast('삭제했어요', rest);
-      }).catch(fail);
-      return;
+    case 'time-open': {
+      const tg = b.dataset.target;
+      if (S.timeOpen === tg) { S.timeOpen = null; break; }
+      if (!getTime(tg)) setTime(tg, nowRounded());
+      S.timeOpen = tg; S.focusId = tg + '-h';
+      break;
     }
+    case 'time-close': S.timeOpen = null; break;
+    case 'time-off': setTime(b.dataset.target, null); S.timeOpen = null; break;
+    case 'move': store && store.update(id, { status: b.dataset.to }).catch(fail); if (dirty) render(); return;
+    case 'del': deleteTask(id); return;
     case 'undo':
       if (S.toast && S.toast.undo && store) store.add(S.toast.undo).catch(fail);
       clearTimeout(toastTimer); S.toast = null; break;
     case 'edit': {
       const t = S.tasks.find(x => x.id === id);
       if (!t) return;
-      S.editId = id; S.edit = { title: t.title, date: t.date, cat: CAT[t.cat] ? t.cat : 'life', time: parseTime(t.time) }; S.focusId = 'edit-title';
+      S.editId = id; S.edit = { title: t.title, date: t.date, cat: CAT[t.cat] ? t.cat : 'life', time: parseTime(t.time) };
+      S.timeOpen = null; S.focusId = 'edit-title';
       break;
     }
-    case 'cancel': S.editId = null; S.edit = null; break;
-    default: return;
+    case 'cancel': S.editId = null; S.edit = null; S.timeOpen = null; break;
+    default: if (dirty) render(); return;
   }
   render();
 });
 
-// Time picker: mouse wheel, arrow keys, typing, and vertical swipe on touch screens.
+/* Time wheel: mouse wheel, drag (mouse or finger), tap a number, arrow keys. Card swipe-to-delete. */
+let wheelAcc = 0;
 root.addEventListener('wheel', e => {
-  const el = e.target.closest('.tp-in');
-  if (!el) return;
+  const col = e.target.closest('.tw-col');
+  if (!col) return;
   e.preventDefault();
-  if (Math.abs(e.deltaY) < 1) return;
-  stepTime(el.closest('.tp').dataset.target, el.dataset.part, e.deltaY < 0 ? 1 : -1);
+  const dy = e.deltaMode === 1 ? e.deltaY * 33 : e.deltaY;
+  const target = col.closest('.tw').dataset.target;
+  if (Math.abs(dy) >= 50) { wheelAcc = 0; stepTime(target, col.dataset.part, Math.sign(dy)); return; }
+  wheelAcc += dy;
+  if (Math.abs(wheelAcc) >= 50) { const dir = Math.sign(wheelAcc); wheelAcc = 0; stepTime(target, col.dataset.part, dir); }
 }, { passive: false });
 
 root.addEventListener('keydown', e => {
-  const el = e.target.closest && e.target.closest('.tp-in');
-  if (!el || (e.key !== 'ArrowUp' && e.key !== 'ArrowDown')) return;
+  if (e.key === 'Escape' && S.timeOpen) { S.timeOpen = null; render(); return; }
+  const col = e.target.closest && e.target.closest('.tw-col');
+  if (!col || (e.key !== 'ArrowUp' && e.key !== 'ArrowDown')) return;
   e.preventDefault();
-  stepTime(el.closest('.tp').dataset.target, el.dataset.part, e.key === 'ArrowUp' ? 1 : -1);
+  stepTime(col.closest('.tw').dataset.target, col.dataset.part, e.key === 'ArrowUp' ? 1 : -1);
 });
 
-let swipe = null;
-root.addEventListener('touchstart', e => {
-  const el = e.target.closest('.tp-in');
-  swipe = el ? { el, y: e.touches[0].clientY, moved: false } : null;
-}, { passive: true });
-root.addEventListener('touchmove', e => {
-  if (!swipe) return;
-  const dy = swipe.y - e.touches[0].clientY;
-  if (Math.abs(dy) < 14) return;
-  e.preventDefault();
-  swipe.moved = true;
-  swipe.y = e.touches[0].clientY;
-  stepTime(swipe.el.closest('.tp').dataset.target, swipe.el.dataset.part, dy > 0 ? 1 : -1);
-}, { passive: false });
-root.addEventListener('touchend', e => { if (swipe && swipe.moved) e.preventDefault(); swipe = null; });
+const DEL_W = 88;
+let drag = null, sw = null;
 
-root.addEventListener('change', e => { if (e.target.classList.contains('tp-in')) commitTyped(e.target); });
-root.addEventListener('focusout', e => { if (e.target.classList && e.target.classList.contains('tp-in')) commitTyped(e.target); });
+root.addEventListener('pointerdown', e => {
+  const col = e.target.closest('.tw-col');
+  if (col) {
+    drag = { col, target: col.closest('.tw').dataset.target, part: col.dataset.part, y: e.clientY, startY: e.clientY, moved: false };
+    try { col.setPointerCapture(e.pointerId); } catch (er) { /* ignore */ }
+    e.preventDefault();
+    return;
+  }
+  const cardEl = e.target.closest('.card[data-swipe]');
+  if (!cardEl || (e.pointerType === 'mouse' && e.button !== 0)) return;
+  sw = { card: cardEl, wrap: cardEl.parentElement, id: cardEl.dataset.id, x: e.clientX, y: e.clientY, dx: 0, active: false,
+         base: cardEl.parentElement.classList.contains('open') ? -DEL_W : 0, pid: e.pointerId };
+});
+
+root.addEventListener('pointermove', e => {
+  if (drag) {
+    const step = ITEM_H * 0.8;
+    if (Math.abs(e.clientY - drag.startY) > 4) drag.moved = true;
+    while (e.clientY - drag.y <= -step) { stepTime(drag.target, drag.part, 1); drag.y -= step; }
+    while (e.clientY - drag.y >= step) { stepTime(drag.target, drag.part, -1); drag.y += step; }
+    return;
+  }
+  if (!sw) return;
+  const dx = e.clientX - sw.x, dy = e.clientY - sw.y;
+  if (!sw.active) {
+    if (Math.abs(dx) > 8 && Math.abs(dx) > Math.abs(dy) * 1.2) {
+      sw.active = true;
+      try { sw.card.setPointerCapture(sw.pid); } catch (er) { /* ignore */ }
+      sw.card.style.transition = 'none';
+      sw.wrap.classList.add('swiping');
+    } else if (Math.abs(dy) > 10) { sw = null; return; } else return;
+  }
+  sw.dx = Math.min(0, sw.base + dx);
+  sw.card.style.transform = `translateX(${sw.dx}px)`;
+  sw.wrap.classList.toggle('far', sw.dx < -sw.card.offsetWidth * 0.55);
+});
+
+function endPointer(e) {
+  if (drag) {
+    const d = drag; drag = null;
+    if (!d.moved && e.type === 'pointerup') {
+      const r = d.col.getBoundingClientRect();
+      const off = Math.round((e.clientY - (r.top + r.height / 2)) / ITEM_H);
+      for (let i = 0; i < Math.abs(off); i++) stepTime(d.target, d.part, Math.sign(off));
+    }
+    return;
+  }
+  if (!sw) return;
+  const s = sw; sw = null;
+  if (!s.active) return;
+  swallowNextClick();
+  s.wrap.classList.remove('swiping', 'far');
+  s.card.style.transition = '';
+  if (e.type === 'pointerup' && s.dx < -s.card.offsetWidth * 0.55) { deleteTask(s.id); return; }
+  S.openSwipe = s.dx < -DEL_W / 2 ? s.id : null;
+  s.card.style.transform = '';
+  render();
+}
+root.addEventListener('pointerup', endPointer);
+root.addEventListener('pointercancel', endPointer);
 
 root.addEventListener('input', e => {
   const el = e.target;
-  if (el.classList.contains('tp-in')) { el.value = el.value.replace(/\D/g, '').slice(0, 2); return; }
   if (el.classList.contains('composer-input')) S.draft = el.value;
   else if (el.id === 'edit-title' && S.edit) S.edit.title = el.value;
   else if (el.id === 'edit-date' && S.edit) S.edit.date = el.value;
@@ -830,23 +950,22 @@ root.addEventListener('submit', e => {
   if (f.dataset.form === 'add') {
     const title = S.draft.trim();
     if (!title) return;
-    root.querySelectorAll('.tp-in').forEach(commitTyped);
     const task = { title, date: S.sel, status: 'todo', cat: S.newCat, created: Date.now() };
     if (S.draftTime) task.time = fmtTime(S.draftTime);
     store.add(task).catch(fail);
     S.draft = '';
     S.draftTime = null;
+    S.timeOpen = null;
     S.tab = 'todo';
     S.focusId = f.querySelector('input').id;
     render();
   } else if (f.dataset.form === 'edit' && S.edit) {
     const title = (S.edit.title || '').trim();
     if (!title) return;
-    root.querySelectorAll('.tp-in').forEach(commitTyped);
     const patch = { title, cat: S.edit.cat, time: S.edit.time ? fmtTime(S.edit.time) : '' };
     if (/^\d{4}-\d{2}-\d{2}$/.test(S.edit.date || '')) patch.date = S.edit.date;
     store.update(f.dataset.id, patch).catch(fail);
-    S.editId = null; S.edit = null;
+    S.editId = null; S.edit = null; S.timeOpen = null;
     render();
   }
 });

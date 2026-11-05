@@ -1,0 +1,20 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // 로그인한 사람은 자기 할 일만 읽고 쓸 수 있어요.
+    match /users/{uid}/tasks/{taskId} {
+      allow read, delete: if request.auth != null && request.auth.uid == uid;
+      allow create, update: if request.auth != null
+        && request.auth.uid == uid
+        && request.resource.data.title is string
+        && request.resource.data.title.size() > 0
+        && request.resource.data.title.size() <= 200
+        && request.resource.data.status in ['todo', 'doing', 'done']
+        && request.resource.data.cat is string
+        && request.resource.data.cat.size() <= 20
+        && (!('time' in request.resource.data)
+            || request.resource.data.time == ''
+            || request.resource.data.time.matches('^[0-2][0-9]:[0-5][0-9]$'));
+    }
+  }
+}

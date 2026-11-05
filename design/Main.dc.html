@@ -1,0 +1,405 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>할 일 — 데스크탑</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#000000}
+a{color:#409CFF}a:hover{color:#7AB8FF}
+button{font-family:inherit;cursor:pointer}
+input{font-family:inherit}
+button:focus-visible,input:focus-visible{outline:2px solid #409CFF;outline-offset:2px}
+input::placeholder{color:#8E8E93}
+</style>
+</helmet>
+<div style="min-height: 100vh; background: #000000; font-family: -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Noto Sans KR', system-ui, sans-serif; color: #F5F5F7; letter-spacing: -0.015em">
+  <div style="max-width: 1180px; margin: 0 auto; padding: 40px 32px 64px; box-sizing: border-box; display: flex; flex-direction: column; gap: 16px">
+
+    <header style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; min-height: 44px">
+      <div style="display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap">
+        <h1 style="margin: 0; font-size: 30px; font-weight: 700; letter-spacing: -0.03em">할 일</h1>
+        <span style="font-size: 16px; font-weight: 500; color: #A1A1A6">{{selLabel}}</span>
+      </div>
+      <div role="group" aria-label="보기" style="display: flex; padding: 3px; border-radius: 10px; background: #1C1C1E">
+        <sc-for list="{{views}}" as="v" hint-placeholder-count="2">
+          <sc-if value="{{v.on}}" hint-placeholder-val="{{false}}">
+            <button onClick="{{v.pick}}" aria-pressed="true" style="min-height: 36px; padding: 0 16px; border: 0; border-radius: 8px; background: #3A3A3C; color: #F5F5F7; font-size: 14px; font-weight: 600">{{v.label}}</button>
+          </sc-if>
+          <sc-if value="{{v.off}}" hint-placeholder-val="{{true}}">
+            <button onClick="{{v.pick}}" aria-pressed="false" style="min-height: 36px; padding: 0 16px; border: 0; border-radius: 8px; background: transparent; color: #A1A1A6; font-size: 14px; font-weight: 500">{{v.label}}</button>
+          </sc-if>
+        </sc-for>
+      </div>
+    </header>
+
+    <section aria-label="진행도" style="display: flex; flex-wrap: wrap; gap: 12px">
+      <sc-for list="{{progress}}" as="p" hint-placeholder-count="3">
+        <div style="flex: 1 1 240px; min-width: 0; background: #1C1C1E; border-radius: 16px; padding: 14px 16px; box-sizing: border-box; display: flex; align-items: center; gap: 16px">
+          <div style="position: relative; width: 64px; height: 64px; flex: none">
+            <svg width="64" height="64" viewBox="0 0 64 64" role="img" aria-label="{{p.aria}}">
+              <circle cx="32" cy="32" r="26" fill="none" stroke="#2C2C2E" stroke-width="7"></circle>
+              <circle cx="32" cy="32" r="26" fill="none" stroke="{{p.color}}" stroke-width="7" stroke-dasharray="{{p.dash}}" transform="rotate(-90 32 32)"></circle>
+            </svg>
+            <span aria-hidden="true" style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700">{{p.pct}}%</span>
+          </div>
+          <div style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px">
+            <div style="display: flex; align-items: baseline; gap: 6px">
+              <h2 style="margin: 0; font-size: 15px; font-weight: 600">{{p.label}}</h2>
+              <span style="font-size: 12px; color: #A1A1A6">{{p.sub}}</span>
+            </div>
+            <span style="font-size: 13px; color: #A1A1A6"><strong style="color: #F5F5F7; font-weight: 600">{{p.done}}</strong> / {{p.total}} 완료</span>
+            <div style="display: flex; gap: 10px; font-size: 12px; color: #A1A1A6">
+              <span>할 일 {{p.todo}}</span><span>수행 중 {{p.doing}}</span>
+            </div>
+          </div>
+        </div>
+      </sc-for>
+    </section>
+
+    <div style="display: flex; flex-wrap: wrap; gap: 12px; align-items: stretch">
+
+      <section aria-label="캘린더" style="flex: 1 1 280px; max-width: 300px; background: #1C1C1E; border-radius: 16px; padding: 14px; box-sizing: border-box; display: flex; flex-direction: column">
+        <div style="display: flex; align-items: center; justify-content: space-between; height: 36px; margin-bottom: 8px">
+          <h2 style="margin: 0 0 0 4px; font-size: 15px; font-weight: 600">{{monthLabel}}</h2>
+          <div style="display: flex; margin-right: -6px">
+            <button onClick="{{prevMonth}}" aria-label="이전 달" style="width: 44px; height: 44px; margin: -4px 0; border: 0; border-radius: 50%; background: transparent; color: #409CFF; display: flex; align-items: center; justify-content: center">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"></path></svg>
+            </button>
+            <button onClick="{{nextMonth}}" aria-label="다음 달" style="width: 44px; height: 44px; margin: -4px 0; border: 0; border-radius: 50%; background: transparent; color: #409CFF; display: flex; align-items: center; justify-content: center">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"></path></svg>
+            </button>
+          </div>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); text-align: center; font-size: 11px; font-weight: 600; color: #A1A1A6; padding-bottom: 4px">
+          <span>일</span><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span>토</span>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(7, minmax(0, 1fr))">
+          <sc-for list="{{cells}}" as="c" hint-placeholder-count="35">
+            <sc-if value="{{c.blank}}" hint-placeholder-val="{{false}}">
+              <span style="height: 40px"></span>
+            </sc-if>
+            <sc-if value="{{c.day}}" hint-placeholder-val="{{true}}">
+              <button onClick="{{c.pick}}" aria-label="{{c.aria}}" aria-pressed="{{c.sel}}" style="height: 40px; border: 0; background: transparent; padding: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px">
+                <sc-if value="{{c.sel}}" hint-placeholder-val="{{false}}">
+                  <span style="width: 30px; height: 30px; border-radius: 50%; background: #0071E3; color: #FFFFFF; font-size: 14px; font-weight: 600; display: flex; align-items: center; justify-content: center">{{c.label}}</span>
+                </sc-if>
+                <sc-if value="{{c.isToday}}" hint-placeholder-val="{{false}}">
+                  <span style="width: 30px; height: 30px; border-radius: 50%; color: #409CFF; font-size: 14px; font-weight: 700; display: flex; align-items: center; justify-content: center">{{c.label}}</span>
+                </sc-if>
+                <sc-if value="{{c.plain}}" hint-placeholder-val="{{true}}">
+                  <span style="width: 30px; height: 30px; border-radius: 50%; color: #F5F5F7; font-size: 14px; display: flex; align-items: center; justify-content: center">{{c.label}}</span>
+                </sc-if>
+                <span aria-hidden="true" style="display: flex; gap: 2px; height: 4px">
+                  <sc-for list="{{c.dots}}" as="d" hint-placeholder-count="1">
+                    <span style="width: 4px; height: 4px; border-radius: 50%; background: {{d.color}}; opacity: {{d.op}}"></span>
+                  </sc-for>
+                </span>
+              </button>
+            </sc-if>
+          </sc-for>
+        </div>
+        <div style="flex: 1"></div>
+        <div style="margin-top: 12px; padding: 12px 4px 0; border-top: 1px solid #38383A; display: flex; justify-content: space-between; align-items: center; font-size: 13px">
+          <span style="color: #A1A1A6">이번 달 남은 할 일</span>
+          <span style="font-weight: 600">{{monthOpen}}개</span>
+        </div>
+      </section>
+
+      <section aria-label="칸반 보드" style="flex: 999 1 600px; min-width: 0; display: flex; flex-wrap: wrap; gap: 12px; align-items: stretch">
+        <sc-for list="{{columns}}" as="col" hint-placeholder-count="3">
+          <div style="flex: 1 1 200px; min-width: 0; background: #1C1C1E; border-radius: 16px; padding: 14px; box-sizing: border-box; display: flex; flex-direction: column; gap: 8px">
+            <div style="display: flex; align-items: center; gap: 8px; height: 36px; padding: 0 4px">
+              <span aria-hidden="true" style="width: 8px; height: 8px; border-radius: 50%; background: {{col.dot}}"></span>
+              <h3 style="margin: 0; font-size: 15px; font-weight: 600">{{col.label}}</h3>
+              <span style="margin-left: auto; min-width: 24px; height: 22px; padding: 0 7px; box-sizing: border-box; border-radius: 999px; background: #2C2C2E; color: #A1A1A6; font-size: 12px; font-weight: 600; display: flex; align-items: center; justify-content: center">{{col.count}}</span>
+            </div>
+
+            <sc-if value="{{col.isTodo}}" hint-placeholder-val="{{false}}">
+              <form onSubmit="{{add}}" style="display: flex; flex-direction: column; gap: 2px; background: #2C2C2E; border-radius: 12px; padding: 0 4px 8px 12px">
+                <div style="display: flex; align-items: center; gap: 4px">
+                <label for="new-task" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">새로운 할 일</label>
+                <input id="new-task" value="{{draft}}" onChange="{{onDraft}}" placeholder="새로운 할 일" style="flex: 1; min-width: 0; height: 44px; border: 0; padding: 0; font-size: 14px; color: #F5F5F7; background: transparent">
+                <button type="submit" aria-label="할 일 추가" style="flex: none; width: 36px; height: 36px; margin: 4px 0; border: 0; border-radius: 50%; background: #0071E3; color: #FFFFFF; display: flex; align-items: center; justify-content: center">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>
+                </button>
+                </div>
+                <div role="group" aria-label="카테고리 선택" style="display: flex; flex-wrap: wrap; gap: 4px; margin-left: -4px">
+                  <sc-for list="{{catChips}}" as="k" hint-placeholder-count="4">
+                    <sc-if value="{{k.on}}" hint-placeholder-val="{{false}}">
+                      <button type="button" onClick="{{k.pick}}" aria-pressed="true" style="height: 32px; padding: 0 10px; border: 0; border-radius: 999px; background: #48484A; color: #F5F5F7; font-size: 12px; font-weight: 600; display: flex; align-items: center; gap: 5px"><span aria-hidden="true" style="width: 7px; height: 7px; border-radius: 50%; background: {{k.color}}"></span>{{k.label}}</button>
+                    </sc-if>
+                    <sc-if value="{{k.off}}" hint-placeholder-val="{{true}}">
+                      <button type="button" onClick="{{k.pick}}" aria-pressed="false" style="height: 32px; padding: 0 10px; border: 0; border-radius: 999px; background: transparent; color: #A1A1A6; font-size: 12px; font-weight: 500; display: flex; align-items: center; gap: 5px"><span aria-hidden="true" style="width: 7px; height: 7px; border-radius: 50%; background: {{k.color}}"></span>{{k.label}}</button>
+                    </sc-if>
+                  </sc-for>
+                </div>
+              </form>
+            </sc-if>
+
+            <sc-for list="{{col.cards}}" as="t" hint-placeholder-count="2">
+              <article style="background: #2C2C2E; border-radius: 12px">
+                <sc-if value="{{t.editing}}" hint-placeholder-val="{{false}}">
+                  <form onSubmit="{{t.save}}" style="padding: 8px; display: flex; flex-direction: column; gap: 6px">
+                    <label for="edit-task" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">할 일 수정</label>
+                    <input id="edit-task" value="{{editTitle}}" onChange="{{onEditTitle}}" autoFocus="{{true}}" style="height: 40px; border: 0; border-radius: 8px; padding: 0 10px; background: #1C1C1E; color: #F5F5F7; font-size: 14px">
+                    <label for="edit-date" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">날짜</label>
+                    <input id="edit-date" type="date" value="{{editDate}}" onChange="{{onEditDate}}" style="height: 36px; border: 0; border-radius: 8px; padding: 0 10px; background: #1C1C1E; color: #F5F5F7; font-size: 13px; color-scheme: dark">
+                    <div role="group" aria-label="카테고리 변경" style="display: flex; flex-wrap: wrap; gap: 4px">
+                      <sc-for list="{{editChips}}" as="k" hint-placeholder-count="4">
+                        <sc-if value="{{k.on}}" hint-placeholder-val="{{false}}">
+                          <button type="button" onClick="{{k.pick}}" aria-pressed="true" style="height: 30px; padding: 0 9px; border: 0; border-radius: 999px; background: #48484A; color: #F5F5F7; font-size: 12px; font-weight: 600; display: flex; align-items: center; gap: 5px"><span aria-hidden="true" style="width: 7px; height: 7px; border-radius: 50%; background: {{k.color}}"></span>{{k.label}}</button>
+                        </sc-if>
+                        <sc-if value="{{k.off}}" hint-placeholder-val="{{true}}">
+                          <button type="button" onClick="{{k.pick}}" aria-pressed="false" style="height: 30px; padding: 0 9px; border: 0; border-radius: 999px; background: transparent; color: #A1A1A6; font-size: 12px; font-weight: 500; display: flex; align-items: center; gap: 5px"><span aria-hidden="true" style="width: 7px; height: 7px; border-radius: 50%; background: {{k.color}}"></span>{{k.label}}</button>
+                        </sc-if>
+                      </sc-for>
+                    </div>
+                    <div style="display: flex; justify-content: flex-end; gap: 6px">
+                      <button type="button" onClick="{{cancelEdit}}" style="height: 36px; padding: 0 14px; border: 0; border-radius: 8px; background: transparent; color: #A1A1A6; font-size: 13px; font-weight: 500">취소</button>
+                      <button type="submit" style="height: 36px; padding: 0 14px; border: 0; border-radius: 8px; background: #0071E3; color: #FFFFFF; font-size: 13px; font-weight: 600">저장</button>
+                    </div>
+                  </form>
+                </sc-if>
+                <sc-if value="{{t.viewing}}" hint-placeholder-val="{{true}}">
+                <div style="padding: 10px 2px 2px 12px; display: flex; flex-direction: column">
+                <sc-if value="{{t.done}}" hint-placeholder-val="{{false}}">
+                  <button onClick="{{t.startEdit}}" aria-label="{{t.editLabel}}" style="padding: 0 10px 0 0; border: 0; background: transparent; text-align: left; font-size: 14px; color: #A1A1A6; text-decoration: line-through">{{t.title}}</button>
+                </sc-if>
+                <sc-if value="{{t.open}}" hint-placeholder-val="{{true}}">
+                  <button onClick="{{t.startEdit}}" aria-label="{{t.editLabel}}" style="padding: 0 10px 0 0; border: 0; background: transparent; text-align: left; font-size: 14px; font-weight: 500; color: #F5F5F7; display: flex; align-items: center; gap: 6px">{{t.title}}<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#8E8E93" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16v4z"></path></svg></button>
+                </sc-if>
+                <div style="display: flex; align-items: center">
+                  <span style="flex: 1; min-width: 0; display: flex; align-items: center; gap: 6px; font-size: 12px; color: #A1A1A6"><span aria-hidden="true" style="flex: none; width: 7px; height: 7px; border-radius: 50%; background: {{t.catColor}}"></span>{{t.catLabel}} · {{t.dateLabel}}</span>
+                  <sc-if value="{{t.canBack}}" hint-placeholder-val="{{false}}">
+                    <button onClick="{{t.back}}" aria-label="{{t.backLabel}}" style="width: 44px; height: 40px; border: 0; border-radius: 10px; background: transparent; color: #A1A1A6; display: flex; align-items: center; justify-content: center">
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"></path></svg>
+                    </button>
+                  </sc-if>
+                  <sc-if value="{{t.canFwd}}" hint-placeholder-val="{{true}}">
+                    <button onClick="{{t.fwd}}" aria-label="{{t.fwdLabel}}" style="width: 44px; height: 40px; border: 0; border-radius: 10px; background: transparent; color: #409CFF; display: flex; align-items: center; justify-content: center">
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"></path></svg>
+                    </button>
+                  </sc-if>
+                  <button onClick="{{t.remove}}" aria-label="{{t.removeLabel}}" style="width: 44px; height: 40px; border: 0; border-radius: 10px; background: transparent; color: #98989D; display: flex; align-items: center; justify-content: center">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3"></path></svg>
+                  </button>
+                </div>
+                </div>
+                </sc-if>
+              </article>
+            </sc-for>
+            <sc-if value="{{col.empty}}" hint-placeholder-val="{{false}}">
+              <p style="margin: 0; padding: 16px 8px; text-align: center; font-size: 13px; color: #A1A1A6">비어 있음</p>
+            </sc-if>
+          </div>
+        </sc-for>
+      </section>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1180}}'>
+function pad(n) { return (n < 10 ? '0' : '') + n; }
+function ymd(d) { return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
+function plus(n) { var d = new Date(); d.setDate(d.getDate() + n); return ymd(d); }
+function parse(k) { var p = k.split('-'); return new Date(+p[0], +p[1] - 1, +p[2]); }
+var DAYS = ['일', '월', '화', '수', '목', '금', '토'];
+var COLS = [
+  { id: 'todo', label: '할 일', dot: '#8E8E93' },
+  { id: 'doing', label: '수행 중', dot: '#FF9F0A' },
+  { id: 'done', label: '완료', dot: '#30D158' }
+];
+var ORDER = ['todo', 'doing', 'done'];
+var SEED = [
+  { id: 1, title: '주간 업무 보고서 작성', date: plus(0), status: 'doing' },
+  { id: 2, title: '팀 회의 안건 정리', date: plus(0), status: 'todo' },
+  { id: 3, title: '적금 자동이체 확인', date: plus(0), status: 'todo' },
+  { id: 4, title: '세탁소에서 셔츠 찾기', date: plus(0), status: 'todo' },
+  { id: 5, title: '아침 러닝 5km', date: plus(0), status: 'done' },
+  { id: 6, title: 'ETF 리밸런싱 검토', date: plus(1), status: 'doing' },
+  { id: 7, title: '헬스장 PT 예약', date: plus(1), status: 'todo' },
+  { id: 8, title: '부모님께 안부 전화', date: plus(2), status: 'todo' },
+  { id: 9, title: '엔진오일 교체 예약', date: plus(4), status: 'todo' },
+  { id: 10, title: '친구 결혼식 축의금 준비', date: plus(6), status: 'todo' },
+  { id: 11, title: '이번 달 카드값 정리', date: plus(-1), status: 'done' },
+  { id: 12, title: '프로젝트 기획안 초안', date: plus(-1), status: 'done' },
+  { id: 13, title: '자동차 보험 갱신', date: plus(-2), status: 'done' },
+  { id: 14, title: '연말정산 서류 준비', date: plus(20), status: 'todo' },
+  { id: 15, title: '자격증 시험 접수', date: plus(-25), status: 'done' },
+  { id: 16, title: '건강검진 받기', date: plus(-50), status: 'done' },
+  { id: 17, title: '전세 계약 갱신 검토', date: plus(-85), status: 'done' },
+  { id: 18, title: '여름휴가 항공권 예매', date: plus(-130), status: 'done' },
+  { id: 19, title: '종합소득세 신고', date: plus(-160), status: 'done' },
+  { id: 20, title: '올해 책 12권 읽기', date: ymd(new Date(new Date().getFullYear(), 11, 28)), status: 'doing' },
+  { id: 21, title: '연말 가족 여행 계획', date: ymd(new Date(new Date().getFullYear(), 11, 20)), status: 'todo' }
+];
+var CATS = [
+  { id: 'work', label: '업무', color: '#64D2FF' },
+  { id: 'health', label: '건강', color: '#30D158' },
+  { id: 'money', label: '재테크', color: '#FFD60A' },
+  { id: 'life', label: '생활', color: '#BF5AF2' }
+];
+var CAT_MAP = {};
+CATS.forEach(function (c) { CAT_MAP[c.id] = c; });
+var SEED_CAT = { 1: 'work', 2: 'work', 3: 'money', 4: 'life', 5: 'health', 6: 'money', 7: 'health', 8: 'life', 9: 'life', 10: 'life', 11: 'money', 12: 'work', 13: 'money', 14: 'money', 15: 'work', 16: 'health', 17: 'life', 18: 'life', 19: 'money', 20: 'life', 21: 'life' };
+SEED.forEach(function (t) { t.cat = SEED_CAT[t.id]; });
+var RING = 163.4;
+function stat(tasks, pred, label, sub, color) {
+  var ts = tasks.filter(function (t) { return pred(t.date); });
+  var done = ts.filter(function (t) { return t.status === 'done'; }).length;
+  var doing = ts.filter(function (t) { return t.status === 'doing'; }).length;
+  var pct = ts.length ? Math.round(done / ts.length * 100) : 0;
+  return {
+    label: label, sub: sub, color: color, pct: pct, done: done, total: ts.length,
+    doing: doing, todo: ts.length - done - doing,
+    dash: (RING * pct / 100).toFixed(1) + ' ' + RING,
+    aria: label + ' 진행률 ' + pct + '%, ' + ts.length + '개 중 ' + done + '개 완료'
+  };
+}
+var NOW = new Date();
+var DEFAULTS = { tasks: SEED, sel: ymd(NOW), view: 'day', draft: '', year: NOW.getFullYear(), month: NOW.getMonth(), nextId: 100 };
+
+class Component extends DCLogic {
+  st() { return Object.assign({}, DEFAULTS, this.state || {}); }
+  setTasks(fn) { this.setState({ tasks: fn(this.st().tasks) }); }
+  dotsFor(tasks, key) {
+    var counts = {};
+    tasks.forEach(function (t) { if (t.date === key) counts[t.cat] = (counts[t.cat] || 0) + 1; });
+    return Object.keys(counts).sort(function (a, b) { return counts[b] - counts[a]; }).slice(0, 3).map(function (k) {
+      var n = counts[k];
+      return { color: (CAT_MAP[k] || CAT_MAP.life).color, op: n >= 3 ? 1 : (n === 2 ? 0.7 : 0.4) };
+    });
+  }
+  relLabel(k) {
+    if (k === ymd(new Date())) return '오늘';
+    if (k === plus(1)) return '내일';
+    if (k === plus(-1)) return '어제';
+    var d = parse(k);
+    return (d.getMonth() + 1) + '월 ' + d.getDate() + '일';
+  }
+  renderVals() {
+    var self = this;
+    var s = this.st();
+    var tasks = s.tasks;
+    var todayKey = ymd(new Date());
+    var y = s.year, m = s.month;
+    var first = new Date(y, m, 1).getDay();
+    var dim = new Date(y, m + 1, 0).getDate();
+    var cells = [];
+    var monthOpen = 0;
+    for (var i = 0; i < first; i++) cells.push({ blank: true, day: false });
+    for (var d = 1; d <= dim; d++) {
+      (function (d) {
+        var key = ymd(new Date(y, m, d));
+        var open = tasks.filter(function (t) { return t.date === key && t.status !== 'done'; }).length;
+        var any = tasks.some(function (t) { return t.date === key; });
+        monthOpen += open;
+        var sel = key === s.sel;
+        var isT = key === todayKey && !sel;
+        cells.push({
+          blank: false, day: true, label: d, sel: sel, isToday: isT, plain: !sel && !isT,
+          dots: self.dotsFor(tasks, key),
+          aria: (m + 1) + '월 ' + d + '일' + (open ? ', 할 일 ' + open + '개' : ''),
+          pick: function () { self.setState({ sel: key, view: 'day' }); }
+        });
+      })(d);
+    }
+    while (cells.length % 7) cells.push({ blank: true, day: false });
+
+    var visible = s.view === 'day' ? tasks.filter(function (t) { return t.date === s.sel; }) : tasks.slice().sort(function (a, b) { return a.date < b.date ? -1 : 1; });
+    var sd = parse(s.sel);
+    var selLabel = s.view === 'day'
+      ? (sd.getMonth() + 1) + '월 ' + sd.getDate() + '일 ' + DAYS[sd.getDay()] + '요일'
+      : '모든 날짜';
+
+    var columns = COLS.map(function (c, ci) {
+      var cards = visible.filter(function (t) { return t.status === c.id; }).map(function (t) {
+        var prev = ORDER[ci - 1], next = ORDER[ci + 1];
+        return {
+          title: t.title, done: c.id === 'done', open: c.id !== 'done',
+          dateLabel: self.relLabel(t.date),
+          catLabel: (CAT_MAP[t.cat] || CAT_MAP.life).label,
+          catColor: (CAT_MAP[t.cat] || CAT_MAP.life).color,
+          editing: s.editId === t.id, viewing: s.editId !== t.id,
+          editLabel: '수정: ' + t.title,
+          startEdit: function () { self.setState({ editId: t.id, editTitle: t.title, editCat: t.cat, editDate: t.date }); },
+          save: function (e) {
+            if (e && e.preventDefault) e.preventDefault();
+            var c = self.st();
+            var title = (c.editTitle || '').trim();
+            if (!title) return;
+            self.setState({
+              editId: null,
+              tasks: c.tasks.map(function (x) { return x.id === t.id ? Object.assign({}, x, { title: title, cat: c.editCat || x.cat, date: c.editDate || x.date }) : x; })
+            });
+          },
+          canBack: !!prev, canFwd: !!next,
+          backLabel: prev ? t.title + ' — ' + COLS[ci - 1].label + '(으)로 이동' : '',
+          fwdLabel: next ? t.title + ' — ' + COLS[ci + 1].label + '(으)로 이동' : '',
+          removeLabel: '삭제: ' + t.title,
+          back: function () { self.setTasks(function (ts) { return ts.map(function (x) { return x.id === t.id ? Object.assign({}, x, { status: prev }) : x; }); }); },
+          fwd: function () { self.setTasks(function (ts) { return ts.map(function (x) { return x.id === t.id ? Object.assign({}, x, { status: next }) : x; }); }); },
+          remove: function () { self.setTasks(function (ts) { return ts.filter(function (x) { return x.id !== t.id; }); }); }
+        };
+      });
+      return { label: c.label, dot: c.dot, count: cards.length, cards: cards, isTodo: c.id === 'todo', empty: cards.length === 0 && c.id !== 'todo' };
+    });
+
+    var nowD = new Date();
+    var mk = todayKey.slice(0, 7), yk = todayKey.slice(0, 4);
+    var progress = [
+      stat(tasks, function (k) { return k === todayKey; }, '오늘', (nowD.getMonth() + 1) + '월 ' + nowD.getDate() + '일', '#409CFF'),
+      stat(tasks, function (k) { return k.slice(0, 7) === mk; }, '이번 달', (nowD.getMonth() + 1) + '월', '#FF9F0A'),
+      stat(tasks, function (k) { return k.slice(0, 4) === yk; }, '올해', yk + '년', '#30D158')
+    ];
+    return {
+      progress: progress,
+      editTitle: s.editTitle || '',
+      editDate: s.editDate || '',
+      onEditTitle: function (e) { self.setState({ editTitle: e.target.value }); },
+      onEditDate: function (e) { self.setState({ editDate: e.target.value }); },
+      cancelEdit: function () { self.setState({ editId: null }); },
+      editChips: CATS.map(function (k) {
+        var on = s.editCat === k.id;
+        return { label: k.label, color: k.color, on: on, off: !on, pick: function () { self.setState({ editCat: k.id }); } };
+      }),
+      catChips: CATS.map(function (k) {
+        var on = (s.newCat || 'work') === k.id;
+        return { label: k.label, color: k.color, on: on, off: !on, pick: function () { self.setState({ newCat: k.id }); } };
+      }),
+      monthLabel: y + '년 ' + (m + 1) + '월',
+      monthOpen: monthOpen,
+      cells: cells,
+      selLabel: selLabel,
+      columns: columns,
+      draft: s.draft,
+      views: [
+        { label: '선택한 날', on: s.view === 'day', off: s.view !== 'day', pick: function () { self.setState({ view: 'day' }); } },
+        { label: '전체', on: s.view === 'all', off: s.view !== 'all', pick: function () { self.setState({ view: 'all' }); } }
+      ],
+      prevMonth: function () { var c = self.st(); var mm = c.month - 1, yy = c.year; if (mm < 0) { mm = 11; yy--; } self.setState({ month: mm, year: yy }); },
+      nextMonth: function () { var c = self.st(); var mm = c.month + 1, yy = c.year; if (mm > 11) { mm = 0; yy++; } self.setState({ month: mm, year: yy }); },
+      onDraft: function (e) { self.setState({ draft: e.target.value }); },
+      add: function (e) {
+        if (e && e.preventDefault) e.preventDefault();
+        var c = self.st();
+        var title = (c.draft || '').trim();
+        if (!title) return;
+        self.setState({
+          tasks: [{ id: c.nextId, title: title, date: c.sel, status: 'todo', cat: c.newCat || 'work' }].concat(c.tasks),
+          draft: '', nextId: c.nextId + 1
+        });
+      }
+    };
+  }
+}
+</script>
+</body>
+</html>
