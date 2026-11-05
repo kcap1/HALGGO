@@ -264,7 +264,7 @@ input::placeholder { color: var(--fg-3); }
   .tabs-row .tabs { flex: 1; min-width: 0; display: flex; }
   .add-toggle { flex: none; width: 48px; border-radius: 10px; background: var(--blue); color: #FFFFFF; display: flex; align-items: center; justify-content: center; }
   .add-toggle svg { transition: transform .2s ease; }
-  .add-toggle.open { background: var(--surface-3); }
+  .add-toggle.open { background: #FF453A; }
   .add-toggle.open svg { transform: rotate(45deg); }
   .composer-m .composer-input { font-size: 16px; }
   .tabs { padding: 3px; border-radius: 10px; background: var(--surface); }
