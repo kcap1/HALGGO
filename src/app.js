@@ -675,7 +675,7 @@ function card(t, ci) {
         <button class="title ${done ? 'done' : ''}" data-act="edit" data-id="${id}" aria-label="${L.editAria(title)}">${title}${done ? '' : ICON.pencil}</button>
         <span class="cat"><i style="background:${c.color}"></i>${c.label} · ${relLabel(t.date)}${t.time ? ` <span class="num">${esc(showTime(parseTime(t.time)) || t.time)}</span>` : ''}</span>
       </div>
-      ${prev ? `<button class="arrow back" data-act="move" data-id="${id}" data-to="${prev}" aria-label="${L.backTo(title, COLS[ci - 1].label)}">${ICON.leftBig}</button>` : ''}
+      ${prev ? `<button class="arrow back" data-act="move" data-id="${id}" data-to="${prev}" aria-label="${L.backTo(title, COLS[ci - 1].label)}"><span class="back-box">${ICON.leftBig}</span></button>` : ''}
     </article>
   </div>`;
 }

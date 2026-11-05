@@ -219,6 +219,10 @@ input::placeholder { color: var(--fg-3); }
 .card.has-back .card-main { padding: 10px 0; justify-content: center; }
 .arrow.back { flex: 0 0 33%; width: auto; height: auto; min-height: 44px; border-radius: 0 12px 12px 0; color: var(--fg-3); }
 .arrow:hover { background: var(--surface-3); }
+.arrow.back:hover { background: none; }
+.back-box { width: 44px; height: 40px; border-radius: 10px; background: var(--surface-3); color: var(--fg-2); display: flex; align-items: center; justify-content: center; transition: background .15s ease; }
+.back-box svg { width: 20px; height: 20px; }
+.arrow.back:hover .back-box, .arrow.back:active .back-box { background: var(--surface-4); color: var(--fg); }
 .card.edit { display: flex; flex-direction: column; align-items: stretch; }
 .edit { padding: 8px; gap: 6px; }
 .field { height: 40px; border: 0; border-radius: 8px; padding: 0 10px; background: var(--surface); font-size: 14px; width: 100%; }
@@ -993,7 +997,7 @@ function card(t, ci) {
         <button class="title ${done ? 'done' : ''}" data-act="edit" data-id="${id}" aria-label="${L.editAria(title)}">${title}${done ? '' : ICON.pencil}</button>
         <span class="cat"><i style="background:${c.color}"></i>${c.label} · ${relLabel(t.date)}${t.time ? ` <span class="num">${esc(showTime(parseTime(t.time)) || t.time)}</span>` : ''}</span>
       </div>
-      ${prev ? `<button class="arrow back" data-act="move" data-id="${id}" data-to="${prev}" aria-label="${L.backTo(title, COLS[ci - 1].label)}">${ICON.leftBig}</button>` : ''}
+      ${prev ? `<button class="arrow back" data-act="move" data-id="${id}" data-to="${prev}" aria-label="${L.backTo(title, COLS[ci - 1].label)}"><span class="back-box">${ICON.leftBig}</span></button>` : ''}
     </article>
   </div>`;
 }
