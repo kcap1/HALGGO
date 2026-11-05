@@ -1,0 +1,737 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>할 일</title>
+<meta name="description" content="캘린더와 칸반보드로 오늘, 이번 달, 올해 할 일을 관리하는 체크리스트">
+<meta name="theme-color" content="#000000">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="할 일">
+<link rel="icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cmVjdCB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgcng9IjExMiIgZmlsbD0iIzAwNzFFMyIvPjxwYXRoIGQ9Ik0xNDYgMjY2bDcyIDcyIDE0OC0xNjQiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI0ZGRkZGRiIgc3Ryb2tlLXdpZHRoPSI0NCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PC9zdmc+Cg==" type="image/svg+xml">
+<link rel="apple-touch-icon" href="data:image/png;base64,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">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: header → progress rings → (calendar | 3-column board). Under 760px the board becomes tabs and the calendar a week strip. */
+:root {
+  --bg: #000000;
+  --surface: #1C1C1E;
+  --surface-2: #2C2C2E;
+  --surface-3: #3A3A3C;
+  --surface-4: #48484A;
+  --sep: #38383A;
+  --fg: #F5F5F7;
+  --fg-2: #A1A1A6;
+  --fg-3: #8E8E93;
+  --icon: #98989D;
+  --blue: #0071E3;
+  --blue-text: #409CFF;
+  --orange: #FF9F0A;
+  --green: #30D158;
+  --font: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Noto Sans KR", system-ui, sans-serif;
+  color-scheme: dark;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; background: var(--bg); }
+body {
+  color: var(--fg);
+  font-family: var(--font);
+  font-size: 15px;
+  letter-spacing: -0.015em;
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+}
+button, input { font: inherit; color: inherit; letter-spacing: inherit; }
+button { cursor: pointer; border: 0; background: none; padding: 0; }
+button:focus-visible, input:focus-visible { outline: 2px solid var(--blue-text); outline-offset: 2px; }
+input::placeholder { color: var(--fg-3); }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.num { font-variant-numeric: tabular-nums; }
+.boot { color: var(--fg-2); text-align: center; padding: 30vh 16px; margin: 0; }
+
+.wrap {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding-block: 32px 64px;
+  padding-left: max(32px, env(safe-area-inset-left, 0px));
+  padding-right: max(32px, env(safe-area-inset-right, 0px));
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Header */
+.top { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; min-height: 44px; }
+.title-group { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; min-width: 0; }
+.title-group h1 { margin: 0; font-size: 30px; font-weight: 700; letter-spacing: -0.03em; }
+.title-group .sub { font-size: 16px; font-weight: 500; color: var(--fg-2); }
+.top-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.pill { height: 36px; padding: 0 14px; border-radius: 10px; background: var(--surface); color: var(--fg); font-size: 14px; font-weight: 500; }
+.seg { display: flex; padding: 3px; border-radius: 10px; background: var(--surface); }
+.seg button { min-height: 32px; padding: 0 14px; border-radius: 8px; color: var(--fg-2); font-size: 14px; font-weight: 500; }
+.seg button[aria-pressed="true"] { background: var(--surface-3); color: var(--fg); font-weight: 600; }
+.account { display: flex; align-items: center; gap: 6px; }
+.avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--surface-3); object-fit: cover; }
+.badge { height: 28px; padding: 0 10px; border-radius: 999px; background: var(--surface-2); color: var(--fg-2); font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; }
+
+.notice { background: var(--surface); border-radius: 12px; padding: 12px 16px; color: var(--fg-2); font-size: 13px; line-height: 1.5; }
+.notice strong { color: var(--fg); font-weight: 600; }
+
+/* Progress */
+.progress { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.pcard { background: var(--surface); border-radius: 16px; padding: 14px 16px; display: flex; align-items: center; gap: 16px; min-width: 0; }
+.ring-box { position: relative; width: 64px; height: 64px; flex: none; }
+.ring-box svg { width: 100%; height: 100%; display: block; }
+.ring-box .track { stroke: var(--surface-2); }
+.ring-box .pct { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; }
+.ptext { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.ptext .head { display: flex; align-items: baseline; gap: 6px; }
+.ptext h2 { margin: 0; font-size: 15px; font-weight: 600; }
+.ptext .muted, .ptext .counts { font-size: 12px; color: var(--fg-2); }
+.ptext .frac { font-size: 13px; color: var(--fg-2); }
+.ptext .frac strong { color: var(--fg); font-weight: 600; }
+.ptext .counts { display: flex; gap: 10px; }
+
+/* Main row */
+.main { display: flex; flex-wrap: wrap; gap: 12px; align-items: stretch; }
+.panel { background: var(--surface); border-radius: 16px; padding: 14px; }
+.cal { flex: 1 1 280px; max-width: 300px; display: flex; flex-direction: column; }
+.cal-head { display: flex; align-items: center; justify-content: space-between; height: 36px; margin-bottom: 8px; }
+.cal-head h2 { margin: 0 0 0 4px; font-size: 15px; font-weight: 600; }
+.nav { display: flex; margin-right: -6px; }
+.nav button { width: 44px; height: 44px; margin: -4px 0; border-radius: 50%; color: var(--blue-text); display: flex; align-items: center; justify-content: center; }
+.dow, .grid7 { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); }
+.dow { text-align: center; font-size: 11px; font-weight: 600; color: var(--fg-2); padding-bottom: 4px; }
+.day { height: 40px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; }
+.day .n { width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-variant-numeric: tabular-nums; }
+.day.today .n { color: var(--blue-text); font-weight: 700; }
+.day.sel .n { background: var(--blue); color: #FFFFFF; font-weight: 600; }
+.dots { display: flex; gap: 2px; height: 4px; }
+.dots i { width: 4px; height: 4px; border-radius: 50%; display: block; }
+.cal-foot { margin-top: auto; padding: 12px 4px 0; border-top: 1px solid var(--sep); display: flex; justify-content: space-between; font-size: 13px; }
+.cal-foot span:first-child { color: var(--fg-2); }
+.cal-foot span:last-child { font-weight: 600; }
+.cal-month { margin-bottom: 12px; }
+.week { display: none; }
+
+.board { flex: 999 1 600px; min-width: 0; display: flex; flex-wrap: wrap; gap: 12px; align-items: stretch; }
+.board > .tabs, .board > .composer-m { display: none; }
+.col { flex: 1 1 200px; min-width: 0; display: flex; flex-direction: column; gap: 8px; }
+.col-head { display: flex; align-items: center; gap: 8px; height: 36px; padding: 0 4px; }
+.col-head .dot { width: 8px; height: 8px; border-radius: 50%; }
+.col-head h3 { margin: 0; font-size: 15px; font-weight: 600; }
+.count { margin-left: auto; min-width: 24px; height: 22px; padding: 0 7px; border-radius: 999px; background: var(--surface-2); color: var(--fg-2); font-size: 12px; font-weight: 600; display: flex; align-items: center; justify-content: center; }
+.empty { margin: 0; padding: 16px 8px; text-align: center; font-size: 13px; color: var(--fg-2); }
+
+/* Composer */
+.composer { background: var(--surface-2); border-radius: 12px; padding: 0 4px 8px 12px; display: flex; flex-direction: column; gap: 2px; }
+.composer-row { display: flex; align-items: center; gap: 4px; }
+.composer-input { flex: 1; min-width: 0; height: 44px; border: 0; padding: 0; background: transparent; font-size: 15px; }
+.composer-input:focus-visible { outline: none; }
+.add-btn { flex: none; width: 36px; height: 36px; margin: 4px 0; border-radius: 50%; background: var(--blue); color: #FFFFFF; display: flex; align-items: center; justify-content: center; }
+.chips { display: flex; flex-wrap: wrap; gap: 2px; margin-left: -4px; }
+.chip { height: 32px; padding: 0 8px; border-radius: 999px; color: var(--fg-2); font-size: 12px; font-weight: 500; display: inline-flex; align-items: center; gap: 5px; }
+.chip i, .cat i { width: 7px; height: 7px; border-radius: 50%; display: block; flex: none; }
+.chip[aria-pressed="true"] { background: var(--surface-4); color: var(--fg); font-weight: 600; }
+
+/* Cards */
+.card { background: var(--surface-2); border-radius: 12px; padding: 10px 2px 2px 12px; display: flex; flex-direction: column; }
+.card .title { text-align: left; padding-right: 10px; font-size: 14px; font-weight: 500; line-height: 1.4; display: inline-flex; align-items: center; gap: 6px; word-break: break-word; }
+.card .title.done { color: var(--fg-2); font-weight: 400; text-decoration: line-through; }
+.card .title svg { flex: none; }
+.meta { display: flex; align-items: center; }
+.cat { flex: 1; min-width: 0; display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--fg-2); }
+.icon { flex: none; width: 44px; height: 40px; border-radius: 10px; color: var(--fg-2); display: flex; align-items: center; justify-content: center; }
+.icon.fwd { color: var(--blue-text); }
+.icon.del { color: var(--icon); }
+.edit { padding: 8px; gap: 6px; }
+.field { height: 40px; border: 0; border-radius: 8px; padding: 0 10px; background: var(--surface); font-size: 14px; width: 100%; }
+.row-end { display: flex; justify-content: flex-end; gap: 6px; }
+.btn-ghost { height: 36px; padding: 0 14px; border-radius: 8px; color: var(--fg-2); font-size: 13px; font-weight: 500; }
+.btn-primary { height: 36px; padding: 0 14px; border-radius: 8px; background: var(--blue); color: #FFFFFF; font-size: 13px; font-weight: 600; }
+
+/* Toast */
+.toast {
+  position: fixed; left: 50%; transform: translateX(-50%);
+  bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+  background: var(--surface-3); color: var(--fg); border-radius: 12px;
+  padding: 6px 6px 6px 16px; display: flex; align-items: center; gap: 8px;
+  font-size: 14px; box-shadow: 0 8px 30px rgba(0,0,0,0.5); z-index: 20; max-width: calc(100% - 32px);
+}
+.toast button { height: 36px; padding: 0 12px; border-radius: 8px; color: var(--blue-text); font-weight: 600; }
+
+/* Login */
+.login { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.login-card { width: 100%; max-width: 380px; background: var(--surface); border-radius: 20px; padding: 32px 24px; display: flex; flex-direction: column; align-items: center; gap: 14px; text-align: center; }
+.logo { width: 56px; height: 56px; border-radius: 14px; background: var(--blue); display: flex; align-items: center; justify-content: center; }
+.login-card h1 { margin: 0; font-size: 28px; font-weight: 700; letter-spacing: -0.03em; }
+.login-card p { margin: 0; color: var(--fg-2); line-height: 1.6; font-size: 14px; }
+.google { width: 100%; height: 48px; border-radius: 12px; background: var(--fg); color: #1D1D1F; font-size: 15px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 6px; }
+.err { color: #FF6961 !important; font-size: 13px !important; }
+
+/* Phone */
+@media (max-width: 760px) {
+  .wrap { padding-block: 20px 40px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); gap: 12px; }
+  .title-group h1 { font-size: 28px; }
+  .title-group .sub { font-size: 14px; }
+  .top-actions { width: 100%; }
+  .top-actions .seg { margin-right: auto; }
+  .progress { gap: 8px; }
+  .pcard { flex-direction: column; gap: 6px; padding: 10px 6px; text-align: center; }
+  .ring-box { width: 52px; height: 52px; }
+  .ring-box .pct { font-size: 12px; }
+  .ptext { align-items: center; gap: 2px; }
+  .ptext .head .muted, .ptext .counts { display: none; }
+  .ptext h2 { font-size: 13px; }
+  .ptext .frac { font-size: 11px; }
+  .cal { max-width: none; flex-basis: 100%; padding: 6px 8px 10px; }
+  .cal-month, .cal-foot { display: none; }
+  .week { display: block; }
+  .week .cal-head { margin-bottom: 2px; }
+  .week .day { height: auto; gap: 3px; padding: 2px 0; }
+  .week .day .w { font-size: 11px; font-weight: 600; color: var(--fg-2); }
+  .week .day .n { width: 34px; height: 34px; font-size: 15px; }
+  .week .dots { gap: 3px; height: 5px; }
+  .week .dots i { width: 5px; height: 5px; }
+  .board { flex-direction: column; flex-wrap: nowrap; gap: 8px; }
+  .board > .composer-m, .board > .tabs { display: flex; }
+  .board > .composer-m { flex-direction: column; }
+  .composer-m .composer-input { font-size: 16px; }
+  .tabs { padding: 3px; border-radius: 10px; background: var(--surface); }
+  .tabs button { flex: 1; min-height: 36px; border-radius: 8px; color: var(--fg-2); font-size: 14px; font-weight: 500; }
+  .tabs button[aria-pressed="true"] { background: var(--surface-3); color: var(--fg); font-weight: 600; }
+  .col { background: var(--surface); border-radius: 16px; padding: 8px; flex: none; }
+  .col:not(.active) { display: none; }
+  .col-head, .col .composer { display: none; }
+  .card .title { font-size: 15px; }
+  .field { font-size: 16px; }
+}
+
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+
+</style>
+</head>
+<body>
+<div id="app"><p class="boot">불러오는 중…</p></div>
+<script type="module">
+// Firebase 웹 설정값. 웹앱에 원래 공개되는 값이라 비밀이 아니에요.
+// 데이터는 firestore.rules와 Authentication의 승인된 도메인으로 보호돼요.
+const firebaseConfig = {
+  apiKey: "AIzaSyACyLaIFdYecl6_52ki1v0l10vGQs8LKBc",
+  authDomain: "halggo.firebaseapp.com",
+  projectId: "halggo",
+  storageBucket: "halggo.firebasestorage.app",
+  messagingSenderId: "913376120846",
+  appId: "1:913376120846:web:1d76e25c7792a9d30aac5f"
+};
+
+
+const FIREBASE_VERSION = '10.12.2';
+const DEMO = !firebaseConfig || !firebaseConfig.apiKey || String(firebaseConfig.apiKey).startsWith('YOUR_');
+
+const DAYS = ['일', '월', '화', '수', '목', '금', '토'];
+const COLS = [
+  { id: 'todo', label: '할 일', dot: 'var(--fg-3)' },
+  { id: 'doing', label: '수행 중', dot: 'var(--orange)' },
+  { id: 'done', label: '완료', dot: 'var(--green)' }
+];
+const ORDER = COLS.map(c => c.id);
+const CATS = [
+  { id: 'work', label: '업무', color: '#64D2FF' },
+  { id: 'health', label: '건강', color: '#30D158' },
+  { id: 'money', label: '재테크', color: '#FFD60A' },
+  { id: 'life', label: '생활', color: '#BF5AF2' }
+];
+const CAT = Object.fromEntries(CATS.map(c => [c.id, c]));
+const RING_C = 2 * Math.PI * 26;
+
+const pad = n => String(n).padStart(2, '0');
+const ymd = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+const parse = k => { const [y, m, d] = k.split('-').map(Number); return new Date(y, m - 1, d); };
+const addDays = (k, n) => { const d = parse(k); d.setDate(d.getDate() + n); return ymd(d); };
+const today = () => ymd(new Date());
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const longDate = k => { const d = parse(k); return `${d.getMonth() + 1}월 ${d.getDate()}일 ${DAYS[d.getDay()]}요일`; };
+
+const ICON = {
+  left: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>',
+  right: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>',
+  plus: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>',
+  trash: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3"/></svg>',
+  pencil: '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--fg-3)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16v4z"/></svg>',
+  check: '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',
+  google: '<svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.6 5.4 2.7 13.3l7.9 6.1C12.5 13.6 17.8 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.6 3-2.3 5.5-4.8 7.2l7.7 6c4.5-4.2 6.9-10.3 6.9-17.7z"/><path fill="#FBBC05" d="M10.6 28.6c-.5-1.4-.8-3-.8-4.6s.3-3.2.8-4.6l-7.9-6.1C1 16.6 0 20.2 0 24s1 7.4 2.7 10.7l7.9-6.1z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.7-6c-2.1 1.4-4.9 2.3-8.2 2.3-6.2 0-11.5-4.1-13.4-9.9l-7.9 6.1C6.6 42.6 14.6 48 24 48z"/></svg>'
+};
+
+const S = {
+  mode: 'loading',      // loading | login | app | fatal
+  user: null,
+  tasks: [],
+  sel: today(),
+  view: 'day',
+  ym: { y: new Date().getFullYear(), m: new Date().getMonth() },
+  tab: 'todo',
+  newCat: 'work',
+  draft: '',
+  editId: null,
+  edit: null,
+  toast: null,
+  error: '',
+  focusId: null
+};
+
+let store = null;
+let signIn = async () => {};
+let signOutFn = async () => {};
+const root = document.getElementById('app');
+
+/* ---------- Stores ---------- */
+
+function demoStore() {
+  const KEY = 'todo-demo-v1';
+  let tasks = null;
+  try { tasks = JSON.parse(localStorage.getItem(KEY)); } catch (e) { tasks = null; }
+  if (!Array.isArray(tasks)) {
+    const t = today();
+    const y = new Date().getFullYear();
+    tasks = [
+      { title: '주간 업무 보고서 작성', date: t, status: 'doing', cat: 'work' },
+      { title: '팀 회의 안건 정리', date: t, status: 'todo', cat: 'work' },
+      { title: '적금 자동이체 확인', date: t, status: 'todo', cat: 'money' },
+      { title: '아침 러닝 5km', date: t, status: 'done', cat: 'health' },
+      { title: 'ETF 리밸런싱 검토', date: addDays(t, 1), status: 'todo', cat: 'money' },
+      { title: '부모님께 안부 전화', date: addDays(t, 2), status: 'todo', cat: 'life' },
+      { title: '건강검진 받기', date: addDays(t, -40), status: 'done', cat: 'health' },
+      { title: '연말 가족 여행 계획', date: `${y}-12-20`, status: 'todo', cat: 'life' }
+    ].filter(x => x.date.startsWith(String(y))).map((x, i) => ({ ...x, id: 'ex' + i, created: i }));
+  }
+  let cb = null;
+  const save = () => {
+    try { localStorage.setItem(KEY, JSON.stringify(tasks)); } catch (e) { /* storage unavailable */ }
+    cb && cb(tasks.slice());
+  };
+  return {
+    subscribe(f) { cb = f; f(tasks.slice()); },
+    async add(t) { tasks.push({ ...t, id: 'd' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6) }); save(); },
+    async update(id, p) { tasks = tasks.map(x => x.id === id ? { ...x, ...p } : x); save(); },
+    async remove(id) { tasks = tasks.filter(x => x.id !== id); save(); }
+  };
+}
+
+function authMessage(e) {
+  const code = e && e.code || '';
+  if (code === 'auth/popup-closed-by-user' || code === 'auth/cancelled-popup-request') return '';
+  if (code === 'auth/unauthorized-domain') return '이 주소가 Firebase에 등록되지 않았어요. Authentication → 설정 → 승인된 도메인에 이 사이트 주소를 추가해 주세요.';
+  if (code === 'auth/network-request-failed') return '인터넷 연결을 확인하고 다시 시도해 주세요.';
+  return '로그인하지 못했어요. 잠시 후 다시 시도해 주세요.';
+}
+
+async function initCloud() {
+  const base = `https://www.gstatic.com/firebasejs/${FIREBASE_VERSION}/`;
+  let A, F, initializeApp;
+  try {
+    const mods = await Promise.all([
+      import(base + 'firebase-app.js'),
+      import(base + 'firebase-auth.js'),
+      import(base + 'firebase-firestore.js')
+    ]);
+    initializeApp = mods[0].initializeApp; A = mods[1]; F = mods[2];
+  } catch (e) {
+    S.mode = 'fatal';
+    S.error = '앱을 불러오지 못했어요. 인터넷 연결을 확인하고 새로고침해 주세요.';
+    render();
+    return;
+  }
+  const app = initializeApp(firebaseConfig);
+  const auth = A.getAuth(app);
+  let db;
+  try {
+    db = F.initializeFirestore(app, { localCache: F.persistentLocalCache({ tabManager: F.persistentMultipleTabManager() }) });
+  } catch (e) {
+    db = F.getFirestore(app);
+  }
+  const provider = new A.GoogleAuthProvider();
+  provider.setCustomParameters({ prompt: 'select_account' });
+
+  signIn = async () => {
+    S.error = '';
+    try {
+      await A.signInWithPopup(auth, provider);
+    } catch (e) {
+      if (e && (e.code === 'auth/popup-blocked' || e.code === 'auth/operation-not-supported-in-this-environment')) {
+        await A.signInWithRedirect(auth, provider);
+        return;
+      }
+      S.error = authMessage(e);
+      render();
+    }
+  };
+  signOutFn = () => A.signOut(auth);
+  A.getRedirectResult(auth).catch(e => { S.error = authMessage(e); render(); });
+
+  let unsub = null;
+  A.onAuthStateChanged(auth, user => {
+    if (unsub) { unsub(); unsub = null; }
+    S.user = user;
+    S.tasks = [];
+    if (!user) { S.mode = 'login'; store = null; render(); return; }
+    S.mode = 'app';
+    const col = F.collection(db, 'users', user.uid, 'tasks');
+    store = {
+      add: t => F.addDoc(col, t),
+      update: (id, p) => F.updateDoc(F.doc(col, id), p),
+      remove: id => F.deleteDoc(F.doc(col, id))
+    };
+    unsub = F.onSnapshot(col, snap => {
+      S.tasks = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      render();
+    }, () => {
+      showToast('목록을 불러오지 못했어요. 새로고침해 주세요.');
+    });
+    render();
+  });
+}
+
+/* ---------- Derived data ---------- */
+
+function stat(pred) {
+  const ts = S.tasks.filter(t => pred(t.date || ''));
+  const done = ts.filter(t => t.status === 'done').length;
+  const doing = ts.filter(t => t.status === 'doing').length;
+  const pct = ts.length ? Math.round(done / ts.length * 100) : 0;
+  return { total: ts.length, done, doing, todo: ts.length - done - doing, pct };
+}
+
+function dotsFor(key) {
+  const counts = {};
+  for (const t of S.tasks) if (t.date === key) counts[t.cat] = (counts[t.cat] || 0) + 1;
+  return Object.keys(counts).sort((a, b) => counts[b] - counts[a]).slice(0, 3)
+    .map(k => `<i style="background:${(CAT[k] || CAT.life).color};opacity:${counts[k] >= 3 ? 1 : counts[k] === 2 ? 0.7 : 0.4}"></i>`).join('');
+}
+
+function relLabel(k) {
+  const t = today();
+  if (k === t) return '오늘';
+  if (k === addDays(t, 1)) return '내일';
+  if (k === addDays(t, -1)) return '어제';
+  const d = parse(k);
+  return `${d.getMonth() + 1}월 ${d.getDate()}일`;
+}
+
+function visibleTasks() {
+  const list = S.view === 'day' ? S.tasks.filter(t => t.date === S.sel) : S.tasks.slice();
+  return list.sort((a, b) => (a.date || '').localeCompare(b.date || '') || (a.created || 0) - (b.created || 0));
+}
+
+/* ---------- Views ---------- */
+
+function chips(current, act) {
+  return CATS.map(c => `<button type="button" class="chip" data-act="${act}" data-cat="${c.id}" aria-pressed="${current === c.id}"><i style="background:${c.color}"></i>${c.label}</button>`).join('');
+}
+
+function composer(id, cls) {
+  return `<form class="composer ${cls}" data-form="add">
+    <div class="composer-row">
+      <label class="sr" for="${id}">새로운 할 일</label>
+      <input id="${id}" class="composer-input" placeholder="새로운 할 일" maxlength="200" autocomplete="off" enterkeyhint="done" value="${esc(S.draft)}">
+      <button type="submit" class="add-btn" aria-label="할 일 추가">${ICON.plus}</button>
+    </div>
+    <div class="chips" role="group" aria-label="카테고리 선택">${chips(S.newCat, 'newcat')}</div>
+  </form>`;
+}
+
+function progressView() {
+  const t = today(), mk = t.slice(0, 7), yk = t.slice(0, 4);
+  const now = new Date();
+  const items = [
+    { label: '오늘', sub: `${now.getMonth() + 1}월 ${now.getDate()}일`, color: 'var(--blue-text)', s: stat(k => k === t) },
+    { label: '이번 달', sub: `${now.getMonth() + 1}월`, color: 'var(--orange)', s: stat(k => k.slice(0, 7) === mk) },
+    { label: '올해', sub: `${yk}년`, color: 'var(--green)', s: stat(k => k.slice(0, 4) === yk) }
+  ];
+  return `<section class="progress" aria-label="진행도">${items.map(p => `
+    <div class="pcard">
+      <div class="ring-box">
+        <svg viewBox="0 0 64 64" role="img" aria-label="${p.label} 진행률 ${p.s.pct}%, ${p.s.total}개 중 ${p.s.done}개 완료">
+          <circle cx="32" cy="32" r="26" fill="none" class="track" stroke-width="7"></circle>
+          <circle cx="32" cy="32" r="26" fill="none" stroke="${p.color}" stroke-width="7" stroke-dasharray="${(RING_C * p.s.pct / 100).toFixed(1)} ${RING_C.toFixed(1)}" transform="rotate(-90 32 32)"></circle>
+        </svg>
+        <span class="pct num" aria-hidden="true">${p.s.pct}%</span>
+      </div>
+      <div class="ptext">
+        <div class="head"><h2>${p.label}</h2><span class="muted">${p.sub}</span></div>
+        <span class="frac num"><strong>${p.s.done}</strong> / ${p.s.total} 완료</span>
+        <span class="counts num"><span>할 일 ${p.s.todo}</span><span>수행 중 ${p.s.doing}</span></span>
+      </div>
+    </div>`).join('')}</section>`;
+}
+
+function dayButton(key, label, extra) {
+  const t = today();
+  const cls = key === S.sel ? 'sel' : key === t ? 'today' : '';
+  const open = S.tasks.filter(x => x.date === key && x.status !== 'done').length;
+  const d = parse(key);
+  const aria = `${d.getMonth() + 1}월 ${d.getDate()}일${open ? `, 남은 할 일 ${open}개` : ''}`;
+  return `<button class="day ${cls}" data-act="pick" data-date="${key}" aria-label="${aria}" aria-pressed="${key === S.sel}">${extra || ''}<span class="n">${label}</span><span class="dots" aria-hidden="true">${dotsFor(key)}</span></button>`;
+}
+
+function calendarView() {
+  const { y, m } = S.ym;
+  const first = new Date(y, m, 1).getDay();
+  const dim = new Date(y, m + 1, 0).getDate();
+  let cells = '';
+  for (let i = 0; i < first; i++) cells += '<span class="day"></span>';
+  for (let d = 1; d <= dim; d++) cells += dayButton(ymd(new Date(y, m, d)), d);
+  const mk = `${y}-${pad(m + 1)}`;
+  const monthOpen = S.tasks.filter(t => (t.date || '').startsWith(mk) && t.status !== 'done').length;
+
+  const sd = parse(S.sel);
+  const ws = new Date(sd.getFullYear(), sd.getMonth(), sd.getDate() - sd.getDay());
+  const mid = new Date(ws.getFullYear(), ws.getMonth(), ws.getDate() + 3);
+  let week = '';
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(ws.getFullYear(), ws.getMonth(), ws.getDate() + i);
+    week += dayButton(ymd(d), d.getDate(), `<span class="w">${DAYS[i]}</span>`);
+  }
+
+  return `<section class="panel cal" aria-label="캘린더">
+    <div class="cal-month">
+      <div class="cal-head">
+        <h2>${y}년 ${m + 1}월</h2>
+        <div class="nav"><button data-act="month" data-d="-1" aria-label="이전 달">${ICON.left}</button><button data-act="month" data-d="1" aria-label="다음 달">${ICON.right}</button></div>
+      </div>
+      <div class="dow" aria-hidden="true">${DAYS.map(d => `<span>${d}</span>`).join('')}</div>
+      <div class="grid7">${cells}</div>
+    </div>
+    <div class="week">
+      <div class="cal-head">
+        <h2>${mid.getFullYear()}년 ${mid.getMonth() + 1}월</h2>
+        <div class="nav"><button data-act="week" data-d="-7" aria-label="이전 주">${ICON.left}</button><button data-act="week" data-d="7" aria-label="다음 주">${ICON.right}</button></div>
+      </div>
+      <div class="grid7">${week}</div>
+    </div>
+    <div class="cal-foot"><span>이번 달 남은 할 일</span><span class="num">${monthOpen}개</span></div>
+  </section>`;
+}
+
+function card(t, ci) {
+  if (S.editId === t.id && S.edit) {
+    return `<form class="card edit" data-form="edit" data-id="${esc(t.id)}">
+      <label class="sr" for="edit-title">할 일 이름</label>
+      <input id="edit-title" class="field" maxlength="200" autocomplete="off" value="${esc(S.edit.title)}">
+      <label class="sr" for="edit-date">날짜</label>
+      <input id="edit-date" class="field" type="date" value="${esc(S.edit.date)}">
+      <div class="chips" role="group" aria-label="카테고리 변경">${chips(S.edit.cat, 'editcat')}</div>
+      <div class="row-end"><button type="button" class="btn-ghost" data-act="cancel">취소</button><button type="submit" class="btn-primary">저장</button></div>
+    </form>`;
+  }
+  const c = CAT[t.cat] || CAT.life;
+  const done = t.status === 'done';
+  const prev = ORDER[ci - 1], next = ORDER[ci + 1];
+  const id = esc(t.id), title = esc(t.title);
+  return `<article class="card">
+    <button class="title ${done ? 'done' : ''}" data-act="edit" data-id="${id}" aria-label="수정: ${title}">${title}${done ? '' : ICON.pencil}</button>
+    <div class="meta">
+      <span class="cat"><i style="background:${c.color}"></i>${c.label} · ${relLabel(t.date)}</span>
+      ${prev ? `<button class="icon" data-act="move" data-id="${id}" data-to="${prev}" aria-label="${title}: ${COLS[ci - 1].label}(으)로 이동">${ICON.left}</button>` : ''}
+      ${next ? `<button class="icon fwd" data-act="move" data-id="${id}" data-to="${next}" aria-label="${title}: ${COLS[ci + 1].label}(으)로 이동">${ICON.right}</button>` : ''}
+      <button class="icon del" data-act="del" data-id="${id}" aria-label="삭제: ${title}">${ICON.trash}</button>
+    </div>
+  </article>`;
+}
+
+function boardView() {
+  const vis = visibleTasks();
+  const tabs = COLS.map(c => `<button data-act="tab" data-tab="${c.id}" aria-pressed="${S.tab === c.id}">${c.label} <span class="num">${vis.filter(t => t.status === c.id).length}</span></button>`).join('');
+  const cols = COLS.map((c, ci) => {
+    const cards = vis.filter(t => t.status === c.id);
+    return `<div class="col panel ${S.tab === c.id ? 'active' : ''}">
+      <div class="col-head"><span class="dot" style="background:${c.dot}" aria-hidden="true"></span><h3>${c.label}</h3><span class="count num">${cards.length}</span></div>
+      ${c.id === 'todo' ? composer('new-title', '') : ''}
+      ${cards.map(t => card(t, ci)).join('')}
+      ${cards.length === 0 && (c.id !== 'todo' || window.matchMedia('(max-width: 760px)').matches) ? '<p class="empty">비어 있음</p>' : ''}
+    </div>`;
+  }).join('');
+  return `<section class="board" aria-label="칸반 보드">
+    ${composer('new-title-m', 'composer-m')}
+    <div class="tabs" role="group" aria-label="상태">${tabs}</div>
+    ${cols}
+  </section>`;
+}
+
+function headerView() {
+  const views = [['day', '선택한 날'], ['all', '전체']].map(([v, l]) => `<button data-act="view" data-view="${v}" aria-pressed="${S.view === v}">${l}</button>`).join('');
+  let account = '';
+  if (DEMO) account = '<span class="badge">체험 모드</span>';
+  else if (S.user) {
+    const photo = S.user.photoURL ? `<img class="avatar" src="${esc(S.user.photoURL)}" alt="" referrerpolicy="no-referrer">` : '';
+    account = `<div class="account">${photo}<button class="pill" data-act="logout">로그아웃</button></div>`;
+  }
+  return `<header class="top">
+    <div class="title-group"><h1>할 일</h1><span class="sub">${S.view === 'day' ? longDate(S.sel) : '모든 날짜'}</span></div>
+    <div class="top-actions">
+      <div class="seg" role="group" aria-label="보기">${views}</div>
+      ${S.sel !== today() || S.view !== 'day' ? '<button class="pill" data-act="today">오늘</button>' : ''}
+      ${account}
+    </div>
+  </header>`;
+}
+
+function loginView() {
+  return `<main class="login"><div class="login-card">
+    <div class="logo">${ICON.check}</div>
+    <h1>할 일</h1>
+    <p>캘린더와 칸반보드로 오늘, 이번 달, 올해 할 일을 관리하세요. 휴대폰과 컴퓨터에서 같은 목록이 보여요.</p>
+    <button class="google" data-act="login">${ICON.google}Google로 시작하기</button>
+    ${S.error ? `<p class="err" role="alert">${esc(S.error)}</p>` : ''}
+  </div></main>`;
+}
+
+function toastView() {
+  if (!S.toast) return '';
+  return `<div class="toast" role="status">${esc(S.toast.text)}${S.toast.undo ? '<button data-act="undo">되돌리기</button>' : ''}</div>`;
+}
+
+function render() {
+  const a = document.activeElement;
+  const fid = S.focusId || (a && a.id) || null;
+  let ss = null, se = null;
+  if (!S.focusId && a && a.id) { try { ss = a.selectionStart; se = a.selectionEnd; } catch (e) { /* not a text field */ } }
+
+  let html;
+  if (S.mode === 'loading') html = '<p class="boot">불러오는 중…</p>';
+  else if (S.mode === 'fatal') html = `<p class="boot">${esc(S.error)}</p>`;
+  else if (S.mode === 'login') html = loginView();
+  else {
+    html = `<div class="wrap">
+      ${headerView()}
+      ${DEMO ? '<p class="notice"><strong>체험 모드예요.</strong> 지금은 이 브라우저에만 저장돼요. 설정 가이드대로 Firebase를 연결하면 구글 로그인과 휴대폰·PC 동기화가 켜져요.</p>' : ''}
+      ${progressView()}
+      <div class="main">${calendarView()}${boardView()}</div>
+    </div>`;
+  }
+  root.innerHTML = html + toastView();
+
+  if (fid) {
+    const el = document.getElementById(fid);
+    if (el) {
+      el.focus({ preventScroll: true });
+      if (ss != null) { try { el.setSelectionRange(ss, se); } catch (e) { /* ignore */ } }
+      else if (S.focusId && el.select) { try { const n = el.value.length; el.setSelectionRange(n, n); } catch (e) { /* ignore */ } }
+    }
+  }
+  S.focusId = null;
+}
+
+/* ---------- Actions ---------- */
+
+let toastTimer = null;
+function showToast(text, undo) {
+  clearTimeout(toastTimer);
+  S.toast = { text, undo };
+  render();
+  toastTimer = setTimeout(() => { S.toast = null; render(); }, 5000);
+}
+
+function fail() { showToast('저장하지 못했어요. 인터넷 연결을 확인해 주세요.'); }
+
+function syncMonth() { const d = parse(S.sel); S.ym = { y: d.getFullYear(), m: d.getMonth() }; }
+
+root.addEventListener('click', e => {
+  const b = e.target.closest('[data-act]');
+  if (!b) return;
+  const act = b.dataset.act, id = b.dataset.id;
+  switch (act) {
+    case 'login': signIn(); return;
+    case 'logout': signOutFn(); return;
+    case 'pick': S.sel = b.dataset.date; S.view = 'day'; syncMonth(); break;
+    case 'month': {
+      let m = S.ym.m + Number(b.dataset.d), y = S.ym.y;
+      if (m < 0) { m = 11; y--; } if (m > 11) { m = 0; y++; }
+      S.ym = { y, m }; break;
+    }
+    case 'week': S.sel = addDays(S.sel, Number(b.dataset.d)); S.view = 'day'; syncMonth(); break;
+    case 'today': S.sel = today(); S.view = 'day'; syncMonth(); break;
+    case 'view': S.view = b.dataset.view; break;
+    case 'tab': S.tab = b.dataset.tab; break;
+    case 'newcat': S.newCat = b.dataset.cat; break;
+    case 'editcat': if (S.edit) S.edit.cat = b.dataset.cat; break;
+    case 'move': store && store.update(id, { status: b.dataset.to }).catch(fail); return;
+    case 'del': {
+      const t = S.tasks.find(x => x.id === id);
+      if (!t || !store) return;
+      store.remove(id).then(() => {
+        const { id: _drop, ...rest } = t;
+        showToast('삭제했어요', rest);
+      }).catch(fail);
+      return;
+    }
+    case 'undo':
+      if (S.toast && S.toast.undo && store) store.add(S.toast.undo).catch(fail);
+      clearTimeout(toastTimer); S.toast = null; break;
+    case 'edit': {
+      const t = S.tasks.find(x => x.id === id);
+      if (!t) return;
+      S.editId = id; S.edit = { title: t.title, date: t.date, cat: t.cat || 'life' }; S.focusId = 'edit-title';
+      break;
+    }
+    case 'cancel': S.editId = null; S.edit = null; break;
+    default: return;
+  }
+  render();
+});
+
+root.addEventListener('input', e => {
+  const el = e.target;
+  if (el.classList.contains('composer-input')) S.draft = el.value;
+  else if (el.id === 'edit-title' && S.edit) S.edit.title = el.value;
+  else if (el.id === 'edit-date' && S.edit) S.edit.date = el.value;
+});
+
+root.addEventListener('submit', e => {
+  e.preventDefault();
+  const f = e.target;
+  if (!store) return;
+  if (f.dataset.form === 'add') {
+    const title = S.draft.trim();
+    if (!title) return;
+    store.add({ title, date: S.sel, status: 'todo', cat: S.newCat, created: Date.now() }).catch(fail);
+    S.draft = '';
+    S.tab = 'todo';
+    S.focusId = f.querySelector('input').id;
+    render();
+  } else if (f.dataset.form === 'edit' && S.edit) {
+    const title = (S.edit.title || '').trim();
+    if (!title) return;
+    const patch = { title, cat: S.edit.cat };
+    if (/^\d{4}-\d{2}-\d{2}$/.test(S.edit.date || '')) patch.date = S.edit.date;
+    store.update(f.dataset.id, patch).catch(fail);
+    S.editId = null; S.edit = null;
+    render();
+  }
+});
+
+// Re-render when the day changes or the layout crosses the phone breakpoint.
+let lastDay = today();
+setInterval(() => { if (today() !== lastDay) { lastDay = today(); render(); } }, 60000);
+window.matchMedia('(max-width: 760px)').addEventListener('change', () => render());
+
+/* ---------- Boot ---------- */
+
+if (DEMO) {
+  store = demoStore();
+  S.mode = 'app';
+  store.subscribe(tasks => { S.tasks = tasks; render(); });
+} else {
+  initCloud();
+}
+
+</script>
+</body>
+</html>
