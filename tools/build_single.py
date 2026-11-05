@@ -22,7 +22,7 @@ head = (SRC / "index.html").read_text(encoding="utf-8").split('<link rel="manife
 
 # 아이콘·링크 미리보기 이미지는 루트에 파일로도 둔다 (Vercel이 그대로 서비스, 메신저 미리보기·홈 화면 아이콘용).
 SITE = "https://halggo-6e9d.vercel.app"
-for name in ["icon.svg", "icon-180.png", "icon-512.png", "og.png", "manifest.webmanifest"]:
+for name in ["icon.svg", "icon-180.png", "icon-512.png", "og.png", "manifest.webmanifest", "sw.js"]:
     (ROOT / name).write_bytes((SRC / name).read_bytes())
 (ROOT / "apple-touch-icon.png").write_bytes((SRC / "icon-180.png").read_bytes())
 

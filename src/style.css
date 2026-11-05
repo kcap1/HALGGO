@@ -556,3 +556,37 @@ html.sheet-open, html.sheet-open body { overflow: hidden; }
 @media (min-width: 761px) { .c-time { width: 78px !important; } .ct-big { font-size: 15px !important; } }
 @media (max-width: 760px) { .ct-big { font-size: 18px !important; } }
 .arrow.back { margin-left: auto !important; }
+
+/* ---------- 1) Tabs stay pinned while the list scrolls (phone); column heads pinned on PC ---------- */
+@media (max-width: 760px) {
+  .board > .tabs-row { position: sticky; top: 0; z-index: 12; background: var(--bg); padding: calc(env(safe-area-inset-top, 0px) + 8px) 0 8px; margin: -8px 0 -8px; }
+  .add-row { display: none !important; }
+}
+@media (min-width: 761px) {
+  .col-head { position: sticky; top: 0; z-index: 3; background: var(--surface); margin: -8px -8px 0; padding: 8px 12px; border-radius: 16px 16px 0 0; }
+}
+
+/* ---------- 3) Category manager ---------- */
+.chip-edit { color: var(--fg-3); }
+.chip-edit svg { width: 12px; height: 12px; }
+.sheet-bg.layer2 { z-index: 50; }
+.sheet.layer2 { z-index: 51; }
+.cat-list { display: flex; flex-direction: column; padding: 8px 0; }
+.cat-row { display: flex; align-items: center; gap: 12px; padding: 8px 0; border-bottom: 1px solid var(--sep); }
+.cat-dot { flex: none; width: 30px; height: 30px; border-radius: 50%; box-shadow: inset 0 0 0 2px rgba(255, 255, 255, .15); }
+.cat-name { flex: 1; min-width: 0; height: 40px; border: 0; padding: 0 4px; background: transparent; font-size: 17px; font-weight: 600; }
+.cat-name:focus-visible { outline: none; box-shadow: inset 0 -2px 0 var(--blue-text); }
+.cat-del, .cat-del-sp { flex: none; width: 40px; height: 40px; }
+.cat-del { border-radius: 10px; color: #FF6961; display: flex; align-items: center; justify-content: center; }
+.swatches { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; padding: 12px 0 14px 42px; border-bottom: 1px solid var(--sep); }
+.swatch { width: 32px; height: 32px; border-radius: 50%; justify-self: center; }
+.swatch.on { box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--fg); }
+.cat-add { margin-top: 12px; width: 100%; height: 50px; border-radius: 14px; background: var(--surface-2); color: var(--fg); display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 15px; font-weight: 600; }
+.cat-add svg { width: 18px; height: 18px; }
+.cat-reset { margin-top: 10px; width: 100%; height: 44px; color: #FF6961; font-size: 14px; font-weight: 500; }
+
+/* ---------- 4) Alerts ---------- */
+.alarm-opts { flex: 1; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+.alarm-chip { justify-content: center; height: 36px; background: var(--surface-2); font-size: 13px; }
+.alarm-chip[aria-pressed="true"] { background: var(--blue); color: #FFFFFF; }
+.c-bell { display: inline-flex; margin-left: 6px; color: var(--fg-3); vertical-align: 1px; }
