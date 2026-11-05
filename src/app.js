@@ -474,14 +474,25 @@ const ITEM_H = 34;
 function timePill(target) {
   const t = getTime(target);
   const open = S.timeOpen === target;
-  const label = t ? L.timeChange(fmtTime(t)) : L.timeAdd;
-  return `<button type="button" class="time-pill ${t ? 'set' : ''}" data-act="time-open" data-target="${target}" aria-haspopup="dialog" aria-expanded="${open}" aria-label="${label}">${t ? `<span class="num">${fmtTime(t)}</span>` : CLOCK}</button>`;
+  const label = t ? L.timeChange(showTime(t)) : L.timeAdd;
+  return `<button type="button" class="time-pill ${t ? 'set' : ''}" data-act="time-open" data-target="${target}" aria-haspopup="dialog" aria-expanded="${open}" aria-label="${label}">${t ? `<span class="num">${showTime(t)}</span>` : CLOCK}</button>`;
 }
 
+// 12-hour wheel like the iPhone alarm: [AM/PM] [1–12] : [00–59]. Stored time stays 24-hour ("HH:MM").
+const F_HM = dtf({ hour: 'numeric', minute: '2-digit', hour12: true });
+const PERIODS = [9, 21].map(h => (dtf({ hour: 'numeric', hour12: true }).formatToParts(new Date(2024, 0, 1, h)).find(p => p.type === 'dayPeriod') || { value: h < 12 ? 'AM' : 'PM' }).value);
+const showTime = t => t ? F_HM.format(new Date(2024, 0, 1, t.h, t.m)) : '';
+const h12 = h => String(h % 12 || 12);
+function wheelVal(part, t) { return part === 'ap' ? (t.h >= 12 ? 1 : 0) : part === 'h' ? t.h : t.m; }
 function wheelItems(part, val) {
-  const n = part === 'h' ? 24 : 60;
   let out = '';
-  for (let o = -2; o <= 2; o++) out += `<span class="tw-item d${Math.abs(o)}">${pad((val + o + n) % n)}</span>`;
+  for (let o = -2; o <= 2; o++) {
+    let label;
+    if (part === 'ap') label = PERIODS[val + o] || '';
+    else if (part === 'h') label = h12((val + o + 24) % 24);
+    else label = pad((val + o + 60) % 60);
+    out += `<span class="tw-item d${Math.abs(o)}">${label}</span>`;
+  }
   return out;
 }
 
@@ -493,6 +504,7 @@ function timeWheel(target) {
     <div class="tw-main">
     <div class="tw-body">
       <div class="tw-band" aria-hidden="true"></div>
+      <div class="tw-col tw-ap" id="${target}-ap" data-part="ap" tabindex="0" role="spinbutton" aria-label="${PERIODS.join(' / ')}" aria-valuetext="${PERIODS[wheelVal('ap', t)]}">${wheelItems('ap', wheelVal('ap', t))}</div>
       <div class="tw-col" id="${target}-h" data-part="h" tabindex="0" role="spinbutton" aria-label="${L.hour}" aria-valuemin="0" aria-valuemax="23" aria-valuenow="${t.h}">${wheelItems('h', t.h)}</div>
       <span class="tw-colon" aria-hidden="true">:</span>
       <div class="tw-col" id="${target}-m" data-part="m" tabindex="0" role="spinbutton" aria-label="${L.minute}" aria-valuemin="0" aria-valuemax="59" aria-valuenow="${t.m}">${wheelItems('m', t.m)}</div>
@@ -506,14 +518,15 @@ function refreshTime(target) {
   const t = getTime(target);
   if (!t) return;
   root.querySelectorAll(`.tw[data-target="${target}"] .tw-col`).forEach(col => {
-    const v = col.dataset.part === 'h' ? t.h : t.m;
+    const v = wheelVal(col.dataset.part, t);
     col.innerHTML = wheelItems(col.dataset.part, v);
-    col.setAttribute('aria-valuenow', v);
+    if (col.dataset.part === 'ap') col.setAttribute('aria-valuetext', PERIODS[v]);
+    else col.setAttribute('aria-valuenow', v);
   });
   root.querySelectorAll(`.time-pill[data-target="${target}"]`).forEach(pill => {
     pill.classList.add('set');
-    pill.innerHTML = `<span class="num">${fmtTime(t)}</span>`;
-    pill.setAttribute('aria-label', L.timeChange(fmtTime(t)));
+    pill.innerHTML = `<span class="num">${showTime(t)}</span>`;
+    pill.setAttribute('aria-label', L.timeChange(showTime(t)));
   });
 }
 
@@ -522,7 +535,9 @@ function stepTime(target, part, dir) {
   const t = getTime(target);
   if (!t) return;
   let next;
-  if (part === 'h') next = { h: (t.h + dir + 24) % 24, m: t.m };
+  // Hours run 11 → 12 into the afternoon (and 11 PM → 12 AM), switching AM/PM like the iPhone alarm.
+  if (part === 'ap') { const pm = t.h >= 12; if ((dir > 0) === pm) return; next = { h: (t.h + 12) % 24, m: t.m }; }
+  else if (part === 'h') next = { h: (t.h + dir + 24) % 24, m: t.m };
   else { const total = (t.h * 60 + t.m + dir + 1440) % 1440; next = { h: Math.floor(total / 60), m: total % 60 }; }
   setTime(target, next);
   refreshTime(target);
@@ -658,7 +673,7 @@ function card(t, ci) {
     <article class="card ${prev ? 'has-back' : ''}" data-swipe data-id="${id}" data-next="${next || ''}">
       <div class="card-main">
         <button class="title ${done ? 'done' : ''}" data-act="edit" data-id="${id}" aria-label="${L.editAria(title)}">${title}${done ? '' : ICON.pencil}</button>
-        <span class="cat"><i style="background:${c.color}"></i>${c.label} · ${relLabel(t.date)}${t.time ? ` <span class="num">${esc(t.time)}</span>` : ''}</span>
+        <span class="cat"><i style="background:${c.color}"></i>${c.label} · ${relLabel(t.date)}${t.time ? ` <span class="num">${esc(showTime(parseTime(t.time)) || t.time)}</span>` : ''}</span>
       </div>
       ${prev ? `<button class="arrow back" data-act="move" data-id="${id}" data-to="${prev}" aria-label="${L.backTo(title, COLS[ci - 1].label)}">${ICON.leftBig}</button>` : ''}
     </article>
