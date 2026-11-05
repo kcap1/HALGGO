@@ -623,6 +623,38 @@ html.sheet-open, html.sheet-open body { overflow: hidden; }
 .alarm-chip[aria-pressed="true"] { background: var(--blue); color: #FFFFFF; }
 .c-bell { display: inline-flex; margin-left: 6px; color: var(--fg-3); vertical-align: 1px; }
 
+/* ---------- Sheet v2: no top buttons, floating 저장 bottom-right, stays above the keyboard ---------- */
+.sheet-head.solo { display: flex; justify-content: center; height: 40px; }
+.sh-foot { position: sticky; bottom: 0; display: flex; justify-content: flex-end; padding: 16px 0 4px; margin-top: 8px; pointer-events: none; }
+.sh-save-fab { pointer-events: auto; height: 52px; padding: 0 24px 0 20px; border-radius: 26px; background: var(--blue); color: #FFFFFF; display: flex; align-items: center; gap: 8px; font-size: 17px; font-weight: 700; box-shadow: 0 10px 28px rgba(0, 0, 0, .5); }
+.sh-save-fab svg { width: 22px; height: 22px; }
+@media (max-width: 760px) {
+  .sheet { bottom: var(--kb, 0px); padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px)); }
+}
+.sheet { touch-action: pan-y; }
+
+/* Repeat row */
+.rep-wrap { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 10px; }
+.rep-btn { align-self: flex-start; min-height: 24px; font-size: 16px; font-weight: 600; text-align: left; }
+.rep-btn.dim { color: var(--fg-3); font-weight: 500; }
+.rep-opts { display: flex; flex-wrap: wrap; gap: 6px; }
+.rep-chip { height: 36px; padding: 0 14px; background: var(--surface-2); font-size: 13px; }
+.rep-chip[aria-pressed="true"] { background: var(--blue); color: #FFFFFF; }
+
+/* Alert row: 없음 / 정시 / [wheel] */
+.alarm-opts { grid-template-columns: 1fr 1fr 1.4fr !important; }
+.alarm-chip.custom { white-space: nowrap; }
+.tw-unit { flex: 1.1; }
+.tw-unit .tw-item.d0 { font-size: 21px; }
+
+/* Floating + (phone) */
+.fab { position: fixed; z-index: 30; right: calc(18px + env(safe-area-inset-right, 0px)); bottom: calc(22px + env(safe-area-inset-bottom, 0px)); width: 60px; height: 60px; border-radius: 50%; background: var(--blue); color: #FFFFFF; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 26px rgba(0, 0, 0, .55); transform: scale(.4); opacity: 0; pointer-events: none; transition: transform .2s ease, opacity .2s ease; }
+.fab svg { width: 28px; height: 28px; }
+.fab.show { transform: none; opacity: 1; pointer-events: auto; }
+.add-toggle { transition: opacity .2s ease; }
+.add-toggle.hide { display: none; }
+@media (min-width: 761px) { .fab { display: none; } }
+
 </style>
 </head>
 <body>
@@ -666,6 +698,7 @@ const I18N = {
     editTask: '할 일 수정', titlePh: '제목', reorderHint: '길게 눌러 순서 바꾸기',
     weekBtn: '주', monthBtn: '월', thisWeek: '이번 주',
     catManage: '카테고리 편집', edit: '편집', catAdd: '카테고리 추가', catReset: '기본값으로 초기화', catResetQ: '카테고리를 기본값으로 되돌릴까요? 추가한 카테고리와 바꾼 이름·색이 사라져요.', catNamePh: '카테고리 이름', done: '완료', catSaveFail: '카테고리를 이 기기에만 저장했어요. 다른 기기와 맞추려면 보안 규칙 업데이트가 필요해요.', catDel: '삭제', catColor: '색 바꾸기', alarm: '알림', alarmNone: '없음', alarmAt: '정시', alarmMin: n => `${n}분 전`, alarmHour: n => `${n}시간 전`, alarmDay: '하루 전', notifNeedHome: '알림을 받으려면 Safari에서 「홈 화면에 추가」로 앱을 설치해 주세요.', notifDenied: '알림이 꺼져 있어요. 기기 설정에서 HALGGO 알림을 허용해 주세요.', notifOn: '알림이 켜졌어요', allDayAlarm: '종일 할 일은 그날 오전 9시를 기준으로 알려 드려요.',
+    repeat: '반복', repNone: '반복 안 함', repDay: '매일', repWeek: w => `매주 ${w}`, repMonth: d => `매월 ${d}일`, repYear: md => `매년 ${md}`, alUnits: ['분', '시간', '일', '주'], alBefore: (n, u) => `${n}${u} 전`, alCustom: '직접 설정',
     today: '오늘', thisMonth: '이번 달', thisYear: '올해', progress: '진행도',
     ring: (l, p, t, d) => `${l} 진행률 ${p}%, ${t}개 중 ${d}개 완료`, doneWord: '완료',
     openLeft: n => `, 남은 할 일 ${n}개`, calendar: '캘린더', collapse: '접기', monthView: '한 달 보기',
@@ -699,6 +732,7 @@ const I18N = {
     editTask: 'Edit task', titlePh: 'Title', reorderHint: 'Press and hold to reorder',
     weekBtn: 'Week', monthBtn: 'Month', thisWeek: 'This week',
     catManage: 'Edit categories', edit: 'Edit', catAdd: 'Add category', catReset: 'Reset to defaults', catResetQ: 'Reset categories to the defaults? Added categories and changed names/colors will be removed.', catNamePh: 'Category name', done: 'Done', catSaveFail: 'Categories were saved on this device only. Update the security rules to sync them.', catDel: 'Delete', catColor: 'Change color', alarm: 'Alert', alarmNone: 'None', alarmAt: 'At time', alarmMin: n => `${n} min before`, alarmHour: n => `${n} hr before`, alarmDay: '1 day before', notifNeedHome: 'To get alerts, add this app to your Home Screen from Safari.', notifDenied: 'Notifications are off. Allow them for HALGGO in Settings.', notifOn: 'Alerts are on', allDayAlarm: 'All-day tasks alert at 9:00 AM that day.',
+    repeat: 'Repeat', repNone: 'Does not repeat', repDay: 'Every day', repWeek: w => `Every week on ${w}`, repMonth: d => `Every month on day ${d}`, repYear: md => `Every year on ${md}`, alUnits: ['min', 'hr', 'day', 'wk'], alBefore: (n, u) => `${n} ${u} before`, alCustom: 'Custom',
     today: 'Today', thisMonth: 'This month', thisYear: 'This year', progress: 'Progress',
     ring: (l, p, t, d) => `${l} ${p}% complete, ${d} of ${t} done`, doneWord: 'done',
     openLeft: n => `, ${n} left`, calendar: 'Calendar', collapse: 'Less', monthView: 'Month',
@@ -732,6 +766,7 @@ const I18N = {
     editTask: 'やることを編集', titlePh: 'タイトル', reorderHint: '長押しで並べ替え',
     weekBtn: '週', monthBtn: '月', thisWeek: '今週',
     catManage: 'カテゴリを編集', edit: '編集', catAdd: 'カテゴリを追加', catReset: '初期設定に戻す', catResetQ: 'カテゴリを初期設定に戻しますか？追加したカテゴリと変更した名前・色は消えます。', catNamePh: 'カテゴリ名', done: '完了', catSaveFail: 'カテゴリはこの端末にのみ保存されました。同期するにはセキュリティルールの更新が必要です。', catDel: '削除', catColor: '色を変更', alarm: '通知', alarmNone: 'なし', alarmAt: '開始時', alarmMin: n => `${n}分前`, alarmHour: n => `${n}時間前`, alarmDay: '1日前', notifNeedHome: '通知を受け取るには、Safariで「ホーム画面に追加」してください。', notifDenied: '通知がオフです。設定でHALGGOの通知を許可してください。', notifOn: '通知がオンになりました', allDayAlarm: '終日のやることは当日午前9時を基準に通知します。',
+    repeat: '繰り返し', repNone: '繰り返さない', repDay: '毎日', repWeek: w => `毎週${w}`, repMonth: d => `毎月${d}日`, repYear: md => `毎年${md}`, alUnits: ['分', '時間', '日', '週'], alBefore: (n, u) => `${n}${u}前`, alCustom: 'カスタム',
     today: '今日', thisMonth: '今月', thisYear: '今年', progress: '進捗',
     ring: (l, p, t, d) => `${l} 進捗 ${p}%、${t}件中${d}件完了`, doneWord: '完了',
     openLeft: n => `、残り${n}件`, calendar: 'カレンダー', collapse: '閉じる', monthView: '月表示',
@@ -765,6 +800,7 @@ const I18N = {
     editTask: '编辑待办', titlePh: '标题', reorderHint: '长按可调整顺序',
     weekBtn: '周', monthBtn: '月', thisWeek: '本周',
     catManage: '编辑类别', edit: '编辑', catAdd: '添加类别', catReset: '恢复默认', catResetQ: '要将类别恢复为默认吗？添加的类别和修改的名称、颜色将被删除。', catNamePh: '类别名称', done: '完成', catSaveFail: '类别仅保存在此设备上。要同步，需要更新安全规则。', catDel: '删除', catColor: '更改颜色', alarm: '提醒', alarmNone: '无', alarmAt: '准时', alarmMin: n => `提前${n}分钟`, alarmHour: n => `提前${n}小时`, alarmDay: '提前1天', notifNeedHome: '要接收提醒，请在 Safari 中“添加到主屏幕”。', notifDenied: '通知已关闭。请在设置中允许 HALGGO 的通知。', notifOn: '提醒已开启', allDayAlarm: '全天待办以当天上午9点为准提醒。',
+    repeat: '重复', repNone: '不重复', repDay: '每天', repWeek: w => `每周${w}`, repMonth: d => `每月${d}日`, repYear: md => `每年${md}`, alUnits: ['分钟', '小时', '天', '周'], alBefore: (n, u) => `提前${n}${u}`, alCustom: '自定义',
     today: '今天', thisMonth: '本月', thisYear: '今年', progress: '进度',
     ring: (l, p, t, d) => `${l} 进度 ${p}%，共${t}项，已完成${d}项`, doneWord: '完成',
     openLeft: n => `，剩余${n}项`, calendar: '日历', collapse: '收起', monthView: '月视图',
@@ -976,6 +1012,8 @@ const ICON = {
   tag: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 12.5V5a1.5 1.5 0 0 1 1.5-1.5h7.5L21 12l-8.5 8.5z"/><circle cx="8" cy="8" r="1.4"/></svg>',
   bell: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 16V11a6 6 0 1 1 12 0v5l1.5 2h-15zM10 20.5a2 2 0 0 0 4 0"/></svg>',
   bellSm: '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 16V11a6 6 0 1 1 12 0v5l1.5 2h-15zM10 20.5a2 2 0 0 0 4 0"/></svg>',
+  rep: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12a8 8 0 0 1 14-5.3M20 4v4h-4M20 12a8 8 0 0 1-14 5.3M4 20v-4h4"/></svg>',
+  repSm: '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12a8 8 0 0 1 14-5.3M20 4v4h-4M20 12a8 8 0 0 1-14 5.3M4 20v-4h4"/></svg>',
   plus: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>',
   trash: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3"/></svg>',
   pencil: '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--fg-3)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16v4z"/></svg>',
@@ -1109,7 +1147,7 @@ async function initCloud() {
   A.onAuthStateChanged(auth, user => {
     if (unsub) { unsub(); unsub = null; }
     S.user = user;
-    S.tasks = [];
+    S.tasks = []; S.raw = []; S.rawVer = (S.rawVer || 0) + 1;
     if (!user) { S.mode = 'login'; store = null; render(); return; }
     S.mode = 'app';
     const col = F.collection(db, 'users', user.uid, 'tasks');
@@ -1127,7 +1165,7 @@ async function initCloud() {
       applyCats(cfg); render();
     }, () => { /* rules not updated yet: keep the device copy */ });
     unsub = F.onSnapshot(col, snap => {
-      S.tasks = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      S.raw = snap.docs.map(d => ({ id: d.id, ...d.data() })); S.rawVer = (S.rawVer || 0) + 1;
       render();
     }, () => {
       showToast(L.loadFail);
@@ -1137,6 +1175,48 @@ async function initCloud() {
 }
 
 /* ---------- Derived data ---------- */
+
+/* Repeating tasks: `repeat` = day | week | month | year. Each occurrence is a virtual task "id@YYYY-MM-DD";
+   its status lives in the base task's `occ` map ({date: 'todo'|'doing'|'done'|'skip'}). S.raw = stored tasks, S.tasks = expanded. */
+function nthOcc(start, rep, k) {
+  if (rep === 'day') return addDays(start, k);
+  if (rep === 'week') return addDays(start, 7 * k);
+  const [y, m, d] = start.split('-').map(Number);
+  const yy = rep === 'year' ? y + k : y + Math.floor((m - 1 + k) / 12), mm = rep === 'year' ? m - 1 : (m - 1 + k) % 12;
+  return ymd(new Date(yy, mm, Math.min(d, new Date(yy, mm + 1, 0).getDate())));
+}
+let expKey = '';
+function expandTasks() {
+  const t0 = today(), ymk = `${S.ym.y}-${pad(S.ym.m + 1)}`, sy = S.statYear || +t0.slice(0, 4);
+  const lo = [addDays(t0, -400), addDays(S.sel, -62), addDays(ymk + '-01', -14), sy + '-01-01'].sort()[0];
+  const hi = [addDays(t0, 400), addDays(S.sel, 62), addDays(ymk + '-28', 20), sy + '-12-31'].sort().pop();
+  const key = `${lo}|${hi}|${S.rawVer || 0}`;
+  if (key === expKey) return;
+  expKey = key;
+  const out = [];
+  for (const t of S.raw || []) {
+    if (!t.repeat || !t.date) { out.push(t); continue; }
+    const span = isRange(t) ? daysBetween(t.date, tEnd(t)) : 0;
+    for (let k = 0; k < 6000; k++) {
+      const d = nthOcc(t.date, t.repeat, k);
+      if (d > hi) break;
+      if (addDays(d, span) < lo) continue;
+      const st = (t.occ || {})[d];
+      if (st === 'skip') continue;
+      out.push({ ...t, id: `${t.id}@${d}`, baseId: t.id, date: d, end: span ? addDays(d, span) : '', status: st || 'todo' });
+    }
+  }
+  S.tasks = out;
+}
+const baseId = id => String(id).split('@')[0];
+const occDay = id => String(id).split('@')[1];
+// Change a card's column: a repeating occurrence only changes that day.
+function setStatus(id, status) {
+  if (!store) return;
+  if (!occDay(id)) { store.update(id, { status }).catch(fail); return; }
+  const b = (S.raw || []).find(x => x.id === baseId(id));
+  if (b) store.update(b.id, { occ: { ...(b.occ || {}), [occDay(id)]: status } }).catch(fail);
+}
 
 /* Multi-day tasks: optional `end` (YYYY-MM-DD, after `date`). A task belongs to every day/month/year it overlaps. */
 const tEnd = t => (t.end && t.end > (t.date || '')) ? t.end : (t.date || '');
@@ -1192,8 +1272,8 @@ function visibleTasks() {
 }
 
 /* Time picker (iOS-style wheel). target 'tn' / 'tnm' = new task (S.draftTime), 'te' = task being edited (S.edit.time). */
-function getTime(target) { return target === 'te' ? (S.edit && S.edit.time) : target === 'tee' ? (S.edit && S.edit.endTime) : S.draftTime; }
-function setTime(target, t) { if (target === 'te') { if (S.edit) S.edit.time = t; } else if (target === 'tee') { if (S.edit) S.edit.endTime = t; } else S.draftTime = t; }
+function getTime(target) { if (target === 'al') return S.edit && typeof S.edit.alarm === 'number' ? S.edit.alarm : null; return target === 'te' ? (S.edit && S.edit.time) : target === 'tee' ? (S.edit && S.edit.endTime) : S.draftTime; }
+function setTime(target, t) { if (target === 'al') { if (S.edit) S.edit.alarm = t == null ? '' : t; return; } if (target === 'te') { if (S.edit) S.edit.time = t; } else if (target === 'tee') { if (S.edit) S.edit.endTime = t; } else S.draftTime = t; }
 const CLOCK = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>';
 const ITEM_H = 34;
 
@@ -1260,6 +1340,7 @@ function refreshTime(target) {
 
 // Minutes carry into hours: 09:59 → 10:00, and 00:00 back one → 23:59.
 function stepTime(target, part, dir) {
+  if (target === 'al') { if (S.edit) stepAlarm(part, dir); return; }
   const t = getTime(target);
   if (!t) return;
   let next;
@@ -1577,11 +1658,7 @@ function sheetView() {
   return `<div class="sheet-bg" data-act="cancel"></div>
   <form class="sheet" data-form="sheet" role="dialog" aria-modal="true" aria-label="${isNew ? L.newTask : L.editTask}">
     <div class="sheet-grip" aria-hidden="true"></div>
-    <div class="sheet-head">
-      <button type="button" class="sh-cancel" data-act="cancel">${L.cancel}</button>
-      <span class="sh-title">${isNew ? L.newTask : L.editTask}</span>
-      <button type="submit" class="sh-save">${L.save}</button>
-    </div>
+    <div class="sheet-head solo"><span class="sh-title">${isNew ? L.newTask : L.editTask}</span></div>
     <div class="sh-row sh-titlebox">
       <span class="sh-ico"><i style="background:${c.color}"></i></span>
       <input id="edit-title" class="sh-input" placeholder="${L.titlePh}" maxlength="200" autocomplete="off" enterkeyhint="done" value="${esc(e.title)}" aria-label="${L.taskName}">
@@ -1589,23 +1666,86 @@ function sheetView() {
     ${whenRow()}
     ${S.timeOpen === 'te' || S.timeOpen === 'tee' ? `<div class="sh-wheel">${timeWheel(S.timeOpen)}</div>` : ''}
     <div class="sh-row">
+      <span class="sh-ico" aria-hidden="true">${ICON.rep}</span>
+      <div class="rep-wrap">
+        <button type="button" class="rep-btn ${e.repeat ? '' : 'dim'}" data-act="rep-open" aria-expanded="${!!S.repOpen}">${esc(repeatLabel(e.repeat, e.date))}</button>
+        ${S.repOpen ? `<div class="rep-opts">${['', 'day', 'week', 'month', 'year'].map(r => `<button type="button" class="chip rep-chip" data-act="rep-set" data-v="${r}" aria-pressed="${(e.repeat || '') === r}">${esc(repeatLabel(r, e.date))}</button>`).join('')}</div>` : ''}
+      </div>
+    </div>
+    <div class="sh-row">
       <span class="sh-ico" aria-hidden="true">${ICON.tag}</span>
       <div class="chips" role="group" aria-label="${L.changeCat}">${chips(e.cat, 'editcat', true)}</div>
     </div>
     <div class="sh-row">
       <span class="sh-ico" aria-hidden="true">${ICON.bell}</span>
-      <div class="alarm-opts" role="group" aria-label="${L.alarm}">${ALARMS.map(a => `<button type="button" class="chip alarm-chip" data-act="alarm" data-v="${a}" aria-pressed="${(e.alarm ?? '') === a}">${alarmLabel(a)}</button>`).join('')}</div>
+      <div class="alarm-opts" role="group" aria-label="${L.alarm}">
+        <button type="button" class="chip alarm-chip" data-act="alarm" data-v="" aria-pressed="${e.alarm === '' || e.alarm == null}">${L.alarmNone}</button>
+        <button type="button" class="chip alarm-chip" data-act="alarm" data-v="0" aria-pressed="${e.alarm === 0}">${L.alarmAt}</button>
+        <button type="button" class="chip alarm-chip custom" data-act="time-open" data-target="al" aria-pressed="${e.alarm > 0}">${e.alarm > 0 ? esc(alarmLabel(e.alarm)) : L.alCustom}</button>
+      </div>
     </div>
+    ${S.timeOpen === 'al' ? `<div class="sh-wheel">${alarmWheel()}</div>` : ''}
     ${isNew ? '' : `<button type="button" class="sh-del" data-act="del" data-id="${esc(S.editId)}">${ICON.trash}<span>${L.del}</span></button>`}
+    <div class="sh-foot"><button type="submit" class="sh-save-fab">${ICON.ok}<span>${L.save}</span></button></div>
   </form>`;
 }
 
-const ALARMS = ['', 0, 10, 30, 60, 1440];
-const alarmLabel = a => a === '' ? L.alarmNone : a === 0 ? L.alarmAt : a < 60 ? L.alarmMin(a) : a < 1440 ? L.alarmHour(a / 60) : L.alarmDay;
+// Alert = minutes before. The wheel picks [number][unit]: 5–55 min, 1–23 hours, 1–6 days, 1–4 weeks.
+const AL_MUL = [1, 60, 1440, 10080];
+const AL_RANGE = [[5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55], [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23], [1, 2, 3, 4, 5, 6], [1, 2, 3, 4]];
+function alParts(min) {
+  for (let u = 3; u >= 0; u--) if (min > 0 && min % AL_MUL[u] === 0 && AL_RANGE[u].includes(min / AL_MUL[u])) return { n: min / AL_MUL[u], u };
+  return { n: 10, u: 0 };
+}
+const alarmLabel = a => a === '' || a == null ? L.alarmNone : a === 0 ? L.alarmAt : L.alBefore(alParts(a).n, L.alUnits[alParts(a).u]);
+function alarmItems(part, a) {
+  const { n, u } = alParts(a), list = part === 'au' ? L.alUnits : AL_RANGE[u], idx = part === 'au' ? u : list.indexOf(n);
+  let out = '';
+  for (let o = -2; o <= 2; o++) {
+    const j = idx + o, lab = part === 'au' ? (L.alUnits[j] || '') : list[(j + list.length) % list.length];
+    out += `<span class="tw-item d${Math.abs(o)}">${lab}</span>`;
+  }
+  return out;
+}
+function alarmWheel() {
+  const a = typeof S.edit.alarm === 'number' && S.edit.alarm > 0 ? S.edit.alarm : 10;
+  return `<div class="tw" data-target="al" role="dialog" aria-label="${L.alarm}">
+    <button type="button" class="tw-clear" data-act="time-off" data-target="al">${L.clear}</button>
+    <div class="tw-main"><div class="tw-body">
+      <div class="tw-band" aria-hidden="true"></div>
+      <div class="tw-col" id="al-an" data-part="an" tabindex="0" role="spinbutton" aria-label="${L.alarm}">${alarmItems('an', a)}</div>
+      <div class="tw-col tw-unit" id="al-au" data-part="au" tabindex="0" role="spinbutton" aria-label="${L.alarm}">${alarmItems('au', a)}</div>
+    </div></div>
+    <button type="button" class="btn-primary tw-ok" data-act="time-close">${L.ok}</button>
+  </div>`;
+}
+function stepAlarm(part, dir) {
+  const cur = typeof S.edit.alarm === 'number' && S.edit.alarm > 0 ? S.edit.alarm : 10;
+  let { n, u } = alParts(cur);
+  if (part === 'au') {
+    const u2 = Math.max(0, Math.min(3, u + dir));
+    if (u2 === u) return;
+    u = u2; const r = AL_RANGE[u]; n = r.reduce((best, v) => Math.abs(v - n) < Math.abs(best - n) ? v : best, r[0]);
+  } else { const r = AL_RANGE[u]; n = r[(r.indexOf(n) + dir + r.length) % r.length]; }
+  S.edit.alarm = n * AL_MUL[u];
+  root.querySelectorAll('.tw[data-target="al"] .tw-col').forEach(col => { col.innerHTML = alarmItems(col.dataset.part, S.edit.alarm); });
+  root.querySelectorAll('.alarm-chip.custom').forEach(el => { el.textContent = alarmLabel(S.edit.alarm); el.setAttribute('aria-pressed', 'true'); });
+  root.querySelectorAll('.alarm-chip:not(.custom)').forEach(el => el.setAttribute('aria-pressed', 'false'));
+}
+// Repeat text: 매일 / 매주 목요일 / 매월 5일 / 매년 11월 5일
+function repeatLabel(rep, date) {
+  const d = parse(date);
+  if (rep === 'day') return L.repDay;
+  if (rep === 'week') return L.repWeek(dtf({ weekday: 'long' }).format(d));
+  if (rep === 'month') return L.repMonth(d.getDate());
+  if (rep === 'year') return L.repYear(F_MD.format(d));
+  return L.repNone;
+}
 
 function openAdd(date) {
   S.editId = null;
-  S.edit = { title: '', date, end: '', cat: S.newCat || 'work', time: null, endTime: null, alarm: '' };
+  S.edit = { title: '', date, end: '', cat: S.newCat || 'work', time: null, endTime: null, alarm: '', repeat: '' };
+  S.repOpen = false;
   S.timeOpen = null; S.focusId = 'edit-title';
 }
 
@@ -1640,7 +1780,7 @@ function card(t, ci) {
       ${timeCol(t)}
       <i class="c-bar" style="background:${c.color}" aria-hidden="true"></i>
       <div class="card-main">
-        <button class="title ${done ? 'done' : ''}" data-act="edit" data-id="${id}" aria-label="${L.editAria(title)}">${title}${typeof t.alarm === 'number' && !done ? `<span class="c-bell">${ICON.bellSm}</span>` : ''}</button>
+        <button class="title ${done ? 'done' : ''}" data-act="edit" data-id="${id}" aria-label="${L.editAria(title)}">${title}${t.repeat ? `<span class="c-bell">${ICON.repSm}</span>` : ''}${typeof t.alarm === 'number' && !done ? `<span class="c-bell">${ICON.bellSm}</span>` : ''}</button>
         ${meta ? `<span class="cat">${esc(meta)}</span>` : ''}
       </div>
       ${prev ? `<button class="arrow back" data-act="move" data-id="${id}" data-to="${prev}" aria-label="${L.backTo(title, COLS[ci - 1].label)}"><span class="back-box">${ICON.leftBig}</span></button>` : ''}
@@ -1724,10 +1864,11 @@ function loginView() {
 
 function toastView() {
   if (!S.toast) return '';
-  return `<div class="toast" role="status">${esc(S.toast.text)}${S.toast.undo ? `<button data-act="undo">${L.undo}</button>` : ''}</div>`;
+  return `<div class="toast" role="status">${esc(S.toast.text)}${S.toast.undo || S.toast.undoFn ? `<button data-act="undo">${L.undo}</button>` : ''}</div>`;
 }
 
 function render() {
+  expandTasks();
   const a = document.activeElement;
   // Never re-focus a date field after re-rendering: on phones that reopens the date picker again and again.
   const fid = S.focusId || (a && a.id && a.type !== 'date' ? a.id : null);
@@ -1746,7 +1887,8 @@ function render() {
       <div class="main">${calendarView()}${boardView()}</div>`}
     </div>`;
   }
-  root.innerHTML = html + (S.mode === 'app' ? sheetView() + catSheetView() : '') + toastView();
+  root.innerHTML = html + (S.mode === 'app' && S.page !== 'stats' ? `<button type="button" class="fab" data-act="add-open" aria-label="${L.addTask}">${ICON.plus}</button>` : '') + (S.mode === 'app' ? sheetView() + catSheetView() : '') + toastView();
+  updateFab();
   scheduleAlarms();
   document.documentElement.classList.toggle('sheet-open', !!(S.edit || S.catDraft) && S.mode === 'app');
 
@@ -1802,9 +1944,9 @@ if (window.visualViewport) {
 /* ---------- Actions ---------- */
 
 let toastTimer = null;
-function showToast(text, undo) {
+function showToast(text, undo, undoFn) {
   clearTimeout(toastTimer);
-  S.toast = { text, undo };
+  S.toast = { text, undo, undoFn };
   render();
   toastTimer = setTimeout(() => { S.toast = null; render(); }, 5000);
 }
@@ -1814,7 +1956,16 @@ function fail() { showToast(L.saveFail); }
 function syncMonth() { const d = parse(S.sel); S.ym = { y: d.getFullYear(), m: d.getMonth() }; }
 
 function deleteTask(id) {
-  const t = S.tasks.find(x => x.id === id);
+  if (occDay(id) && store) {
+    const b = (S.raw || []).find(x => x.id === baseId(id));
+    if (!b) return;
+    const before = { ...(b.occ || {}) };
+    S.openSwipe = null;
+    store.update(b.id, { occ: { ...before, [occDay(id)]: 'skip' } }).then(() => showToast(L.deleted, null, () => store.update(b.id, { occ: before }).catch(fail))).catch(fail);
+    render();
+    return;
+  }
+  const t = (S.raw || S.tasks).find(x => x.id === id);
   if (!t || !store) return;
   if (S.editId === id) { S.editId = null; S.edit = null; S.timeOpen = null; }
   S.openSwipe = null;
@@ -1851,9 +2002,11 @@ root.addEventListener('click', e => {
       if (b.dataset.date === S.sel && S.view === 'day') { openAdd(S.sel); break; }
       S.sel = b.dataset.date; S.view = 'day'; syncMonth(); break;
     case 'add-open': S.tab = 'todo'; openAdd(S.sel); break;
+    case 'rep-open': S.repOpen = !S.repOpen; break;
+    case 'rep-set': if (S.edit) S.edit.repeat = b.dataset.v; S.repOpen = false; break;
     case 'alarm':
       if (!S.edit) break;
-      S.edit.alarm = b.dataset.v === '' ? '' : Number(b.dataset.v);
+      S.edit.alarm = b.dataset.v === '' ? '' : Number(b.dataset.v); if (S.timeOpen === 'al') S.timeOpen = null;
       if (S.edit.alarm !== '') { askNotify(); if (!S.edit.time) showToast(L.allDayAlarm); }
       break;
     case 'cat-manage': S.catDraft = CATS.map(c => ({ id: c.id, label: c.label, color: c.color })); S.catPick = null; break;
@@ -1899,6 +2052,7 @@ root.addEventListener('click', e => {
       const tg = b.dataset.target;
       if (S.timeOpen === tg) { S.timeOpen = null; break; }
       S.timeBefore = getTime(tg) || null;
+      if (tg === 'al') { S.timeBefore = getTime('al'); if (!(getTime('al') > 0)) S.edit.alarm = 10; askNotify(); S.timeOpen = 'al'; S.focusId = 'al-an'; break; }
       if (!getTime(tg)) {
         // End time starts one hour after the start time.
         if (tg === 'tee' && S.edit && !S.edit.time) S.edit.time = nowRounded();
@@ -1911,15 +2065,16 @@ root.addEventListener('click', e => {
     case 'time-close': S.timeOpen = null; break;
     // 취소: put back the time it had before the wheel opened (none → no time).
     case 'time-off': setTime(b.dataset.target, S.timeBefore || null); S.timeOpen = null; break;
-    case 'move': store && store.update(id, { status: b.dataset.to }).catch(fail); if (dirty) render(); return;
+    case 'move': setStatus(id, b.dataset.to); if (dirty) render(); return;
     case 'del': deleteTask(id); return;
     case 'undo':
-      if (S.toast && S.toast.undo && store) store.add(S.toast.undo).catch(fail);
+      if (S.toast && S.toast.undoFn) S.toast.undoFn();
+      else if (S.toast && S.toast.undo && store) store.add(S.toast.undo).catch(fail);
       clearTimeout(toastTimer); S.toast = null; break;
     case 'edit': {
-      const t = S.tasks.find(x => x.id === id);
+      const t = (S.raw || []).find(x => x.id === baseId(id)) || S.tasks.find(x => x.id === id);
       if (!t) return;
-      S.editId = id; S.edit = { title: t.title, date: t.date, end: isRange(t) ? t.end : '', cat: CAT[t.cat] ? t.cat : 'life', time: parseTime(t.time), endTime: parseTime(t.endTime), alarm: typeof t.alarm === 'number' ? t.alarm : '' };
+      S.editId = t.id; S.repOpen = false; S.edit = { repeat: t.repeat || '', title: t.title, date: t.date, end: isRange(t) ? t.end : '', cat: CAT[t.cat] ? t.cat : 'life', time: parseTime(t.time), endTime: parseTime(t.endTime), alarm: typeof t.alarm === 'number' ? t.alarm : '' };
       S.timeOpen = null;
       break;
     }
@@ -2006,7 +2161,7 @@ function endReorder() {
   swallowNextClick();
   [...col.querySelectorAll(':scope > .swipe')].forEach((w, i) => {
     const t = S.tasks.find(x => x.id === w.dataset.id), o = (i + 1) * 1000;
-    if (t && t.order !== o) { t.order = o; if (store) store.update(t.id, { order: o }).catch(fail); }
+    if (t && t.order !== o) { t.order = o; if (store) store.update(baseId(t.id), { order: o }).catch(fail); }
   });
   render();
 }
@@ -2087,7 +2242,7 @@ function endPointer(e) {
   if (e.type === 'pointerup' && s.next && s.dx > moveAt(s.card)) {
     S.openSwipe = null;
     s.card.style.transform = '';
-    if (store) store.update(s.id, { status: s.next }).catch(fail);
+    setStatus(s.id, s.next);
     render();
     return;
   }
@@ -2145,6 +2300,7 @@ root.addEventListener('submit', e => {
       if (e2.time) task.time = fmtTime(e2.time);
       if (e2.time && e2.endTime) task.endTime = fmtTime(e2.endTime);
       if (typeof e2.alarm === 'number') task.alarm = e2.alarm;
+      if (e2.repeat) task.repeat = e2.repeat;
       if (e2.end && e2.end > e2.date) task.end = e2.end;
       S.newCat = e2.cat;
       store.add(task).catch(fail);
@@ -2153,7 +2309,7 @@ root.addEventListener('submit', e => {
       render();
       return;
     }
-    const patch = { title, cat: S.edit.cat, time: S.edit.time ? fmtTime(S.edit.time) : '', endTime: S.edit.time && S.edit.endTime ? fmtTime(S.edit.endTime) : '', alarm: typeof S.edit.alarm === 'number' ? S.edit.alarm : '' };
+    const patch = { title, cat: S.edit.cat, time: S.edit.time ? fmtTime(S.edit.time) : '', endTime: S.edit.time && S.edit.endTime ? fmtTime(S.edit.endTime) : '', alarm: typeof S.edit.alarm === 'number' ? S.edit.alarm : '', repeat: S.edit.repeat || '' };
     if (/^\d{4}-\d{2}-\d{2}$/.test(S.edit.date || '')) patch.date = S.edit.date;
     const d0 = patch.date || S.edit.date;
     patch.end = /^\d{4}-\d{2}-\d{2}$/.test(S.edit.end || '') && S.edit.end > d0 ? S.edit.end : '';
@@ -2167,6 +2323,52 @@ root.addEventListener('submit', e => {
 let lastDay = today();
 setInterval(() => { if (today() !== lastDay) { lastDay = today(); render(); } }, 60000);
 window.matchMedia('(max-width: 760px)').addEventListener('change', () => render());
+
+/* Floating + (phone): appears bottom-right once the tab-row ＋ has scrolled into the upper half of the screen. */
+function updateFab() {
+  const top = root.querySelector('.add-toggle'), row = root.querySelector('.board > .tabs-row'), fab = root.querySelector('.fab');
+  if (!fab) return;
+  const phone = window.matchMedia('(max-width: 760px)').matches;
+  const on = phone && row && !S.edit && row.getBoundingClientRect().top < window.innerHeight / 2;
+  fab.classList.toggle('show', !!on);
+  if (top) top.classList.toggle('hide', !!on);
+}
+window.addEventListener('scroll', updateFab, { passive: true });
+
+/* Swipe the add/edit sheet down to close it (touch). */
+let shDrag = null;
+root.addEventListener('touchstart', e => {
+  const sh = e.target.closest && e.target.closest('form.sheet');
+  if (!sh || e.touches.length !== 1 || e.target.closest('.tw')) { shDrag = null; return; }
+  shDrag = { sh, y: e.touches[0].clientY, x: e.touches[0].clientX, on: false, dy: 0 };
+}, { passive: true });
+root.addEventListener('touchmove', e => {
+  if (!shDrag) return;
+  const dy = e.touches[0].clientY - shDrag.y, dx = e.touches[0].clientX - shDrag.x;
+  if (!shDrag.on) {
+    if (dy > 8 && dy > Math.abs(dx) && shDrag.sh.scrollTop <= 0) { shDrag.on = true; shDrag.sh.style.transition = 'none'; }
+    else if (Math.abs(dy) > 8 || Math.abs(dx) > 8) { shDrag = null; return; }
+    else return;
+  }
+  e.preventDefault();
+  shDrag.dy = Math.max(0, dy);
+  shDrag.sh.style.transform = `translateY(${shDrag.dy}px)`;
+  const bg = root.querySelector('.sheet-bg:not(.layer2)'); if (bg) bg.style.opacity = String(Math.max(0, 1 - shDrag.dy / 400));
+}, { passive: false });
+root.addEventListener('touchend', () => {
+  if (!shDrag) return;
+  const d = shDrag; shDrag = null;
+  if (!d.on) return;
+  swallowNextClick();
+  d.sh.style.transition = 'transform .22s ease';
+  if (d.dy > 110) {
+    d.sh.style.transform = 'translateY(110%)';
+    setTimeout(() => { S.editId = null; S.edit = null; S.timeOpen = null; render(); }, 200);
+  } else {
+    d.sh.style.transform = '';
+    const bg = root.querySelector('.sheet-bg:not(.layer2)'); if (bg) bg.style.opacity = '';
+  }
+});
 
 /* ---------- Alerts (banner notifications) ----------
    While the app is open or in the background, alerts fire at the set time through the service worker.
@@ -2226,7 +2428,7 @@ setInterval(scheduleAlarms, 30 * 60000);
 if (DEMO) {
   store = demoStore();
   S.mode = 'app';
-  store.subscribe(tasks => { S.tasks = tasks; render(); });
+  store.subscribe(tasks => { S.raw = tasks; S.rawVer = (S.rawVer || 0) + 1; render(); });
 } else {
   initCloud();
 }

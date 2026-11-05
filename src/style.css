@@ -590,3 +590,35 @@ html.sheet-open, html.sheet-open body { overflow: hidden; }
 .alarm-chip { justify-content: center; height: 36px; background: var(--surface-2); font-size: 13px; }
 .alarm-chip[aria-pressed="true"] { background: var(--blue); color: #FFFFFF; }
 .c-bell { display: inline-flex; margin-left: 6px; color: var(--fg-3); vertical-align: 1px; }
+
+/* ---------- Sheet v2: no top buttons, floating 저장 bottom-right, stays above the keyboard ---------- */
+.sheet-head.solo { display: flex; justify-content: center; height: 40px; }
+.sh-foot { position: sticky; bottom: 0; display: flex; justify-content: flex-end; padding: 16px 0 4px; margin-top: 8px; pointer-events: none; }
+.sh-save-fab { pointer-events: auto; height: 52px; padding: 0 24px 0 20px; border-radius: 26px; background: var(--blue); color: #FFFFFF; display: flex; align-items: center; gap: 8px; font-size: 17px; font-weight: 700; box-shadow: 0 10px 28px rgba(0, 0, 0, .5); }
+.sh-save-fab svg { width: 22px; height: 22px; }
+@media (max-width: 760px) {
+  .sheet { bottom: var(--kb, 0px); padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px)); }
+}
+.sheet { touch-action: pan-y; }
+
+/* Repeat row */
+.rep-wrap { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 10px; }
+.rep-btn { align-self: flex-start; min-height: 24px; font-size: 16px; font-weight: 600; text-align: left; }
+.rep-btn.dim { color: var(--fg-3); font-weight: 500; }
+.rep-opts { display: flex; flex-wrap: wrap; gap: 6px; }
+.rep-chip { height: 36px; padding: 0 14px; background: var(--surface-2); font-size: 13px; }
+.rep-chip[aria-pressed="true"] { background: var(--blue); color: #FFFFFF; }
+
+/* Alert row: 없음 / 정시 / [wheel] */
+.alarm-opts { grid-template-columns: 1fr 1fr 1.4fr !important; }
+.alarm-chip.custom { white-space: nowrap; }
+.tw-unit { flex: 1.1; }
+.tw-unit .tw-item.d0 { font-size: 21px; }
+
+/* Floating + (phone) */
+.fab { position: fixed; z-index: 30; right: calc(18px + env(safe-area-inset-right, 0px)); bottom: calc(22px + env(safe-area-inset-bottom, 0px)); width: 60px; height: 60px; border-radius: 50%; background: var(--blue); color: #FFFFFF; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 26px rgba(0, 0, 0, .55); transform: scale(.4); opacity: 0; pointer-events: none; transition: transform .2s ease, opacity .2s ease; }
+.fab svg { width: 28px; height: 28px; }
+.fab.show { transform: none; opacity: 1; pointer-events: auto; }
+.add-toggle { transition: opacity .2s ease; }
+.add-toggle.hide { display: none; }
+@media (min-width: 761px) { .fab { display: none; } }
